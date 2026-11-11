@@ -121,3 +121,14 @@ Haunted Ladder is a one-page web app built on the Ladder method by Aizhan Li, au
 8. WHEN the crisis, health or error screen is shown THEN the system SHALL draw no heart and no fog and SHALL play no sound.
 9. WHEN `prefers-reduced-motion: reduce` is set THEN the system SHALL show the heart still, with no beat, no fog drift and no swaying, and SHALL show the beat rate as text instead.
 10. WHEN the heart, fog or sound are made THEN the system SHALL build them in the browser (inline SVG and the Web Audio API) and SHALL load no external file for them.
+
+### Requirement 10: A demo link for judges and first-time visitors
+
+**User Story:** As a judge or a first-time visitor, I want to see the haunted staircase in seconds without typing my own fears, so that I can understand the app before I decide to write my own ladder.
+
+#### Acceptance Criteria
+
+1. WHEN the page opens with `?demo=1` in the address THEN the system SHALL fill the form with the sample ladder from `tech.md` (one goal, one "I" phrase, 3 obstacles, 3 fears) and SHALL show the last form screen with the "Show my ladder" button, so one press sends the real request.
+2. WHEN the demo ladder is shown THEN the system SHALL mark it with a short line "Sample ladder. Clear it to write your own." and a "Clear" button.
+3. WHEN the demo ladder is loaded THEN the system SHALL NOT overwrite a draft already saved in `localStorage` and SHALL NOT save the demo answers.
+4. WHEN the demo ladder is sent THEN the system SHALL call the same Ladder server and follow Requirements 2 to 9 exactly as for a person's own ladder; the client SHALL NOT use a canned or invented reading.

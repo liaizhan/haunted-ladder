@@ -16,6 +16,7 @@ src/
     storage.ts       save and load the draft in localStorage
     pulse.ts         heart rate from the number of unfaded ghosts
     settings.ts      the sound on/off choice
+    demo.ts          the ?demo=1 sample ladder for judges
   api/
     ladderClient.ts  fetch call to https://108psy.com/mcp
   ui/

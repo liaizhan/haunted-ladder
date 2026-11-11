@@ -1,0 +1,17 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Words check on save",
+      "description": "Blocks words and patterns that safety.md and tech.md forbid: calling Aizhan Li a psychologist or therapist, innerHTML assignments, and autoplay sound. Runs a plain grep, no agent call.",
+      "trigger": "PostFileSave",
+      "matcher": "(src/.*\\.(ts|css)|index\\.html)$",
+      "action": {
+        "type": "command",
+        "command": "if [ -d src ]; then f=src; [ -f index.html ] && f='src index.html'; if grep -rnE '[Pp]sychologist|[Tt]herapist|\\.innerHTML *=|autoplay' $f; then echo 'Words check failed: see safety.md and tech.md'; exit 1; else echo 'Words check passed'; fi; else echo 'No src yet, skipping'; fi"
+      },
+      "timeout": 30,
+      "enabled": true
+    }
+  ]
+}

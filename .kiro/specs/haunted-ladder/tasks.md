@@ -101,3 +101,17 @@
 - [ ] 15. Deploy
   - GitHub Actions workflow `.github/workflows/deploy.yml`: install, test, build, deploy to GitHub Pages on push to `main`
   - _Requirements: 8.5_
+
+- [ ] 16. Demo link
+  - [ ] 16.1 Implement `isDemo` and `demoDraft` in `src/domain/demo.ts` (3 fears: "People will laugh at my videos", "I will spend the money and sell nothing", "My family will see me fail")
+    - _Requirements: 10.1_
+  - [ ] 16.2 Load the demo in memory on `?demo=1`, show the sample line and "Clear", never save it
+    - _Requirements: 10.1, 10.2, 10.3, 10.4_
+  - [ ] 16.3 Write a property test for Property 13
+    - _Requirements: 10.1, 10.3_
+
+- [ ] 17. Judge-ready README
+  - Top block "Summary for judges": what it is, who it is for, the live link and the `?demo=1` link
+  - A short GIF of one ghost fading and the heart slowing, and a captioned screenshot of every screen (intro, form, fog, staircase, all ghosts faded, crisis)
+  - Numbers from the repo: requirements, correctness properties, tasks, steering files, hooks, test count
+  - _Requirements: 8.5_

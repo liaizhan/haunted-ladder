@@ -103,6 +103,15 @@ function saveSettings(s: Settings, store: Storage): void;   // key haunted-ladde
 function loadSettings(store: Storage): Settings;            // { sound: false } on missing or broken JSON
 ```
 
+### domain/demo.ts
+
+```ts
+function isDemo(search: string): boolean;   // true exactly when the query has demo=1
+function demoDraft(): LadderDraft;          // sample ladder from tech.md with 3 fears; passes validateDraft
+```
+
+`main.ts` loads the demo into memory only. It never calls `save` while the demo draft is unchanged.
+
 ## Data Models
 
 See the types above. The draft and steps are the only persisted data. Nothing from the server is persisted.
@@ -163,8 +172,12 @@ Property 12: Silence by default
 For any stored settings, including broken JSON, the app creates no `AudioContext` until a click on the "Night sound" button, and `loadSettings` never throws.
 Validates: Requirements 9.6, 9.7
 
+Property 13: The demo is honest
+For any query string q, `isDemo(q)` is true exactly when q has the parameter `demo` equal to `1`; `demoDraft()` passes `validateDraft`; loading the demo leaves any saved draft in storage unchanged.
+Validates: Requirements 10.1, 10.3
+
 ## Testing Strategy
 
-- Vitest + jsdom for unit and DOM tests, fast-check for Properties 1 to 12 (at least 100 runs each). `AudioContext` is replaced by a fake in tests.
+- Vitest + jsdom for unit and DOM tests, fast-check for Properties 1 to 13 (at least 100 runs each). `AudioContext` is replaced by a fake in tests.
 - `ladderClient` is tested with a fake `fetch`: reading, crisis, health, rpc error, broken JSON, timeout.
 - One manual check before the demo video: a real call to the server with the sample ladder from `tech.md`, keyboard-only pass, reduced-motion pass, crisis wording pass (the server decides crisis; we only check that our screen follows Requirement 6).

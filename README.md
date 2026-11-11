@@ -6,9 +6,16 @@ Haunted Ladder is a spooky but gentle self-check built on the Ladder method by A
 
 Entry to **Kiroween 2026**, category Costume Contest. Built with [Kiro](https://kiro.dev).
 
+## Summary for judges
+
+- **What:** a Halloween costume for a real self-check. Fears become ghosts, a glowing x-ray heart beats faster for every ghost without a step and calms down as each one fades.
+- **Who it is for:** people who feel stuck between where they are and a goal. The same Ladder method already runs on [108psy.com](https://108psy.com) and in the Ladder plugin in ChatGPT.
+- **Try it in one click:** the live app with `?demo=1` loads a sample ladder, so you can see the staircase without typing your own fears. (Live link is added after the first deploy.)
+- **Safety is the spine:** a crisis answer from the server removes the whole costume, including the heart, fog and sound.
+
 ## Safety
 
-The costume never comes before the person. If the Ladder server detects a crisis in the words, the app removes every Halloween element and shows only a calm message and a link to help. No jump scares, no sound. The app does not diagnose and does not promise any health or life result.
+The costume never comes before the person. If the Ladder server detects a crisis in the words, the app removes every Halloween element, stops all sound at once and shows only a calm message and a link to help. No jump scares. Sound is off on every page load and starts only after a press on "Night sound", with a slow fade. The app does not diagnose and does not promise any health or life result.
 
 ## Privacy
 
@@ -16,9 +23,9 @@ No backend, no accounts, no analytics, no cookies. Your draft lives only in your
 
 ## How it was built with Kiro
 
-- `.kiro/specs/haunted-ladder/`: requirements (EARS), design with 10 correctness properties, and the task plan Kiro works through.
+- `.kiro/specs/haunted-ladder/`: 10 requirements in EARS form, a design with 13 correctness properties tested with fast-check, and a plan of 17 tasks Kiro works through.
 - `.kiro/steering/`: product, tech, structure, safety and style rules Kiro follows on every task.
-- `.kiro/hooks/`: tests run on every save; an agent hook checks each finished task against the safety and style rules.
+- `.kiro/hooks/`: three hooks. Tests run on every save; a plain words check on every save blocks forbidden wording, `innerHTML` and autoplay; an agent hook checks each finished task against the safety and style rules.
 - `.kiro/settings/mcp.json`: the Ladder MCP server connected to Kiro, so the agent can call `analyze_ladder` while building.
 
 ## Pre-existing work (disclosure)
