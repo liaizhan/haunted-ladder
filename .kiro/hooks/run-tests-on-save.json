@@ -1,0 +1,17 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Run tests on save",
+      "description": "Runs the Vitest and fast-check suite when a TypeScript file in src or tests is saved. Skips quietly until the project is set up.",
+      "trigger": "PostFileSave",
+      "matcher": "(src|tests)/.*\\.ts$",
+      "action": {
+        "type": "command",
+        "command": "if [ -f package.json ]; then npm test --silent; else echo 'No package.json yet, skipping tests'; fi"
+      },
+      "timeout": 120,
+      "enabled": true
+    }
+  ]
+}
