@@ -84,6 +84,24 @@ Key: `haunted-ladder:v1`.
 - `reading.ts`: insights, questions, step inputs, disclaimer, diagnostic link, save button.
 - `calm.ts`: crisis, health and error screens. It adds class `calm` to `<body>`, which hides every spooky layer.
 - `exportImage.ts`: serializes the SVG, draws it on a canvas at 2x and downloads `haunted-ladder.png`.
+- `heart.ts`: inline SVG x-ray heart drawn behind the staircase. It reads the beat rate from `domain/pulse.ts` and sets the CSS variable `--beat` (seconds per beat) on the heart element. CSS does the beat with a scale and glow keyframe.
+- `fog.ts`: two layers of blurred SVG shapes that drift while waiting; `lift()` fades them out and adds a `lit` class to each step with a growing delay, bottom up.
+- `nightSound.ts`: Web Audio only, no files. Wind is filtered brown noise with a slow gain wobble. The heartbeat is two short low sine thumps ("lub-dub") scheduled on the audio clock at the current beat rate. `start()` needs a user gesture; `stop()` ramps gain to 0 in 2 seconds; `kill()` stops at once (used by the calm screens).
+
+### domain/pulse.ts
+
+```ts
+function beatsPerMinute(unfaded: number): number;   // min(60 + 12 * max(unfaded, 0), 120)
+function secondsPerBeat(bpm: number): number;       // 60 / bpm
+```
+
+### domain/settings.ts
+
+```ts
+type Settings = { sound: boolean };
+function saveSettings(s: Settings, store: Storage): void;   // key haunted-ladder:settings
+function loadSettings(store: Storage): Settings;            // { sound: false } on missing or broken JSON
+```
 
 ## Data Models
 
@@ -114,8 +132,8 @@ For any JSON value v, `parseAnswer(v)` returns without throwing, and returns `ki
 Validates: Requirements 2.6
 
 Property 5: Crisis wins
-For any answer with `kind: 'crisis'`, the rendered page contains no element with the classes `stair`, `ghost`, `cobweb` or `moon`, and the saved draft is removed.
-Validates: Requirements 6.1, 6.3, 6.4
+For any answer with `kind: 'crisis'`, the rendered page contains no element with the classes `stair`, `ghost`, `cobweb`, `moon`, `fog` or `heart`, `nightSound.kill()` has been called, and the saved draft is removed.
+Validates: Requirements 6.1, 6.3, 6.4, 9.8
 
 Property 6: Ghost fading
 For any ghost g, `isFaded(g)` is true exactly when `g.step.trim()` is not empty; `allFaded` is true exactly when every ghost is faded.
@@ -137,8 +155,16 @@ Property 10: Text is never HTML
 For any phrase containing `<`, `>` or `&`, the rendered staircase contains the literal characters as text and no new elements.
 Validates: Requirements 3.5
 
+Property 11: Calmer with every step
+For any counts a < b, `beatsPerMinute(a) <= beatsPerMinute(b)`; for any count, the result is between 60 and 120; `beatsPerMinute(0)` is 60.
+Validates: Requirements 9.2, 9.3
+
+Property 12: Silence by default
+For any stored settings, including broken JSON, the app creates no `AudioContext` until a click on the "Night sound" button, and `loadSettings` never throws.
+Validates: Requirements 9.6, 9.7
+
 ## Testing Strategy
 
-- Vitest + jsdom for unit and DOM tests, fast-check for Properties 1 to 10 (at least 100 runs each).
+- Vitest + jsdom for unit and DOM tests, fast-check for Properties 1 to 12 (at least 100 runs each). `AudioContext` is replaced by a fake in tests.
 - `ladderClient` is tested with a fake `fetch`: reading, crisis, health, rpc error, broken JSON, timeout.
 - One manual check before the demo video: a real call to the server with the sample ladder from `tech.md`, keyboard-only pass, reduced-motion pass, crisis wording pass (the server decides crisis; we only check that our screen follows Requirement 6).

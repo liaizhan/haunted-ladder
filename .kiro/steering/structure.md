@@ -14,6 +14,8 @@ src/
     server.ts        parse the analyze_ladder answer into a typed result
     ghosts.ts        ghost state: which fear has a step, fade rules
     storage.ts       save and load the draft in localStorage
+    pulse.ts         heart rate from the number of unfaded ghosts
+    settings.ts      the sound on/off choice
   api/
     ladderClient.ts  fetch call to https://108psy.com/mcp
   ui/
@@ -22,6 +24,9 @@ src/
     reading.ts       insights, questions, step inputs, save button
     calm.ts          crisis and health screens
     exportImage.ts   SVG to PNG download
+    heart.ts         x-ray heart behind the staircase
+    fog.ts           fog while waiting, moonlight on the steps
+    nightSound.ts    Web Audio wind and heartbeat, off until pressed
 tests/               Vitest and fast-check tests, mirroring src/
 .github/workflows/deploy.yml
 ```

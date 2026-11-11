@@ -76,7 +76,7 @@ Haunted Ladder is a one-page web app built on the Ladder method by Aizhan Li, au
 
 #### Acceptance Criteria
 
-1. WHEN the answer has `kind: "crisis"` THEN the system SHALL remove the staircase, ghosts, cobwebs, moon and every Halloween element from the page.
+1. WHEN the answer has `kind: "crisis"` THEN the system SHALL remove the staircase, ghosts, cobwebs, moon, fog, the heart and every Halloween element from the page, and SHALL stop all sound at once.
 2. WHEN the crisis screen is shown THEN the system SHALL use the calm light theme with no animation and show only the server `message` and a link to `helpUrl`.
 3. WHEN the crisis screen is shown THEN the system SHALL not show steps, insights, questions, the save button or the diagnostic link.
 4. WHEN the answer has `kind: "crisis"` THEN the system SHALL delete the saved draft from `localStorage`.
@@ -104,3 +104,20 @@ Haunted Ladder is a one-page web app built on the Ladder method by Aizhan Li, au
 3. WHEN the app is used with a screen reader THEN the system SHALL give each ghost and each step a text label with the person's phrase.
 4. WHEN text is shown THEN the system SHALL meet WCAG AA contrast on its background.
 5. WHEN code is pushed to `main` THEN the system SHALL be built and deployed to GitHub Pages at `/haunted-ladder/` by a GitHub Actions workflow.
+
+### Requirement 9: The costume comes alive
+
+**User Story:** As a person, I want the night around my ladder to react to what I write, so that the fear feels real at the start and I can feel it calm down step by step.
+
+#### Acceptance Criteria
+
+1. WHEN the result screen is shown THEN the system SHALL draw a glowing x-ray heart behind the staircase: a translucent cold grey-blue heart with a warm red-orange glow at its center.
+2. WHEN ghosts are drawn THEN the system SHALL make the heart beat at a rate that depends only on the number of ghosts without a step: 60 beats per minute when none are left, plus 12 beats per minute for each unfaded ghost, never above 120.
+3. WHEN the last ghost gets a step THEN the system SHALL slow the heart to 60 beats per minute over about 3 seconds and soften its glow.
+4. WHEN the request is in progress THEN the system SHALL cover the staircase with slow drifting fog, and WHEN the reading arrives THEN the fog SHALL lift and the moonlight SHALL reach the steps one by one from the bottom up.
+5. WHEN the pointer or keyboard focus moves near a ghost that has no step THEN the ghost SHALL drift slightly away, and the cobwebs SHALL sway slowly at all times.
+6. WHEN the app opens THEN the system SHALL play no sound. WHEN the person presses the "Night sound" button THEN the system SHALL start a quiet night wind and a heartbeat in time with the heart, fading in over 2 seconds; pressing it again SHALL fade the sound out.
+7. WHEN the person turns the sound on or off THEN the system SHALL remember the choice in `localStorage`, but SHALL still wait for a press of the button after every page load before playing anything.
+8. WHEN the crisis, health or error screen is shown THEN the system SHALL draw no heart and no fog and SHALL play no sound.
+9. WHEN `prefers-reduced-motion: reduce` is set THEN the system SHALL show the heart still, with no beat, no fog drift and no swaying, and SHALL show the beat rate as text instead.
+10. WHEN the heart, fog or sound are made THEN the system SHALL build them in the browser (inline SVG and the Web Audio API) and SHALL load no external file for them.

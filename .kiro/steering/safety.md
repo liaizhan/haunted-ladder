@@ -23,7 +23,7 @@ When the server returns `kind: "health"`, show its `message` in the calm theme a
 
 ## Tone and look
 
-- No jump scares, no sudden sounds (the app has no sound at all), no blood, skulls, gore or screaming faces.
+- No jump scares and no sudden sounds. Sound plays only after the person presses "Night sound", always fades in and out, stays quiet, and never starts by itself after a page load. The crisis, health and error screens have no heart, no fog and no sound, no blood, skulls, gore or screaming faces.
 - Ghosts are soft, round and slightly translucent. They float slowly and fade when a step is written. They never chase the cursor or pop up.
 - Copy is warm and short. We never say a fear is silly or wrong. We say a fear becomes smaller when it has a name and a next step.
 - Always show the server `disclaimer` under the reading.

@@ -74,6 +74,30 @@
   - Keyboard-only path through every screen, visible focus ring, labels for ghosts and steps, AA contrast check
   - _Requirements: 8.2, 8.3, 8.4_
 
-- [ ] 12. Deploy
+- [ ] 12. The heart
+  - [ ] 12.1 Implement `beatsPerMinute` and `secondsPerBeat` in `src/domain/pulse.ts`
+    - _Requirements: 9.2, 9.3_
+  - [ ] 12.2 Write a property test for Property 11
+    - _Requirements: 9.2, 9.3_
+  - [ ] 12.3 Build the x-ray heart in `src/ui/heart.ts` behind the staircase; update `--beat` whenever a ghost fades or comes back; ease to 60 bpm when all ghosts are faded
+    - _Requirements: 9.1, 9.2, 9.3, 9.9_
+
+- [ ] 13. Fog, moonlight and living details
+  - Fog while waiting, lift on reading, steps lit one by one bottom up (`src/ui/fog.ts`)
+  - Cobwebs sway; an unfaded ghost drifts away from the pointer and from keyboard focus
+  - All of it off under `prefers-reduced-motion`
+  - _Requirements: 2.2, 9.4, 9.5, 9.9_
+
+- [ ] 14. Night sound
+  - [ ] 14.1 Implement `saveSettings` and `loadSettings` in `src/domain/settings.ts`
+    - _Requirements: 9.7_
+  - [ ] 14.2 Implement `src/ui/nightSound.ts` with the Web Audio API: wind, heartbeat in time with `--beat`, 2 second fades, `kill()`
+    - _Requirements: 9.6, 9.10_
+  - [ ] 14.3 Add the "Night sound" toggle button with `aria-pressed`; call `kill()` on every calm screen
+    - _Requirements: 6.1, 9.6, 9.8_
+  - [ ] 14.4 Write tests for Property 12 with a fake `AudioContext`, and extend the Property 5 test to cover fog, heart and sound
+    - _Requirements: 6.1, 9.6, 9.7, 9.8_
+
+- [ ] 15. Deploy
   - GitHub Actions workflow `.github/workflows/deploy.yml`: install, test, build, deploy to GitHub Pages on push to `main`
   - _Requirements: 8.5_
