@@ -7,10 +7,10 @@
   - [x] Add the palette variables from `style.md` and the system font stack
   - _Requirements: 8.1, 8.4_
 
-- [ ] 2. Domain: ladder draft and request
-  - [ ] 2.1 Implement `validatePhrase`, `validateDraft` and `buildRequest` in `src/domain/ladder.ts`
+- [x] 2. Domain: ladder draft and request
+  - [x] 2.1 Implement `validatePhrase`, `validateDraft` and `buildRequest` in `src/domain/ladder.ts`
     - _Requirements: 1.3, 1.4, 1.5, 2.1_
-  - [ ] 2.2 Write property tests for Properties 1, 2 and 3
+  - [x] 2.2 Write property tests for Properties 1, 2 and 3
     - _Requirements: 1.3, 1.4, 2.1, 3.2_
 
 - [ ] 3. Domain: server answer
