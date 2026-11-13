@@ -289,3 +289,71 @@ button,
     outline: 3px solid Highlight;
   }
 }
+
+/* The x-ray heart, behind the staircase */
+.heart {
+  --beat: 1s;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.heart svg {
+  max-width: 320px;
+}
+
+.heart .heart-body,
+.heart .heart-glow {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: heart-beat var(--beat) ease-in-out infinite;
+}
+
+.heart .heart-glow {
+  animation-name: heart-glow;
+  transition: opacity 3s ease;
+}
+
+.heart.soft .heart-glow {
+  opacity: 0.45;
+}
+
+.heart-rate {
+  position: absolute;
+  bottom: 0;
+  margin: 0;
+  color: var(--mist);
+  font-size: 0.85rem;
+}
+
+@keyframes heart-beat {
+  0% { transform: scale(1); }
+  10% { transform: scale(1.04); }
+  20% { transform: scale(1); }
+  30% { transform: scale(1.02); }
+  45%, 100% { transform: scale(1); }
+}
+
+@keyframes heart-glow {
+  0% { transform: scale(1); opacity: 0.7; }
+  10% { transform: scale(1.18); opacity: 1; }
+  20% { transform: scale(1); opacity: 0.7; }
+  30% { transform: scale(1.08); opacity: 0.85; }
+  45%, 100% { transform: scale(1); opacity: 0.7; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heart .heart-body,
+  .heart .heart-glow {
+    animation: none;
+    transition: none;
+  }
+}
+
+body.calm .heart {
+  display: none;
+}

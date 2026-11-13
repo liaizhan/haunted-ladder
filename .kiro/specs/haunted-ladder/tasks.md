@@ -74,12 +74,12 @@
   - Keyboard-only path through every screen, visible focus ring, labels for ghosts and steps, AA contrast check
   - _Requirements: 8.2, 8.3, 8.4_
 
-- [ ] 12. The heart
-  - [ ] 12.1 Implement `beatsPerMinute` and `secondsPerBeat` in `src/domain/pulse.ts`
+- [x] 12. The heart
+  - [x] 12.1 Implement `beatsPerMinute` and `secondsPerBeat` in `src/domain/pulse.ts`
     - _Requirements: 9.2, 9.3_
-  - [ ] 12.2 Write a property test for Property 11
+  - [x] 12.2 Write a property test for Property 11
     - _Requirements: 9.2, 9.3_
-  - [ ] 12.3 Build the x-ray heart in `src/ui/heart.ts` behind the staircase; update `--beat` whenever a ghost fades or comes back; ease to 60 bpm when all ghosts are faded
+  - [x] 12.3 Build the x-ray heart in `src/ui/heart.ts` behind the staircase; update `--beat` whenever a ghost fades or comes back; ease to 60 bpm when all ghosts are faded
     - _Requirements: 9.1, 9.2, 9.3, 9.9_
 
 - [ ] 13. Fog, moonlight and living details
