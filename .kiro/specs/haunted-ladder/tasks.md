@@ -88,14 +88,14 @@
   - [x] All of it off under `prefers-reduced-motion`
   - _Requirements: 2.2, 9.4, 9.5, 9.9_
 
-- [ ] 14. Night sound
-  - [ ] 14.1 Implement `saveSettings` and `loadSettings` in `src/domain/settings.ts`
+- [x] 14. Night sound
+  - [x] 14.1 Implement `saveSettings` and `loadSettings` in `src/domain/settings.ts`
     - _Requirements: 9.7_
-  - [ ] 14.2 Implement `src/ui/nightSound.ts` with the Web Audio API: wind, heartbeat in time with `--beat`, 2 second fades, `kill()`
+  - [x] 14.2 Implement `src/ui/nightSound.ts` with the Web Audio API: wind, heartbeat in time with `--beat`, 2 second fades, `kill()`
     - _Requirements: 9.6, 9.10_
-  - [ ] 14.3 Add the "Night sound" toggle button with `aria-pressed`; call `kill()` on every calm screen
+  - [x] 14.3 Add the "Night sound" toggle button with `aria-pressed`; call `kill()` on every calm screen
     - _Requirements: 6.1, 9.6, 9.8_
-  - [ ] 14.4 Write tests for Property 12 with a fake `AudioContext`, and extend the Property 5 test to cover fog, heart and sound
+  - [x] 14.4 Write tests for Property 12 with a fake `AudioContext`, and extend the Property 5 test to cover fog, heart and sound
     - _Requirements: 6.1, 9.6, 9.7, 9.8_
 
 - [ ] 15. Deploy

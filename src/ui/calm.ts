@@ -15,7 +15,7 @@ export type CalmOptions = {
 };
 
 /** Classes of every spooky layer. None of them may exist on a calm screen. */
-export const SPOOKY_SELECTOR = '.stair, .ghost, .cobweb, .moon, .fog, .heart';
+export const SPOOKY_SELECTOR = '.stair, .ghost, .cobweb, .moon, .fog, .heart, .night-sound';
 
 export const ERROR_MESSAGE =
   'Something went wrong and the reading did not arrive. Your answers are safe. Please try again.';
