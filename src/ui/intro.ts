@@ -7,20 +7,21 @@ function svgEl(name: string, attrs: Record<string, string | number> = {}): SVGEl
 }
 
 // Fixed star positions (x, y, radius) in a 360 x 420 scene, so the picture is always the same.
+const TWINKLE = new Set([0, 2, 6, 11]); // indexes of the four slowly twinkling stars
 const STARS: Array<[number, number, number]> = [
-  [24, 30, 1.2],
+  [24, 30, 1.6],
   [60, 88, 1],
-  [96, 22, 1.4],
+  [96, 22, 1.6],
   [140, 64, 1],
   [188, 34, 1.2],
   [226, 96, 1],
-  [262, 20, 1.3],
+  [262, 20, 1.6],
   [300, 70, 1],
   [334, 28, 1.2],
   [20, 140, 1],
   [118, 130, 1.1],
   [210, 150, 1],
-  [330, 130, 1.2],
+  [330, 130, 1.6],
   [46, 196, 1],
   [286, 190, 1],
   [160, 106, 0.9],
@@ -33,7 +34,7 @@ function buildScene(): SVGSVGElement {
     viewBox: '0 0 360 420',
     width: '100%',
     height: '100%',
-    preserveAspectRatio: 'xMidYMax slice',
+    preserveAspectRatio: 'xMidYMid meet',
     focusable: 'false',
     'aria-hidden': 'true',
   }) as SVGSVGElement;
@@ -55,8 +56,12 @@ function buildScene(): SVGSVGElement {
 
   svg.append(svgEl('rect', { x: 0, y: 0, width: 360, height: 420, fill: '#14112B' }));
 
-  const stars = svgEl('g', { class: 'intro-stars', fill: '#F4EFE6', opacity: 0.8 });
-  for (const [cx, cy, r] of STARS) stars.append(svgEl('circle', { cx, cy, r }));
+  const stars = svgEl('g', { class: 'intro-stars', fill: '#F4EFE6', opacity: 0.9 });
+  STARS.forEach(([cx, cy, r], i) => {
+    const attrs: Record<string, string | number> = { cx, cy, r };
+    if (TWINKLE.has(i)) attrs.class = 'intro-star-twinkle';
+    stars.append(svgEl('circle', attrs));
+  });
   svg.append(stars);
 
   svg.append(
@@ -65,45 +70,57 @@ function buildScene(): SVGSVGElement {
   );
 
   // Ladder silhouette: two rails leaning toward the moon, rungs between them.
-  const ladder = svgEl('g', {
-    class: 'intro-ladder',
-    stroke: '#221C45',
-    'stroke-width': 5,
-    'stroke-linecap': 'round',
-    fill: 'none',
-  });
-  ladder.append(svgEl('path', { d: 'M110 420 L200 150' }), svgEl('path', { d: 'M160 420 L230 160' }));
-  for (let i = 0; i < 8; i++) {
-    const t = i / 8;
-    const y = 400 - t * 240;
-    const xl = 110 + (420 - y) * (90 / 270);
-    const xr = 160 + (420 - y) * (70 / 260);
-    ladder.append(svgEl('path', { d: `M${xl.toFixed(1)} ${y.toFixed(1)} L${xr.toFixed(1)} ${y.toFixed(1)}` }));
-  }
-  svg.append(ladder);
-
-  // One small ghost peeking from behind the left rail.
-  const ghost = svgEl('g', { class: 'intro-ghost', transform: 'translate(104 300)', opacity: 0.85 });
+  // One small ghost peeking out from behind the right rail, about two thirds up the ladder.
+  const ghost = svgEl('g', { class: 'intro-ghost', transform: 'translate(234 250)', opacity: 0.9 });
   ghost.append(
     svgEl('path', {
       d: 'M-16 0 C-16 -22 -8 -30 0 -30 C8 -30 16 -22 16 0 L16 16 L10 11 L5 16 L0 11 L-5 16 L-10 11 L-16 16 Z',
       fill: '#F4EFE6',
-      'fill-opacity': 0.8,
+      'fill-opacity': 0.85,
     }),
-    svgEl('circle', { cx: -5, cy: -14, r: 2.2, fill: '#221C45' }),
-    svgEl('circle', { cx: 5, cy: -14, r: 2.2, fill: '#221C45' }),
+    svgEl('circle', { cx: -4, cy: -14, r: 2.2, fill: '#221C45' }),
+    svgEl('circle', { cx: 6, cy: -14, r: 2.2, fill: '#221C45' }),
   );
   svg.append(ghost);
-  // The rail passes in front of the ghost.
-  svg.append(
-    svgEl('path', {
-      d: 'M110 420 L200 150',
-      stroke: '#221C45',
-      'stroke-width': 5,
-      'stroke-linecap': 'round',
-      fill: 'none',
-    }),
+
+  // Ladder: two rails leaning toward the moon, reaching close to its halo. Drawn after the ghost
+  // so the right rail passes in front of it.
+  const left = { x0: 110, y0: 420, x1: 205, y1: 140 };
+  const right = { x0: 170, y0: 420, x1: 250, y1: 150 };
+  const ladder = svgEl('g', {
+    class: 'intro-ladder',
+    stroke: '#3B3470',
+    'stroke-width': 5,
+    'stroke-linecap': 'round',
+    fill: 'none',
+  });
+  ladder.append(
+    svgEl('path', { d: `M${left.x0} ${left.y0} L${left.x1} ${left.y1}` }),
+    svgEl('path', { d: `M${right.x0} ${right.y0} L${right.x1} ${right.y1}` }),
   );
+  for (let i = 1; i <= 8; i++) {
+    const t = i / 9;
+    const xl = left.x0 + (left.x1 - left.x0) * t;
+    const yl = left.y0 + (left.y1 - left.y0) * t;
+    const xr = right.x0 + (right.x1 - right.x0) * t;
+    const yr = right.y0 + (right.y1 - right.y0) * t;
+    ladder.append(svgEl('path', { d: `M${xl.toFixed(1)} ${yl.toFixed(1)} L${xr.toFixed(1)} ${yr.toFixed(1)}` }));
+  }
+  svg.append(ladder);
+
+  // Moonlit edge: a thin line on the right side of each rail, the side facing the moon.
+  const edge = svgEl('g', {
+    class: 'intro-ladder-edge',
+    stroke: '#A9A3C7',
+    'stroke-width': 1.5,
+    'stroke-opacity': 0.5,
+    'stroke-linecap': 'round',
+    fill: 'none',
+  });
+  for (const r of [left, right]) {
+    edge.append(svgEl('path', { d: `M${r.x0 + 2.5} ${r.y0} L${r.x1 + 2.5} ${r.y1}` }));
+  }
+  svg.append(edge);
 
   svg.append(
     svgEl('rect', { class: 'intro-fog', x: 0, y: 290, width: 360, height: 130, fill: 'url(#intro-fog-grad)' }),
