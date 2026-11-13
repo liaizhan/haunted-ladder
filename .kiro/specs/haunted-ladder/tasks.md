@@ -57,12 +57,12 @@
   - [x] Save steps to storage
   - _Requirements: 4.1, 4.3, 4.4, 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 9. Calm screens
-  - [ ] 9.1 Crisis screen: add class `calm` to `<body>`, remove every spooky element, show only `message`, `helpUrl` and "Back to the start", clear the draft
+- [x] 9. Calm screens
+  - [x] 9.1 Crisis screen: add class `calm` to `<body>`, remove every spooky element, show only `message`, `helpUrl` and "Back to the start", clear the draft
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
-  - [ ] 9.2 Health and error screens with "Edit answers" and "Try again"
+  - [x] 9.2 Health and error screens with "Edit answers" and "Try again"
     - _Requirements: 2.5, 2.6_
-  - [ ] 9.3 Write a DOM property test for Property 5
+  - [x] 9.3 Write a DOM property test for Property 5
     - _Requirements: 6.1, 6.3, 6.4_
 
 - [ ] 10. Save as PNG

@@ -37,6 +37,29 @@ body.calm {
   color: var(--calm-text);
 }
 
+body.calm *,
+body.calm *::before,
+body.calm *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+body.calm button {
+  background: var(--calm-text);
+  color: var(--calm-bg);
+}
+
+body.calm button.secondary {
+  background: transparent;
+  color: var(--calm-text);
+  border: 1px solid var(--calm-text);
+}
+
+.calm-message {
+  font-size: 1.15rem;
+  white-space: pre-line;
+}
+
 h1,
 h2,
 h3 {
