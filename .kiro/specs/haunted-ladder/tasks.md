@@ -50,11 +50,11 @@
   - [x] 7.3 Write a DOM property test for Property 10
     - _Requirements: 3.5_
 
-- [ ] 8. Reading and steps
-  - Show insights, two questions, disclaimer and the rewritten diagnostic link
-  - One step field per ghost; fade on a non-empty step, restore when cleared
-  - Closing line and "Save my ladder" when all ghosts have a step
-  - Save steps to storage
+- [x] 8. Reading and steps
+  - [x] Show insights, two questions, disclaimer and the rewritten diagnostic link
+  - [x] One step field per ghost; fade on a non-empty step, restore when cleared
+  - [x] Closing line and "Save my ladder" when all ghosts have a step
+  - [x] Save steps to storage
   - _Requirements: 4.1, 4.3, 4.4, 5.1, 5.2, 5.3, 5.4, 5.5_
 
 - [ ] 9. Calm screens
