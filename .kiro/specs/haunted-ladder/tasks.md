@@ -108,7 +108,7 @@
   - [x] 15.4 Write a jsdom test that walks intro, form, result with a fake client, and each calm screen
     - _Requirements: 2.3, 2.4, 2.5, 2.6, 6.1, 6.3_
 
-- [ ] 16. Deploy
+- [x] 16. Deploy
   - GitHub Actions workflow `.github/workflows/deploy.yml`: install, test, build, deploy to GitHub Pages on push to `main`
   - _Requirements: 8.5_
 
