@@ -82,10 +82,10 @@
   - [x] 12.3 Build the x-ray heart in `src/ui/heart.ts` behind the staircase; update `--beat` whenever a ghost fades or comes back; ease to 60 bpm when all ghosts are faded
     - _Requirements: 9.1, 9.2, 9.3, 9.9_
 
-- [ ] 13. Fog, moonlight and living details
-  - Fog while waiting, lift on reading, steps lit one by one bottom up (`src/ui/fog.ts`)
-  - Cobwebs sway; an unfaded ghost drifts away from the pointer and from keyboard focus
-  - All of it off under `prefers-reduced-motion`
+- [x] 13. Fog, moonlight and living details
+  - [x] Fog while waiting, lift on reading, steps lit one by one bottom up (`src/ui/fog.ts`)
+  - [x] Cobwebs sway; an unfaded ghost drifts away from the pointer and from keyboard focus
+  - [x] All of it off under `prefers-reduced-motion`
   - _Requirements: 2.2, 9.4, 9.5, 9.9_
 
 - [ ] 14. Night sound

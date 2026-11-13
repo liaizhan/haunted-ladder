@@ -357,3 +357,75 @@ button,
 body.calm .heart {
   display: none;
 }
+
+/* Fog, moonlight and living details */
+.fog {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 1.5s ease;
+}
+
+.fog.lifting {
+  opacity: 0;
+}
+
+.fog .fog-a {
+  animation: fog-drift 24s ease-in-out infinite alternate;
+}
+
+.fog .fog-b {
+  animation: fog-drift 30s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes fog-drift {
+  from { transform: translateX(-40px); }
+  to { transform: translateX(40px); }
+}
+
+.staircase .stair {
+  transition: opacity 0.6s ease;
+}
+
+.staircase.waiting .stair {
+  opacity: 0.2;
+}
+
+.staircase .cobweb {
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: cobweb-sway 7s ease-in-out infinite alternate;
+}
+
+@keyframes cobweb-sway {
+  from { transform: rotate(-2deg); }
+  to { transform: rotate(2deg); }
+}
+
+.staircase.drifty .ghost {
+  transition: opacity 1.2s ease, transform 0.6s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fog,
+  .fog .fog-a,
+  .fog .fog-b {
+    animation: none;
+    transition: none;
+  }
+  .staircase .stair {
+    transition: none;
+  }
+  .staircase.waiting .stair {
+    opacity: 1;
+  }
+  .staircase .cobweb {
+    animation: none;
+  }
+}
+
+body.calm .fog {
+  display: none;
+}
