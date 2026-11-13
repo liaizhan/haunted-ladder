@@ -112,12 +112,12 @@
   - GitHub Actions workflow `.github/workflows/deploy.yml`: install, test, build, deploy to GitHub Pages on push to `main`
   - _Requirements: 8.5_
 
-- [ ] 17. Demo link
-  - [ ] 17.1 Implement `isDemo` and `demoDraft` in `src/domain/demo.ts` (3 fears: "People will laugh at my videos", "I will spend the money and sell nothing", "My family will see me fail")
+- [x] 17. Demo link
+  - [x] 17.1 Implement `isDemo` and `demoDraft` in `src/domain/demo.ts` (3 fears: "People will laugh at my videos", "I will spend the money and sell nothing", "My family will see me fail")
     - _Requirements: 10.1_
-  - [ ] 17.2 Load the demo in memory on `?demo=1`, show the sample line and "Clear", never save it
+  - [x] 17.2 Load the demo in memory on `?demo=1`, show the sample line and "Clear", never save it
     - _Requirements: 10.1, 10.2, 10.3, 10.4_
-  - [ ] 17.3 Write a property test for Property 13
+  - [x] 17.3 Write a property test for Property 13
     - _Requirements: 10.1, 10.3_
 
 - [ ] 18. Judge-ready README

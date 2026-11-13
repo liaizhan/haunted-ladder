@@ -4,6 +4,7 @@ import { validateDraft, type LadderDraft } from './domain/ladder';
 import type { Answer, Reading } from './domain/server';
 import { applySavedSteps, ghostsFromReading, stepsRecord, type Ghost } from './domain/ghosts';
 import { clear, load, save } from './domain/storage';
+import { demoDraft, isDemo } from './domain/demo';
 import { createForm, createIntro } from './ui/form';
 import { buildStaircase, updateGhosts } from './ui/staircase';
 import { buildReading } from './ui/reading';
@@ -41,6 +42,8 @@ export type AppDeps = {
   analyze?: (draft: LadderDraft) => Promise<Answer>;
   store?: Storage;
   createContext?: () => AudioContext | null;
+  /** The address query, like "?demo=1". Defaults to the page address. */
+  search?: string;
 };
 
 const emptyDraft = (): LadderDraft => ({ goal: '', me: '', blocks: ['', '', ''], fears: [''] });
@@ -69,10 +72,14 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
   const run = deps.analyze ?? ((d: LadderDraft) => analyze(d));
   const store = deps.store ?? defaultStore();
 
-  const saved = store ? load(store) : null;
+  const search = deps.search ?? (typeof location !== 'undefined' ? location.search : '');
+  // The demo lives in memory only. It never touches the saved draft.
+  let demoActive = isDemo(search);
+
+  const saved = store && !demoActive ? load(store) : null;
   const state: State = {
-    screen: 'intro',
-    draft: saved ? saved.draft : emptyDraft(),
+    screen: demoActive ? 'form' : 'intro',
+    draft: demoActive ? demoDraft() : saved ? saved.draft : emptyDraft(),
     answer: null,
     steps: saved ? saved.steps : {},
     soundOn: false,
@@ -87,7 +94,7 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
   let busy = false;
 
   const persist = (): void => {
-    if (store) save({ draft: state.draft, steps: state.steps }, store);
+    if (store && !demoActive) save({ draft: state.draft, steps: state.steps }, store);
   };
 
   /** Stops heart, drift and sound. The fog survives when `keepFog` is set (waiting -> result). */
@@ -146,6 +153,7 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
   }
 
   function startOver(): void {
+    demoActive = false;
     if (store) clear(store);
     state.draft = emptyDraft();
     state.steps = {};
@@ -167,6 +175,15 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
           void submit();
         },
         onClear: startOver,
+        demo: demoActive,
+        onDemoClear: () => {
+          // Leave the demo without touching anything saved in the browser.
+          demoActive = false;
+          state.draft = emptyDraft();
+          state.steps = {};
+          state.answer = null;
+          go('form');
+        },
       }),
     );
   }
