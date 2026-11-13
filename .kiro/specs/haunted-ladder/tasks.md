@@ -35,10 +35,10 @@
   - [x] 5.2 Test with a fake `fetch`: reading, crisis, health, rpc error, broken JSON, timeout
     - _Requirements: 2.3, 2.4, 2.5, 2.6, 2.7_
 
-- [ ] 6. Form screen
-  - Intro screen with "Start", no price, no sign-in
-  - One question per screen, live hints, add and remove rows up to 5, "Clear my answers"
-  - Save the draft on every change
+- [x] 6. Form screen
+  - [x] Intro screen with "Start", no price, no sign-in
+  - [x] One question per screen, live hints, add and remove rows up to 5, "Clear my answers"
+  - [x] Save the draft on every change
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 8.2_
 
 - [ ] 7. Haunted staircase

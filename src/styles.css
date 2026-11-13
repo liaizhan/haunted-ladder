@@ -82,3 +82,69 @@ body.calm a {
 body.calm :focus-visible {
   outline-color: var(--calm-text);
 }
+
+/* Form screens */
+.screen h1,
+.screen h2 {
+  margin: 0 0 0.75rem;
+}
+
+.progress,
+.help,
+.hint,
+.limit-note,
+.demo-note {
+  color: var(--mist);
+  margin: 0.25rem 0 1rem;
+}
+
+.hint,
+.limit-note {
+  min-height: 1.5em;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.field label {
+  margin-bottom: 0.25rem;
+}
+
+.field input {
+  font: inherit;
+  padding: 0.75rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--mist);
+  background: var(--night-2);
+  color: var(--moon);
+}
+
+.row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.row .secondary {
+  margin-top: 1.9rem;
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--moon);
+  border: 1px solid var(--mist);
+}
+
+.nav {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.clear {
+  margin-top: 2rem;
+}
