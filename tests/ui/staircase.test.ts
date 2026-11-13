@@ -17,7 +17,7 @@ function readingWith(block: string, fear: string): Reading {
       { number: 4, zone: 'fear', zoneLabel: 'Fear', text: fear },
     ],
     nearestBlock: block,
-    fearsAboveGoal: [fear],
+    fearsAboveGoal: 1,
     insights: [],
     questions: [],
     fullDiagnostic: { text: 't', url: 'https://108psy.com/' },

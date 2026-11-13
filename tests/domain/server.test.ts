@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { parseAnswer, rewriteUtm } from '../../src/domain/server';
+import realReading from '../fixtures/real-reading.json';
 
 const RUNS = { numRuns: 100 };
 
@@ -13,7 +14,7 @@ const validReading = {
     { number: 4, zone: 'fear', zoneLabel: 'Fear', text: 'd' },
   ],
   nearestBlock: 'b',
-  fearsAboveGoal: ['d'],
+  fearsAboveGoal: 1,
   insights: ['i'],
   questions: ['q1', 'q2'],
   fullDiagnostic: { text: 't', url: 'https://108psy.com/x?utm_source=chatgpt_plugin' },
@@ -93,6 +94,29 @@ describe('server domain', () => {
       kind: 'error',
       reason: 'shape',
     });
+  });
+
+  it('contract: the real server reading parses', () => {
+    const a = parseAnswer(realReading);
+    expect(a.kind).toBe('reading');
+    if (a.kind === 'reading') {
+      expect(a.steps).toHaveLength(8);
+      expect(a.fearsAboveGoal).toBe(3);
+      expect(a.questions).toHaveLength(2);
+      expect(a.fullDiagnostic.url).toMatch(/^https:\/\//);
+    }
+  });
+
+  it('fearsAboveGoal: missing is 0; negative, non-finite or non-number is a shape error', () => {
+    const without: Record<string, unknown> = { ...validReading };
+    delete without['fearsAboveGoal'];
+    const ok = parseAnswer({ result: { structuredContent: without } });
+    expect(ok.kind === 'reading' && ok.fearsAboveGoal).toBe(0);
+    for (const bad of [-1, ['d'], '3', null, { a: 1 }]) {
+      expect(
+        parseAnswer({ result: { structuredContent: { ...validReading, fearsAboveGoal: bad } } }),
+      ).toEqual({ kind: 'error', reason: 'shape' });
+    }
   });
 
   // Feature: haunted-ladder, Property 8: UTM rewrite

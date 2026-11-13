@@ -39,7 +39,7 @@ Limits: every phrase 1 to 300 characters, `blocks` 3 to 5 items, `fears` 0 to 5 
 
 The answer is in `result.structuredContent` (the same JSON is also in `result.content[0].text`). `kind` is one of:
 
-- `reading`: `steps` (from the bottom up, each with `number`, `zone` = `current | block | goal | fear`, `zoneLabel`, `text`), `nearestBlock`, `fearsAboveGoal`, `insights` (strings), `questions` (two strings), `fullDiagnostic` (`text`, `url`), `author`, `disclaimer`.
+- `reading`: `steps` (from the bottom up, each with `number`, `zone` = `current | block | goal | fear`, `zoneLabel`, `text`), `nearestBlock`, `fearsAboveGoal` (a number: how many fears are above the goal), `insights` (strings), `questions` (two strings), `fullDiagnostic` (`text`, `url`), `author`, `disclaimer`.
 - `crisis`: `message` and `helpUrl`. Show only these.
 - `health`: `message` and `helpUrl: null`. The words contain health details the server does not analyze. Show the message and let the person edit their answers.
 

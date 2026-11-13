@@ -40,7 +40,7 @@ function buildRequest(d: LadderDraft, id: number): JsonRpcRequest; // trims, dro
 
 ```ts
 type Step = { number: number; zone: 'current' | 'block' | 'goal' | 'fear'; zoneLabel: string; text: string };
-type Reading = { kind: 'reading'; steps: Step[]; nearestBlock: string | null; fearsAboveGoal: string[];
+type Reading = { kind: 'reading'; steps: Step[]; nearestBlock: string | null; fearsAboveGoal: number /* count of fears above the goal */;
   insights: string[]; questions: string[]; fullDiagnostic: { text: string; url: string };
   author: string; disclaimer: string };
 type Crisis = { kind: 'crisis'; message: string; helpUrl: string };

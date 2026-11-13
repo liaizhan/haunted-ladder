@@ -79,7 +79,7 @@ function reading(fears: string[]): Reading {
       })),
     ],
     nearestBlock: 'b1',
-    fearsAboveGoal: fears,
+    fearsAboveGoal: fears.length,
     insights: ['one'],
     questions: ['q1', 'q2'],
     fullDiagnostic: { text: 'Full', url: 'https://108psy.com/x?utm_source=chatgpt_plugin' },

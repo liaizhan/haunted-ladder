@@ -1,0 +1,84 @@
+{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+        "structuredContent": {
+            "kind": "reading",
+            "language": "en",
+            "steps": [
+                {
+                    "number": 1,
+                    "zone": "current",
+                    "zoneLabel": "“I” point",
+                    "text": "I have the lessons outlined but nothing recorded"
+                },
+                {
+                    "number": 2,
+                    "zone": "block",
+                    "zoneLabel": "Obstacles",
+                    "text": "Dad: nobody pays for courses"
+                },
+                {
+                    "number": 3,
+                    "zone": "block",
+                    "zoneLabel": "Obstacles",
+                    "text": "Friend: the market is full"
+                },
+                {
+                    "number": 4,
+                    "zone": "block",
+                    "zoneLabel": "Obstacles",
+                    "text": "Teacher: you are not an expert"
+                },
+                {
+                    "number": 5,
+                    "zone": "goal",
+                    "zoneLabel": "Goal",
+                    "text": "Launch my online course by March"
+                },
+                {
+                    "number": 6,
+                    "zone": "fear",
+                    "zoneLabel": "Fears",
+                    "text": "People will laugh at my videos"
+                },
+                {
+                    "number": 7,
+                    "zone": "fear",
+                    "zoneLabel": "Fears",
+                    "text": "I will spend the money and sell nothing"
+                },
+                {
+                    "number": 8,
+                    "zone": "fear",
+                    "zoneLabel": "Fears",
+                    "text": "My family will see me fail"
+                }
+            ],
+            "nearestBlock": "Dad: nobody pays for courses",
+            "fearsAboveGoal": 3,
+            "insights": [
+                "Obstacles: these are things people said that you believe. They stand between you and your goal and don’t let you move forward.",
+                "The obstacle closest to you is “Dad: nobody pays for courses”. The Ladder works only with what stands between you and your goal, starting from the nearest step.",
+                "Fears: everything above the goal is what you are afraid to come close to once you reach it.",
+                "Fears above your goal: 3. Perhaps moving toward the goal is hard because it means coming closer to them."
+            ],
+            "questions": [
+                "Whose voice do you hear in “Dad: nobody pays for courses”? Who said it first?",
+                "What would you do in the next 24 hours if you stopped believing it?"
+            ],
+            "fullDiagnostic": {
+                "text": "This is a short self-check. The full free diagnostic on the site adds the steps of the past, a pause and the question “What has become clear?”. No sign-in needed.",
+                "url": "https://108psy.com/diagnostika?utm_source=chatgpt_plugin"
+            },
+            "author": "Aizhan Li, author of the Ladder method.",
+            "disclaimer": "The Ladder is a tool for self-discovery. It does not replace psychotherapy or medical care. If you are struggling or something hurts, please see a doctor or a psychologist in person."
+        },
+        "content": [
+            {
+                "type": "text",
+                "text": "{\"kind\":\"reading\",\"language\":\"en\",\"steps\":[{\"number\":1,\"zone\":\"current\",\"zoneLabel\":\"“I” point\",\"text\":\"I have the lessons outlined but nothing recorded\"},{\"number\":2,\"zone\":\"block\",\"zoneLabel\":\"Obstacles\",\"text\":\"Dad: nobody pays for courses\"},{\"number\":3,\"zone\":\"block\",\"zoneLabel\":\"Obstacles\",\"text\":\"Friend: the market is full\"},{\"number\":4,\"zone\":\"block\",\"zoneLabel\":\"Obstacles\",\"text\":\"Teacher: you are not an expert\"},{\"number\":5,\"zone\":\"goal\",\"zoneLabel\":\"Goal\",\"text\":\"Launch my online course by March\"},{\"number\":6,\"zone\":\"fear\",\"zoneLabel\":\"Fears\",\"text\":\"People will laugh at my videos\"},{\"number\":7,\"zone\":\"fear\",\"zoneLabel\":\"Fears\",\"text\":\"I will spend the money and sell nothing\"},{\"number\":8,\"zone\":\"fear\",\"zoneLabel\":\"Fears\",\"text\":\"My family will see me fail\"}],\"nearestBlock\":\"Dad: nobody pays for courses\",\"fearsAboveGoal\":3,\"insights\":[\"Obstacles: these are things people said that you believe. They stand between you and your goal and don’t let you move forward.\",\"The obstacle closest to you is “Dad: nobody pays for courses”. The Ladder works only with what stands between you and your goal, starting from the nearest step.\",\"Fears: everything above the goal is what you are afraid to come close to once you reach it.\",\"Fears above your goal: 3. Perhaps moving toward the goal is hard because it means coming closer to them.\"],\"questions\":[\"Whose voice do you hear in “Dad: nobody pays for courses”? Who said it first?\",\"What would you do in the next 24 hours if you stopped believing it?\"],\"fullDiagnostic\":{\"text\":\"This is a short self-check. The full free diagnostic on the site adds the steps of the past, a pause and the question “What has become clear?”. No sign-in needed.\",\"url\":\"https://108psy.com/diagnostika?utm_source=chatgpt_plugin\"},\"author\":\"Aizhan Li, author of the Ladder method.\",\"disclaimer\":\"The Ladder is a tool for self-discovery. It does not replace psychotherapy or medical care. If you are struggling or something hurts, please see a doctor or a psychologist in person.\"}"
+            }
+        ]
+    }
+}

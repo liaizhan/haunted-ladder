@@ -17,7 +17,7 @@ function readingOf(steps: Step[]): Reading {
     kind: 'reading',
     steps,
     nearestBlock: null,
-    fearsAboveGoal: [],
+    fearsAboveGoal: 0,
     insights: [],
     questions: [],
     fullDiagnostic: { text: 't', url: 'https://108psy.com/' },

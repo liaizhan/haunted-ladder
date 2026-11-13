@@ -31,7 +31,7 @@ const READING: Reading = {
     { number: 6, zone: 'fear', zoneLabel: 'Fear', text: 'People will laugh' },
   ],
   nearestBlock: 'Dad: nobody pays',
-  fearsAboveGoal: ['People will laugh'],
+  fearsAboveGoal: 1,
   insights: ['An insight'],
   questions: ['Q1?', 'Q2?'],
   fullDiagnostic: { text: 'Free diagnostic', url: 'https://108psy.com/x?utm_source=chatgpt_plugin' },

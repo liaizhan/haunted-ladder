@@ -17,7 +17,7 @@ const readingPayload = {
     { number: 3, zone: 'fear', zoneLabel: 'Fear', text: 'People will laugh at my videos' },
   ],
   nearestBlock: 'Dad: nobody pays for courses',
-  fearsAboveGoal: ['People will laugh at my videos'],
+  fearsAboveGoal: 1,
   insights: ['One insight'],
   questions: ['Q1?', 'Q2?'],
   fullDiagnostic: { text: 'Full diagnostic', url: 'https://108psy.com/?utm_source=chatgpt_plugin' },

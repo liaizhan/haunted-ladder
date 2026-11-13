@@ -14,7 +14,7 @@ const reading: Reading = {
     { number: 4, zone: 'fear', zoneLabel: 'Fear', text: 'They will laugh' },
   ],
   nearestBlock: 'Dad: no',
-  fearsAboveGoal: ['They will laugh'],
+  fearsAboveGoal: 1,
   insights: [],
   questions: [],
   fullDiagnostic: { text: 't', url: 'https://108psy.com/' },

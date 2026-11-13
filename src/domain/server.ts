@@ -11,7 +11,7 @@ export type Reading = {
   kind: 'reading';
   steps: Step[];
   nearestBlock: string | null;
-  fearsAboveGoal: string[];
+  fearsAboveGoal: number;
   insights: string[];
   questions: string[];
   fullDiagnostic: { text: string; url: string };
@@ -71,10 +71,14 @@ function parseReading(o: Obj): Reading | null {
   const nb = o['nearestBlock'];
   if (nb !== undefined && nb !== null && !isStr(nb)) return null;
 
-  const fearsAboveGoal = o['fearsAboveGoal'] === undefined ? [] : strArray(o['fearsAboveGoal']);
+  const rawFears = o['fearsAboveGoal'];
+  const fearsAboveGoal = rawFears === undefined ? 0 : rawFears;
+  if (typeof fearsAboveGoal !== 'number' || !Number.isFinite(fearsAboveGoal) || fearsAboveGoal < 0) {
+    return null;
+  }
   const insights = strArray(o['insights']);
   const questions = strArray(o['questions']);
-  if (!fearsAboveGoal || !insights || !questions) return null;
+  if (!insights || !questions) return null;
 
   const fd = o['fullDiagnostic'];
   if (!isObj(fd) || !isStr(fd['text']) || !isStr(fd['url'])) return null;

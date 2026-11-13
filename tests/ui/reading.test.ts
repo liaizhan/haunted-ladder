@@ -16,7 +16,7 @@ function readingWith(fears: string[], url = 'https://108psy.com/x?utm_source=cha
       ...fears.map((f, i) => ({ number: 3 + i, zone: 'fear' as const, zoneLabel: 'Fear', text: f })),
     ],
     nearestBlock: null,
-    fearsAboveGoal: fears,
+    fearsAboveGoal: fears.length,
     insights: ['One <b>insight</b>'],
     questions: ['Q1?', 'Q2?'],
     fullDiagnostic: { text: 'Free diagnostic', url },
