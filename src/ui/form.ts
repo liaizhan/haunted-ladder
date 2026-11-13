@@ -52,6 +52,19 @@ function el<K extends keyof HTMLElementTagNameMap>(
   return node;
 }
 
+/**
+ * A section that runs a callback when it is attached to the page, so focus can
+ * move into the screen at the moment it appears (focus() does nothing on a
+ * detached node).
+ */
+class FormScreen extends HTMLElement {
+  onAttach?: () => void;
+  connectedCallback(): void {
+    this.onAttach?.();
+  }
+}
+if (!customElements.get('form-screen')) customElements.define('form-screen', FormScreen);
+
 function hintFor(text: string, optionalEmpty: boolean): string {
   if (optionalEmpty && text.trim().length === 0) return '';
   const e = validatePhrase(text);
@@ -95,7 +108,8 @@ export function createForm(opts: FormOptions): HTMLElement {
 
   let step = opts.demo ? STEPS.length - 1 : 0;
 
-  const root = el('section', undefined, 'screen form');
+  const root = document.createElement('form-screen') as FormScreen;
+  root.className = 'screen form';
   let counter = 0;
 
   const emit = (): void =>
@@ -282,7 +296,11 @@ export function createForm(opts: FormOptions): HTMLElement {
 
     const toFocus: HTMLElement = firstInput ?? title;
     toFocus.focus();
+    pendingFocus = toFocus;
   }
+
+  let pendingFocus: HTMLElement | null = null;
+  root.onAttach = () => pendingFocus?.focus();
 
   render();
   return root;

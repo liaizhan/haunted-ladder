@@ -7,5 +7,7 @@ export default defineConfig({
     environment: 'jsdom',
     include: ['tests/**/*.test.ts'],
     passWithNoTests: true,
+    // Vitest replaces CSS with an empty string by default; tests read styles.css?raw.
+    css: { include: [/.*/] },
   },
 });

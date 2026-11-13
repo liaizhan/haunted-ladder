@@ -70,7 +70,7 @@
   - [x] Show a short message if saving fails
   - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
-- [ ] 11. Accessibility pass
+- [x] 11. Accessibility pass
   - Keyboard-only path through every screen, visible focus ring, labels for ghosts and steps, AA contrast check
   - _Requirements: 8.2, 8.3, 8.4_
 
