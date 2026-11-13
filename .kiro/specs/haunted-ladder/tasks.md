@@ -98,14 +98,14 @@
   - [x] 14.4 Write tests for Property 12 with a fake `AudioContext`, and extend the Property 5 test to cover fog, heart and sound
     - _Requirements: 6.1, 9.6, 9.7, 9.8_
 
-- [ ] 15. Wire the app
-  - [ ] 15.1 Hold one plain state object in `src/main.ts` (screen, draft, answer, steps done, sound on) and rebuild the current screen from it on every change: intro, form, result (staircase + reading + steps + "Save my ladder"), calm (crisis, health, error)
+- [x] 15. Wire the app
+  - [x] 15.1 Hold one plain state object in `src/main.ts` (screen, draft, answer, steps done, sound on) and rebuild the current screen from it on every change: intro, form, result (staircase + reading + steps + "Save my ladder"), calm (crisis, health, error)
     - _Requirements: 1.1, 2.3, 3.1, 4.1, 5.1, 7.1_
-  - [ ] 15.2 "Show my ladder" validates the draft, shows the fog while `ladderClient` calls the server, then routes `parseAnswer` to the result or the right calm screen; crisis clears storage and offers only "Back to the start"
+  - [x] 15.2 "Show my ladder" validates the draft, shows the fog while `ladderClient` calls the server, then routes `parseAnswer` to the result or the right calm screen; crisis clears storage and offers only "Back to the start"
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 6.4_
-  - [ ] 15.3 Start the heart, fog and night sound only on the result screen and stop them on every calm screen and when leaving it
+  - [x] 15.3 Start the heart, fog and night sound only on the result screen and stop them on every calm screen and when leaving it
     - _Requirements: 6.1, 9.6, 9.8_
-  - [ ] 15.4 Write a jsdom test that walks intro, form, result with a fake client, and each calm screen
+  - [x] 15.4 Write a jsdom test that walks intro, form, result with a fake client, and each calm screen
     - _Requirements: 2.3, 2.4, 2.5, 2.6, 6.1, 6.3_
 
 - [ ] 16. Deploy

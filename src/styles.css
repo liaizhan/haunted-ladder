@@ -429,3 +429,24 @@ body.calm .heart {
 body.calm .fog {
   display: none;
 }
+
+/* Result screen layout */
+.stage {
+  position: relative;
+}
+
+.stage .staircase {
+  position: relative;
+}
+
+.waiting-stage {
+  min-height: 14rem;
+}
+
+.sound-row {
+  margin: 1rem 0;
+}
+
+.save-message {
+  color: var(--mist);
+}
