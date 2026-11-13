@@ -21,12 +21,12 @@
   - [x] 3.2 Write property tests for Properties 4 and 8
     - _Requirements: 2.6, 4.3_
 
-- [ ] 4. Domain: ghosts and storage
-  - [ ] 4.1 Implement `ghostsFromReading`, `isFaded`, `allFaded` in `src/domain/ghosts.ts`
+- [x] 4. Domain: ghosts and storage
+  - [x] 4.1 Implement `ghostsFromReading`, `isFaded`, `allFaded` in `src/domain/ghosts.ts`
     - _Requirements: 3.3, 3.4, 5.2, 5.3, 5.4_
-  - [ ] 4.2 Implement `save`, `load`, `clear` in `src/domain/storage.ts` with key `haunted-ladder:v1`
+  - [x] 4.2 Implement `save`, `load`, `clear` in `src/domain/storage.ts` with key `haunted-ladder:v1`
     - _Requirements: 1.6, 1.7, 5.5, 6.4_
-  - [ ] 4.3 Write property tests for Properties 6, 7 and 9
+  - [x] 4.3 Write property tests for Properties 6, 7 and 9
     - _Requirements: 1.6, 3.3, 5.2, 5.3, 5.4, 5.5_
 
 - [ ] 5. API client
