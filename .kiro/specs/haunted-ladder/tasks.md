@@ -65,9 +65,9 @@
   - [x] 9.3 Write a DOM property test for Property 5
     - _Requirements: 6.1, 6.3, 6.4_
 
-- [ ] 10. Save as PNG
-  - Serialize the SVG, draw on a canvas at 2x, add the credit line, download `haunted-ladder.png`
-  - Show a short message if saving fails
+- [x] 10. Save as PNG
+  - [x] Serialize the SVG, draw on a canvas at 2x, add the credit line, download `haunted-ladder.png`
+  - [x] Show a short message if saving fails
   - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
 - [ ] 11. Accessibility pass
