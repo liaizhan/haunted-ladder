@@ -13,12 +13,12 @@
   - [x] 2.2 Write property tests for Properties 1, 2 and 3
     - _Requirements: 1.3, 1.4, 2.1, 3.2_
 
-- [ ] 3. Domain: server answer
-  - [ ] 3.1 Implement `parseAnswer` and `rewriteUtm` in `src/domain/server.ts`
+- [x] 3. Domain: server answer
+  - [x] 3.1 Implement `parseAnswer` and `rewriteUtm` in `src/domain/server.ts`
     - Read `result.structuredContent`, fall back to `result.content[0].text`
     - Return `{kind:'error'}` for any unexpected shape, never throw
     - _Requirements: 2.3, 2.4, 2.5, 2.6, 4.3_
-  - [ ] 3.2 Write property tests for Properties 4 and 8
+  - [x] 3.2 Write property tests for Properties 4 and 8
     - _Requirements: 2.6, 4.3_
 
 - [ ] 4. Domain: ghosts and storage
