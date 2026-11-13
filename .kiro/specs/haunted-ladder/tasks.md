@@ -98,19 +98,29 @@
   - [x] 14.4 Write tests for Property 12 with a fake `AudioContext`, and extend the Property 5 test to cover fog, heart and sound
     - _Requirements: 6.1, 9.6, 9.7, 9.8_
 
-- [ ] 15. Deploy
+- [ ] 15. Wire the app
+  - [ ] 15.1 Hold one plain state object in `src/main.ts` (screen, draft, answer, steps done, sound on) and rebuild the current screen from it on every change: intro, form, result (staircase + reading + steps + "Save my ladder"), calm (crisis, health, error)
+    - _Requirements: 1.1, 2.3, 3.1, 4.1, 5.1, 7.1_
+  - [ ] 15.2 "Show my ladder" validates the draft, shows the fog while `ladderClient` calls the server, then routes `parseAnswer` to the result or the right calm screen; crisis clears storage and offers only "Back to the start"
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 6.4_
+  - [ ] 15.3 Start the heart, fog and night sound only on the result screen and stop them on every calm screen and when leaving it
+    - _Requirements: 6.1, 9.6, 9.8_
+  - [ ] 15.4 Write a jsdom test that walks intro, form, result with a fake client, and each calm screen
+    - _Requirements: 2.3, 2.4, 2.5, 2.6, 6.1, 6.3_
+
+- [ ] 16. Deploy
   - GitHub Actions workflow `.github/workflows/deploy.yml`: install, test, build, deploy to GitHub Pages on push to `main`
   - _Requirements: 8.5_
 
-- [ ] 16. Demo link
-  - [ ] 16.1 Implement `isDemo` and `demoDraft` in `src/domain/demo.ts` (3 fears: "People will laugh at my videos", "I will spend the money and sell nothing", "My family will see me fail")
+- [ ] 17. Demo link
+  - [ ] 17.1 Implement `isDemo` and `demoDraft` in `src/domain/demo.ts` (3 fears: "People will laugh at my videos", "I will spend the money and sell nothing", "My family will see me fail")
     - _Requirements: 10.1_
-  - [ ] 16.2 Load the demo in memory on `?demo=1`, show the sample line and "Clear", never save it
+  - [ ] 17.2 Load the demo in memory on `?demo=1`, show the sample line and "Clear", never save it
     - _Requirements: 10.1, 10.2, 10.3, 10.4_
-  - [ ] 16.3 Write a property test for Property 13
+  - [ ] 17.3 Write a property test for Property 13
     - _Requirements: 10.1, 10.3_
 
-- [ ] 17. Judge-ready README
+- [ ] 18. Judge-ready README
   - Top block "Summary for judges": what it is, who it is for, the live link and the `?demo=1` link
   - A short GIF of one ghost fading and the heart slowing, and a captioned screenshot of every screen (intro, form, fog, staircase, all ghosts faded, crisis)
   - Numbers from the repo: requirements, correctness properties, tasks, steering files, hooks, test count
