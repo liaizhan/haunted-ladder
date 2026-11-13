@@ -41,13 +41,13 @@
   - [x] Save the draft on every change
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 8.2_
 
-- [ ] 7. Haunted staircase
-  - [ ] 7.1 Build the SVG in `src/ui/staircase.ts`: steps bottom up, cobwebs on blocks, lit goal, ghosts above the goal, nearest block highlighted
+- [x] 7. Haunted staircase
+  - [x] 7.1 Build the SVG in `src/ui/staircase.ts`: steps bottom up, cobwebs on blocks, lit goal, ghosts above the goal, nearest block highlighted
     - Render phrases with SVG text nodes only
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 4.2_
-  - [ ] 7.2 Slow ghost float and fade with CSS; none under `prefers-reduced-motion`
+  - [x] 7.2 Slow ghost float and fade with CSS; none under `prefers-reduced-motion`
     - _Requirements: 3.6_
-  - [ ] 7.3 Write a DOM property test for Property 10
+  - [x] 7.3 Write a DOM property test for Property 10
     - _Requirements: 3.5_
 
 - [ ] 8. Reading and steps
