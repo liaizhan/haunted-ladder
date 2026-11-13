@@ -29,10 +29,10 @@
   - [x] 4.3 Write property tests for Properties 6, 7 and 9
     - _Requirements: 1.6, 3.3, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 5. API client
-  - [ ] 5.1 Implement `analyze` in `src/api/ladderClient.ts` with injectable `fetch` and a 20 second timeout
+- [x] 5. API client
+  - [x] 5.1 Implement `analyze` in `src/api/ladderClient.ts` with injectable `fetch` and a 20 second timeout
     - _Requirements: 2.1, 2.2, 2.6, 2.7_
-  - [ ] 5.2 Test with a fake `fetch`: reading, crisis, health, rpc error, broken JSON, timeout
+  - [x] 5.2 Test with a fake `fetch`: reading, crisis, health, rpc error, broken JSON, timeout
     - _Requirements: 2.3, 2.4, 2.5, 2.6, 2.7_
 
 - [ ] 6. Form screen
