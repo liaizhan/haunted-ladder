@@ -17,6 +17,12 @@ const TOP = 90; // room for the moon
 const GHOST_H = 170;
 const FADED_OPACITY = 0.15;
 
+/** Average glyph width (px at font-size 11) used for wrapping; tests use it to size label boxes. */
+export const CHAR_W = 6.2;
+/** Step label colors: MOON text on the solid NIGHT_2 step fill. */
+export const STEP_FILL = NIGHT_2;
+export const LABEL_COLOR = MOON;
+
 function el<K extends keyof SVGElementTagNameMap>(
   name: K,
   attrs: Record<string, string | number> = {},
@@ -124,8 +130,10 @@ function stairGroup(step: Step, index: number, n: number, nearest: boolean): SVG
   title.textContent = step.text;
   g.appendChild(title);
 
+  // Order matters: solid fill first, then the cobweb, then the label on top of both.
   g.appendChild(
     el('rect', {
+      class: 'step-fill',
       x,
       y,
       width: stepW,
@@ -149,9 +157,11 @@ function stairGroup(step: Step, index: number, n: number, nearest: boolean): SVG
       }),
     );
   }
-  const chars = Math.max(4, Math.floor((stepW - 14) / 6.2));
-  g.appendChild(textBlock(wrapText(step.text, chars, 3), x + 7, y + 18, 11, MOON, 'start'));
   if (step.zone === 'block') g.appendChild(cobweb(x, y, stepW, Math.min(STEP_H, baseY - y)));
+  const chars = Math.max(4, Math.floor((stepW - 14) / CHAR_W));
+  const label = textBlock(wrapText(step.text, chars, 3), x + 7, y + 18, 11, LABEL_COLOR, 'start');
+  label.setAttribute('class', 'step-label');
+  g.appendChild(label);
   return g;
 }
 
@@ -173,8 +183,13 @@ function ghostGroup(g: Ghost, index: number, count: number): SVGGElement {
   title.textContent = g.fear;
   root.appendChild(title);
 
-  const float = el('g', { class: 'ghost-float' });
-  const body = el('g', { transform: `translate(${cx} ${cy})` });
+  // Each ghost floats in its own loop of 3, 4 or 5 seconds, with its own phase.
+  const duration = 3 + (index % 3);
+  const float = el('g', {
+    class: 'ghost-float',
+    style: `animation-duration:${duration}s;animation-delay:-${(index * 1.3).toFixed(1)}s`,
+  });
+  const body = el('g', { class: 'ghost-body', transform: `translate(${cx} ${cy})` });
   body.appendChild(ghostBody());
   body.appendChild(el('circle', { cx: -9, cy: -22, r: 3.5, fill: NIGHT_2 }));
   body.appendChild(el('circle', { cx: 9, cy: -22, r: 3.5, fill: NIGHT_2 }));
@@ -193,8 +208,11 @@ function ghostGroup(g: Ghost, index: number, count: number): SVGGElement {
   float.appendChild(check);
   root.appendChild(float);
 
-  const chars = Math.max(6, Math.floor((slot - 10) / 6.2));
-  root.appendChild(textBlock(wrapText(g.fear, chars, 3), cx, cy + 50, 11, MOON, 'middle'));
+  // The label lives in its own slot (width slot - 10) below the body, so labels never overlap.
+  const chars = Math.max(6, Math.floor((slot - 10) / CHAR_W));
+  const label = textBlock(wrapText(g.fear, chars, 3), cx, cy + 50, 11, MOON, 'middle');
+  label.setAttribute('class', 'ghost-label');
+  root.appendChild(label);
   return root;
 }
 

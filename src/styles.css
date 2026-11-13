@@ -187,12 +187,13 @@ button.secondary {
   transition: opacity 1.2s ease;
 }
 
-.staircase .ghost-float {
-  animation: ghost-float 5s ease-in-out infinite;
-}
-
-.staircase .ghost:nth-of-type(even) .ghost-float {
-  animation-duration: 6s;
+/* Floating only when motion is welcome; each ghost sets its own duration and delay inline. */
+@media (prefers-reduced-motion: no-preference) {
+  .staircase .ghost:not(.faded) .ghost-float {
+    animation-name: ghost-float;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
 }
 
 @keyframes ghost-float {
@@ -437,6 +438,7 @@ body.calm .fog {
 
 .stage .staircase {
   position: relative;
+  z-index: 1; /* step labels sit above the heart and the fog-free background */
 }
 
 .waiting-stage {
@@ -449,4 +451,124 @@ body.calm .fog {
 
 .save-message {
   color: var(--mist);
+}
+
+/* Haunted entrance */
+.intro {
+  position: relative;
+  min-height: 30rem;
+  overflow: hidden;
+  border-radius: var(--radius);
+}
+
+.intro-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.intro-scene svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.intro-content {
+  position: relative;
+  z-index: 1;
+  padding: 1.5rem 1rem;
+  max-width: 100%;
+}
+
+/* Text sits on a dark veil so it keeps AA contrast over the stars and the halo. */
+.intro-content p {
+  background: rgba(20, 17, 43, 0.85);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius);
+  max-width: 30rem;
+}
+
+.intro-content h1 {
+  font-size: clamp(2rem, 9vw, 3rem);
+  overflow-wrap: anywhere;
+  text-shadow: 0 0 14px rgba(255, 138, 61, 0.55);
+}
+
+.intro-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+a.button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  background: var(--pumpkin);
+  color: var(--night);
+}
+
+a.button.secondary {
+  background: rgba(20, 17, 43, 0.85);
+  color: var(--moon);
+  border: 1px solid var(--mist);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .intro-content h1.flicker {
+    animation: candle-flicker 4s ease-in-out infinite;
+  }
+}
+
+@keyframes candle-flicker {
+  0%,
+  100% {
+    text-shadow: 0 0 14px rgba(255, 138, 61, 0.55);
+  }
+  23% {
+    text-shadow: 0 0 8px rgba(255, 138, 61, 0.35);
+  }
+  41% {
+    text-shadow: 0 0 18px rgba(255, 138, 61, 0.7);
+  }
+  67% {
+    text-shadow: 0 0 10px rgba(255, 138, 61, 0.42);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-content h1.flicker {
+    animation: none;
+  }
+}
+
+body.calm .intro-scene {
+  display: none;
+}
+
+/* 360 px: nothing may force a horizontal scroll */
+html,
+body {
+  overflow-x: hidden;
+}
+
+.staircase,
+.heart svg,
+.intro-scene svg {
+  max-width: 100%;
+}
+
+@media (max-width: 400px) {
+  #app {
+    padding: 1.25rem 0.75rem;
+  }
+  .nav,
+  .row {
+    flex-wrap: wrap;
+  }
 }

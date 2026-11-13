@@ -120,15 +120,15 @@
   - [x] 17.3 Write a property test for Property 13
     - _Requirements: 10.1, 10.3_
 
-- [ ] 18. Haunted entrance and costume polish
-  - [ ] 18.1 Add `src/ui/intro.ts` with the inline SVG night scene, the flickering title and the "See a sample ladder" link to `?demo=1`; use it from `main.ts` for the intro screen
+- [x] 18. Haunted entrance and costume polish
+  - [x] 18.1 Add `src/ui/intro.ts` with the inline SVG night scene, the flickering title and the "See a sample ladder" link to `?demo=1`; use it from `main.ts` for the intro screen
     - _Requirements: 11.1, 11.2_
-  - [ ] 18.2 In `staircase.ts` make step labels sit on solid step fills above the heart, place ghost labels so they never overlap, and add the gentle float to unfaded ghosts (CSS class with per-ghost `animation-delay`)
+  - [x] 18.2 In `staircase.ts` make step labels sit on solid step fills above the heart, place ghost labels so they never overlap, and add the gentle float to unfaded ghosts (CSS class with per-ghost `animation-delay`)
     - _Requirements: 11.3, 11.4_
-  - [ ] 18.3 Write property test for Property 14 (labels stay readable)
+  - [x] 18.3 Write property test for Property 14 (labels stay readable)
     - **Property 14: Labels stay readable**
     - **Validates: Requirements 11.3**
-  - [ ] 18.4 CSS: flicker and float only under `prefers-reduced-motion: no-preference`; calm screens hide the intro scene; layout fits 360 px without horizontal scroll. Extend the accessibility test with the new color pairs and the reduced-motion rule
+  - [x] 18.4 CSS: flicker and float only under `prefers-reduced-motion: no-preference`; calm screens hide the intro scene; layout fits 360 px without horizontal scroll. Extend the accessibility test with the new color pairs and the reduced-motion rule
     - _Requirements: 11.5, 11.6, 11.7_
 
 - [ ] 19. Judge-ready README

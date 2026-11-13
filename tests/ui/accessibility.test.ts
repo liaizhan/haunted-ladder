@@ -3,7 +3,8 @@ import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import css from '../../src/styles.css?raw';
 import html from '../../index.html?raw';
-import { createForm, createIntro } from '../../src/ui/form';
+import { createForm } from '../../src/ui/form';
+import { createIntro } from '../../src/ui/intro';
 import { buildReading } from '../../src/ui/reading';
 import { buildStaircase } from '../../src/ui/staircase';
 import { buildCalm } from '../../src/ui/calm';
@@ -172,5 +173,73 @@ describe('Accessibility: keyboard and labels', () => {
       expect(node.getAttribute('role')).toBe('alert');
       expect(node.querySelectorAll('button').length).toBeGreaterThan(0);
     }
+  });
+});
+
+// ---- Task 18.4: new color pairs and the reduced-motion rule (11.3, 11.5, 11.6, 11.7) ----
+
+/** The text inside every `@media (prefers-reduced-motion: no-preference) { ... }` block. */
+function noPreferenceBlocks(source: string): string[] {
+  const blocks: string[] = [];
+  const re = /@media\s*\(prefers-reduced-motion:\s*no-preference\)\s*\{/g;
+  while (re.exec(source) !== null) {
+    let depth = 1;
+    let i = re.lastIndex;
+    while (i < source.length && depth > 0) {
+      if (source[i] === '{') depth++;
+      else if (source[i] === '}') depth--;
+      i++;
+    }
+    blocks.push(source.slice(re.lastIndex, i - 1));
+  }
+  return blocks;
+}
+
+describe('Accessibility: costume polish (task 18.4)', () => {
+  it('the new color pairs reach AA: step label on step fill, intro text on its veil, link and button', () => {
+    // The intro veil is night at 85 % over the darkest-to-lightest scene; worst case mixes in the moon.
+    const night = variable('night');
+    const moon = variable('moon');
+    const mix = (a: string, b: string, t: number): string => {
+      const ch = [1, 3, 5].map((i) => {
+        const x = parseInt(a.slice(i, i + 2), 16) * t + parseInt(b.slice(i, i + 2), 16) * (1 - t);
+        return Math.round(x).toString(16).padStart(2, '0');
+      });
+      return `#${ch.join('')}`;
+    };
+    const veilWorst = mix(night, moon, 0.85);
+    expect(ratio(moon, veilWorst)).toBeGreaterThanOrEqual(4.5);
+    expect(ratio(variable('mist'), veilWorst)).toBeGreaterThanOrEqual(4.5);
+    expect(ratio(moon, variable('night-2'))).toBeGreaterThanOrEqual(4.5);
+    expect(ratio(variable('night'), variable('pumpkin'))).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('flicker and float run only under prefers-reduced-motion: no-preference', () => {
+    const inside = noPreferenceBlocks(css);
+    expect(inside.length).toBeGreaterThan(0);
+    let outside = css;
+    for (const b of inside) outside = outside.replace(b, '');
+    for (const name of ['candle-flicker', 'ghost-float']) {
+      expect(inside.join('\n')).toMatch(new RegExp(`animation(-name)?:\\s*${name}`));
+      expect(outside).not.toMatch(new RegExp(`animation(-name)?:\\s*${name}`));
+    }
+    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)[^}]*\{[^}]*flicker[^}]*animation: none/);
+  });
+
+  it('calm screens hide the intro scene and the page fits 360 px', () => {
+    expect(css).toMatch(/body\.calm \.intro-scene\s*\{\s*display:\s*none/);
+    expect(css).toContain('overflow-x: hidden');
+    expect(css).toMatch(/\.intro-scene svg\s*\{[^}]*max-width|\.intro-scene svg[^{]*\{[^}]*max-width/);
+  });
+
+  it('the intro has the scene, the flickering title and a link to ?demo=1', () => {
+    const intro = createIntro(() => undefined);
+    expect(intro.querySelector('.intro-scene svg')).not.toBeNull();
+    expect(intro.querySelector('h1.flicker')?.textContent).toBe('Haunted Ladder');
+    const link = intro.querySelector('a');
+    expect(link?.textContent).toBe('See a sample ladder');
+    expect(link?.getAttribute('href')).toBe('?demo=1');
+    expect(intro.querySelector('image, script, use, [src], [href^="http"]')).toBeNull();
+    expect(intro.querySelector('.moon, .ghost, .fog, .heart, .stair, .cobweb')).toBeNull();
   });
 });

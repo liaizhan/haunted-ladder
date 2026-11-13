@@ -73,26 +73,6 @@ function hintFor(text: string, optionalEmpty: boolean): string {
   return '';
 }
 
-/** The intro screen: short explanation, one "Start" button. No price, no sign-in. */
-export function createIntro(onStart: () => void): HTMLElement {
-  const root = el('section', undefined, 'screen intro');
-  root.append(
-    el('h1', 'Haunted Ladder'),
-    el(
-      'p',
-      'A gentle, spooky self-check built on the Ladder method by Aizhan Li. ' +
-        'Write your goal, where you are now, what stands in the way and what scares you. ' +
-        'Your fears become ghosts you can see, name and make fade.',
-    ),
-    el('p', 'It takes a few minutes. Your words stay in your browser.'),
-  );
-  const start = el('button', 'Start');
-  start.type = 'button';
-  start.addEventListener('click', onStart);
-  root.append(start);
-  return root;
-}
-
 /** The questions screen: one question per screen, live hints, draft saved on every change. */
 export function createForm(opts: FormOptions): HTMLElement {
   const draft: LadderDraft = {
