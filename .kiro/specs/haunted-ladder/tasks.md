@@ -1,10 +1,10 @@
 # Implementation Plan
 
-- [ ] 1. Set up the project
-  - Create a Vite + TypeScript (strict) app with `index.html`, `src/main.ts`, `src/styles.css`
-  - Add Vitest, jsdom and fast-check; `npm test` runs `vitest run`
-  - Set Vite `base` to `/haunted-ladder/`
-  - Add the palette variables from `style.md` and the system font stack
+- [x] 1. Set up the project
+  - [x] Create a Vite + TypeScript (strict) app with `index.html`, `src/main.ts`, `src/styles.css`
+  - [x] Add Vitest, jsdom and fast-check; `npm test` runs `vitest run`
+  - [x] Set Vite `base` to `/haunted-ladder/`
+  - [x] Add the palette variables from `style.md` and the system font stack
   - _Requirements: 8.1, 8.4_
 
 - [ ] 2. Domain: ladder draft and request

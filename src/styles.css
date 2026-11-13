@@ -1,0 +1,84 @@
+:root {
+  --night: #14112b;
+  --night-2: #221c45;
+  --moon: #f4efe6;
+  --mist: #a9a3c7;
+  --pumpkin: #ff8a3d;
+  --glow: #ff5a36;
+  --calm-bg: #ffffff;
+  --calm-text: #1d1d1f;
+
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --radius: 10px;
+  --beat: 1s;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--night);
+  color: var(--moon);
+  font-family: var(--font);
+  line-height: 1.5;
+}
+
+body.calm {
+  background: var(--calm-bg);
+  color: var(--calm-text);
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+#app {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+}
+
+button {
+  font: inherit;
+  border-radius: var(--radius);
+  border: 0;
+  padding: 0.75rem 1.25rem;
+  background: var(--pumpkin);
+  color: var(--night);
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+a {
+  color: var(--pumpkin);
+}
+
+body.calm a {
+  color: var(--calm-text);
+}
+
+:focus-visible {
+  outline: 3px solid var(--pumpkin);
+  outline-offset: 2px;
+}
+
+body.calm :focus-visible {
+  outline-color: var(--calm-text);
+}
