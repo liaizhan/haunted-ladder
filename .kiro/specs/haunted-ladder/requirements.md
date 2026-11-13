@@ -132,3 +132,18 @@ Haunted Ladder is a one-page web app built on the Ladder method by Aizhan Li, au
 2. WHEN the demo ladder is shown THEN the system SHALL mark it with a short line "Sample ladder. Clear it to write your own." and a "Clear" button.
 3. WHEN the demo ladder is loaded THEN the system SHALL NOT overwrite a draft already saved in `localStorage` and SHALL NOT save the demo answers.
 4. WHEN the demo ladder is sent THEN the system SHALL call the same Ladder server and follow Requirements 2 to 9 exactly as for a person's own ladder; the client SHALL NOT use a canned or invented reading.
+
+### Requirement 11: A haunted entrance and a costume that holds together
+
+**User Story:** As a first-time visitor or a judge, I want the first screen to already feel like a haunted night and the result screen to read cleanly, so that I want to press Start and can read every step without effort.
+
+#### Acceptance Criteria
+
+1. WHEN the intro screen is shown THEN the system SHALL draw a night scene in inline SVG behind the text: a moon with a soft halo, a few stars, a ladder silhouette rising from low fog toward the moon, and one small ghost peeking from behind the ladder. It SHALL load no external file.
+2. WHEN the intro screen is shown THEN the title "Haunted Ladder" SHALL glow softly with a slow candle flicker, and the system SHALL show a second button "See a sample ladder" next to "Start" that opens the same page with `?demo=1`.
+3. WHEN the result screen is shown THEN every step label SHALL sit on its own solid step color, drawn above the heart, so that step text keeps WCAG AA contrast (4.5:1) no matter what is behind it, and no ghost label SHALL overlap a ghost or another label.
+4. WHEN ghosts without a step are drawn THEN each SHALL float gently up and down in a loop of 3 to 5 seconds with a different phase per ghost; a faded ghost SHALL stop floating.
+5. WHEN `prefers-reduced-motion: reduce` is set THEN the flicker and the floating SHALL be off, and the scene SHALL be shown still.
+6. WHEN the crisis, health or error screen is shown THEN the intro scene, the glow and the floating SHALL NOT appear (Requirement 6.1 still holds).
+7. WHEN the page is 360 px wide THEN the intro scene, the staircase and the buttons SHALL fit without horizontal scrolling.
+

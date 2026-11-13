@@ -86,6 +86,7 @@ Key: `haunted-ladder:v1`.
 - `exportImage.ts`: serializes the SVG, draws it on a canvas at 2x and downloads `haunted-ladder.png`.
 - `heart.ts`: inline SVG x-ray heart drawn behind the staircase. It reads the beat rate from `domain/pulse.ts` and sets the CSS variable `--beat` (seconds per beat) on the heart element. CSS does the beat with a scale and glow keyframe.
 - `fog.ts`: two layers of blurred SVG shapes that drift while waiting; `lift()` fades them out and adds a `lit` class to each step with a growing delay, bottom up.
+- `intro.ts`: builds the intro screen: a full-width inline SVG night scene (moon with a radial-gradient halo, 12 to 20 stars at fixed positions, a ladder silhouette fading into a fog band, one small ghost behind a rail), the title with class `flicker`, and two buttons, "Start" and "See a sample ladder" (a link to `?demo=1`). Motion is CSS only and lives under `@media (prefers-reduced-motion: no-preference)`.
 - `nightSound.ts`: Web Audio only, no files. Wind is filtered brown noise with a slow gain wobble. The heartbeat is two short low sine thumps ("lub-dub") scheduled on the audio clock at the current beat rate. `start()` needs a user gesture; `stop()` ramps gain to 0 in 2 seconds; `kill()` stops at once (used by the calm screens).
 
 ### domain/pulse.ts
@@ -175,6 +176,10 @@ Validates: Requirements 9.6, 9.7
 Property 13: The demo is honest
 For any query string q, `isDemo(q)` is true exactly when q has the parameter `demo` equal to `1`; `demoDraft()` passes `validateDraft`; loading the demo leaves any saved draft in storage unchanged.
 Validates: Requirements 10.1, 10.3
+
+Property 14: Labels stay readable
+For any reading with 1 to 5 obstacles and 1 to 5 fears and any phrases, every step label in the staircase SVG is drawn after (above) the heart and on a filled step rectangle whose color with the label color has contrast of at least 4.5:1, and the bounding boxes of ghost labels computed from their x, y and wrapped line count do not overlap each other.
+Validates: Requirements 11.3
 
 ## Testing Strategy
 
