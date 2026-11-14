@@ -252,9 +252,12 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
     root.append(el('h2', 'Your haunted ladder'));
 
     const stage = el('div', undefined, 'stage');
+    root.append(stage);
+    // Attach first so the staircase can be drawn for the real width (phone or wide).
+    container.replaceChildren(root);
     const h = buildHeart(ghosts);
     heart = h;
-    const svg = buildStaircase(reading, ghosts);
+    const svg = buildStaircase(reading, ghosts, { width: stage.clientWidth });
     stage.append(h.element, svg);
     const activeFog = fog;
     if (activeFog) {
@@ -286,7 +289,8 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
         h.update(gs);
       },
       onSave: () => {
-        void saveLadderImage(svg, ghosts).then((r) => {
+        // The picture always uses the wide layout, so the written steps fit under it.
+        void saveLadderImage(buildStaircase(reading, ghosts), ghosts).then((r) => {
           message.textContent = r.ok ? '' : r.message;
         });
       },
@@ -304,8 +308,7 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
     const nav = el('div', undefined, 'nav');
     nav.append(back);
 
-    root.append(stage, soundRow, readingEl, message, nav);
-    container.replaceChildren(root);
+    root.append(soundRow, readingEl, message, nav);
     focusHeading(root);
 
     if (activeFog) {

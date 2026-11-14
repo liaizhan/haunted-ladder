@@ -131,14 +131,14 @@
   - [x] 18.4 CSS: flicker and float only under `prefers-reduced-motion: no-preference`; calm screens hide the intro scene; layout fits 360 px without horizontal scroll. Extend the accessibility test with the new color pairs and the reduced-motion rule
     - _Requirements: 11.5, 11.6, 11.7_
 
-- [ ] 19. Ghosts fade where you type
-  - [ ] 19.1 Result screen layout: at 900 px and wider a two-column grid, staircase and heart in a sticky left column, the "Make the ghosts smaller" fields in the right column; below 900 px the ghost-steps block comes right after the staircase
+- [x] 19. Ghosts fade where you type
+  - [x] 19.1 Result screen layout: at 900 px and wider a two-column grid, staircase and heart in a sticky left column, the "Make the ghosts smaller" fields in the right column; below 900 px the ghost-steps block comes right after the staircase
     - _Requirements: 12.1, 12.2_
-  - [ ] 19.2 Each ghost-step field gets a small inline SVG ghost icon whose opacity follows its ghost (1 or 0.15), updated by the same onStepsChange path
+  - [x] 19.2 Each ghost-step field gets a small inline SVG ghost icon whose opacity follows its ghost (1 or 0.15), updated by the same onStepsChange path
     - _Requirements: 12.2_
-  - [ ] 19.3 Staircase readable on a phone: `buildStaircase` takes an optional width (or reads the container width) and for narrow containers uses a narrower viewBox and larger font with re-wrapping, so labels render at 13 CSS px or more at 375 px
+  - [x] 19.3 Staircase readable on a phone: `buildStaircase` takes an optional width (or reads the container width) and for narrow containers uses a narrower viewBox and larger font with re-wrapping, so labels render at 13 CSS px or more at 375 px
     - _Requirements: 12.3_
-  - [ ] 19.4 Write property test for Property 15 and keep Property 14, accessibility and 360 px checks green
+  - [x] 19.4 Write property test for Property 15 and keep Property 14, accessibility and 360 px checks green
     - **Property 15: Readable on a phone**
     - **Validates: Requirements 12.3, 12.4**
 

@@ -23,6 +23,38 @@ function el<K extends keyof HTMLElementTagNameMap>(
   return node;
 }
 
+const SVG_NS = 'http://www.w3.org/2000/svg';
+/** Opacity of a step field's ghost icon once its ghost has a step. Same as the staircase ghost. */
+export const ICON_FADED_OPACITY = 0.15;
+
+/** Small decorative ghost shown next to a step field. Its opacity follows the ghost. */
+function buildGhostIcon(): SVGSVGElement {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('class', 'step-ghost-icon');
+  svg.setAttribute('viewBox', '-30 -52 60 88');
+  svg.setAttribute('width', '28');
+  svg.setAttribute('height', '40');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('focusable', 'false');
+  const body = document.createElementNS(SVG_NS, 'path');
+  body.setAttribute(
+    'd',
+    'M-26 0 C-26 -34 -14 -48 0 -48 C14 -48 26 -34 26 0 L26 30 L17 22 L9 30 L0 22 L-9 30 L-17 22 L-26 30 Z',
+  );
+  body.setAttribute('fill', '#F4EFE6');
+  body.setAttribute('fill-opacity', '0.85');
+  svg.append(body);
+  for (const cx of [-9, 9]) {
+    const eye = document.createElementNS(SVG_NS, 'circle');
+    eye.setAttribute('cx', String(cx));
+    eye.setAttribute('cy', '-22');
+    eye.setAttribute('r', '3.5');
+    eye.setAttribute('fill', '#221C45');
+    svg.append(eye);
+  }
+  return svg;
+}
+
 function list(items: string[], className: string): HTMLUListElement {
   const ul = el('ul', undefined, className);
   for (const item of items) ul.append(el('li', item));
@@ -42,13 +74,6 @@ export function buildReading(
 ): HTMLElement {
   const root = el('section', undefined, 'reading');
 
-  if (reading.insights.length > 0) {
-    root.append(el('h2', 'What your ladder shows'), list(reading.insights, 'insights'));
-  }
-  if (reading.questions.length > 0) {
-    root.append(el('h2', 'Two questions to think about'), list(reading.questions, 'questions'));
-  }
-
   const closing = el('p', CLOSING_LINE, 'closing');
   closing.setAttribute('role', 'status');
   const save = el('button', 'Save my ladder', 'save');
@@ -60,8 +85,13 @@ export function buildReading(
     save.disabled = !done;
   };
 
+  // The ghost-steps block comes first so it sits right after the staircase on a phone
+  // and beside it on a wide screen.
+  const block = el('div', undefined, 'ghost-block');
+  root.append(block);
+
   if (ghosts.length > 0) {
-    root.append(
+    block.append(
       el('h2', 'Make the ghosts smaller'),
       el('p', 'A fear becomes smaller when it has a name and a next step.', 'help'),
     );
@@ -70,10 +100,13 @@ export function buildReading(
       const id = `ghost-step-${i}`;
       const wrap = el('div', undefined, 'field ghost-step');
       wrap.dataset['ghost'] = String(i);
+      const head = el('div', undefined, 'step-head');
+      const icon = buildGhostIcon();
       const label = el('label', undefined);
       label.htmlFor = id;
       label.append(el('span', 'My small step this week', 'step-label'));
       label.append(el('span', ` for the fear: ${g.fear}`, 'step-fear'));
+      head.append(icon, label);
       const input = el('input');
       input.type = 'text';
       input.id = id;
@@ -85,6 +118,7 @@ export function buildReading(
         const faded = isFaded(g);
         mark.textContent = faded ? '✓' : '';
         wrap.classList.toggle('faded', faded);
+        icon.setAttribute('opacity', String(faded ? ICON_FADED_OPACITY : 1));
       };
       input.addEventListener('input', () => {
         g.step = input.value;
@@ -93,17 +127,24 @@ export function buildReading(
         opts.onStepsChange(ghosts);
       });
       sync();
-      wrap.append(label, input, mark);
+      wrap.append(head, input, mark);
       steps.append(wrap);
     });
-    root.append(steps, closing);
+    block.append(steps, closing);
   }
 
   save.addEventListener('click', () => {
     if (!save.disabled) opts.onSave();
   });
   refresh();
-  root.append(save);
+  block.append(save);
+
+  if (reading.insights.length > 0) {
+    root.append(el('h2', 'What your ladder shows'), list(reading.insights, 'insights'));
+  }
+  if (reading.questions.length > 0) {
+    root.append(el('h2', 'Two questions to think about'), list(reading.questions, 'questions'));
+  }
 
   root.append(el('p', reading.disclaimer, 'disclaimer'));
 
