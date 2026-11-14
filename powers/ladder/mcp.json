@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "ladder": {
+      "url": "https://108psy.com/mcp",
+      "autoApprove": ["get_ladder_questions"]
+    }
+  }
+}

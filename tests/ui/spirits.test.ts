@@ -216,8 +216,17 @@ describe('Property 21: The Zheztyrnaq turns into a Peri', () => {
       expect(li.querySelector('p')?.textContent).toBe(dictionaries.en[LEGEND_ITEMS[i]?.key ?? 'legendTitle']);
     });
     expect(dictionaries.en.legendQobyz).toBe(
-      'Qobyz, the instrument of Korkyt Ata. In the legend, death could not come near while he played.',
+      'A horsehair fiddle (Qobyz). In the legend, the bard Korkyt Ata played it to keep death away.',
     );
+  });
+
+  it('bugfix english-legend-clarity: in English the meaning comes first and the Kazakh name is in brackets', () => {
+    for (const item of LEGEND_ITEMS) {
+      const line = dictionaries.en[item.key];
+      const name = /\(([^)]+)\)/.exec(line)?.[1] ?? '';
+      expect(name.toLowerCase()).toBe(item.art);
+      expect(line.startsWith(name)).toBe(false);
+    }
   });
 
   it('in the saved picture every image is a data: URL; one that fails to load is left out', async () => {

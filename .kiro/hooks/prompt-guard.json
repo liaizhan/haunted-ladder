@@ -1,0 +1,13 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Prompt guard",
+      "description": "When a prompt mentions prices, health results or the author's title, adds the matching project rule to the agent's context.",
+      "trigger": "UserPromptSubmit",
+      "action": { "type": "command", "command": "node scripts/kiro/prompt-guard.mjs" },
+      "timeout": 10,
+      "enabled": true
+    }
+  ]
+}

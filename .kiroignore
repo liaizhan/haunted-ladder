@@ -1,0 +1,6 @@
+# Build output and big generated folders Kiro does not need to read
+node_modules/
+dist/
+screens/
+docs/
+package-lock.json

@@ -1,0 +1,13 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Take screenshots",
+      "description": "On demand: starts the dev server, opens headless Chrome and saves the intro, form, waiting and reading screens for a computer and a phone into screens/. The reading is answered offline from the test fixture.",
+      "trigger": "Manual",
+      "action": { "type": "command", "command": "npm run screens" },
+      "timeout": 180,
+      "enabled": true
+    }
+  ]
+}

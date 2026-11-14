@@ -1,0 +1,67 @@
+{
+  "name": "release",
+  "description": "Release check for Haunted Ladder: tests and types, locale keys and banned words, screenshots, three language reviews in parallel, a report, then the author's yes before any commit. Nothing is pushed by this workflow.",
+  "steps": [
+    {
+      "type": "step",
+      "id": "checks",
+      "agent": "wf-coder",
+      "effortLevel": "low",
+      "prompt": "In /Users/aizhanli/AI/haunted-ladder run, one after another: npm test, npx tsc --noEmit -p ., npm run check:locales, and grep -rnE '[Pp]sychologist|[Tt]herapist|\\.innerHTML *=|autoplay' src index.html (a match is a failure). Change no files. Final message: each command with its result line, then exactly one line CHECKS PASSED or CHECKS FAILED."
+    },
+    {
+      "type": "step",
+      "id": "screens",
+      "agent": "wf-coder",
+      "effortLevel": "low",
+      "prompt": "In /Users/aizhanli/AI/haunted-ladder run npm run screens. It starts a local Vite server and headless Chrome, sends nothing to the network, and saves PNG files to /Users/aizhanli/AI/haunted-ladder/screens. Change no other files. Final message: the list of PNG files written, or the error."
+    },
+    {
+      "type": "parallel",
+      "id": "language-review",
+      "joinPolicy": "allSettled",
+      "branches": [
+        {
+          "type": "step",
+          "id": "review-en",
+          "agent": "haunted-reviewer",
+          "prompt": "Review /Users/aizhanli/AI/haunted-ladder/src/locales/en.ts for an American judge who knows nothing about Kazakh folklore: every spirit name has its English meaning first, sentences are short and clear. Also apply the rules from your profile. End with LANG OK or LANG ISSUES."
+        },
+        {
+          "type": "step",
+          "id": "review-ru",
+          "agent": "haunted-reviewer",
+          "prompt": "Review /Users/aizhanli/AI/haunted-ladder/src/locales/ru.ts: natural Russian, the same keys and meaning as /Users/aizhanli/AI/haunted-ladder/src/locales/en.ts. Also apply the rules from your profile. End with LANG OK or LANG ISSUES."
+        },
+        {
+          "type": "step",
+          "id": "review-kk",
+          "agent": "haunted-reviewer",
+          "prompt": "Review /Users/aizhanli/AI/haunted-ladder/src/locales/kk.ts: Kazakh text, the same keys and meaning as /Users/aizhanli/AI/haunted-ladder/src/locales/en.ts, spirit names spelled with Kazakh letters. Also apply the rules from your profile. End with LANG OK or LANG ISSUES."
+        }
+      ]
+    },
+    {
+      "type": "step",
+      "id": "report",
+      "agent": "wf-coder",
+      "effortLevel": "low",
+      "artifacts": { "report": "/Users/aizhanli/AI/haunted-ladder/.kiro/release/report.md" },
+      "prompt": "Write /Users/aizhanli/AI/haunted-ladder/.kiro/release/report.md in plain English with four sections: Checks ({{checks.output}}), Screens ({{screens.output}}), Languages (en: {{review-en.output}} ru: {{review-ru.output}} kk: {{review-kk.output}}), and Ready or not (one sentence). Do not use the long dash. Change no other files. Final message: the path and the Ready or not sentence."
+    },
+    {
+      "type": "step",
+      "id": "author-gate",
+      "agent": "wf-coder",
+      "completion": { "containsText": "AUTHOR SAID YES" },
+      "prompt": "Show the author the short summary from {{report.output}} and ask one question: may I make a local commit of the current changes? Do not run git and change no files in this step. If the author answers yes in her own words, reply with exactly AUTHOR SAID YES. If she says no or asks for changes, answer her and wait."
+    },
+    {
+      "type": "step",
+      "id": "commit",
+      "agent": "wf-coder",
+      "effortLevel": "low",
+      "prompt": "The author said yes to a local commit. In /Users/aizhanli/AI/haunted-ladder run git status --short, then git add only the files listed there that are not ignored, then git commit with a short English message that names what changed. Never run git push, gh pr create or any command that publishes; the block-git-push hook stops them and the author pushes herself after her own separate yes. Final message: the commit hash and its message."
+    }
+  ]
+}

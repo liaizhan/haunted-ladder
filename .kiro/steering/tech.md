@@ -9,7 +9,7 @@ inclusion: always
 - No backend, no database. The only network call is a JSON-RPC 2.0 POST to `https://108psy.com/mcp` (method `tools/call`, tool `analyze_ladder`). The server allows CORS from any origin and stores nothing.
 - Hosting: GitHub Pages, deployed by a GitHub Actions workflow on push to `main`. Vite `base` is `/haunted-ladder/`.
 - Graphics: inline SVG built in code. Export to PNG by drawing the SVG on a canvas. No image libraries.
-- No external fonts or CDNs at runtime. Use a system font stack.
+- No external fonts or CDNs at runtime. The only web font is Cormorant SC (OFL 1.1), self-hosted in `public/fonts` with its license in `public/fonts/OFL.txt`; everything else uses a system font stack.
 - Render user text only with `textContent` or SVG text nodes, never with `innerHTML`.
 - Respect `prefers-reduced-motion`: no fade or float animation when it is set, the end state appears at once.
 
@@ -46,3 +46,12 @@ The answer is in `result.structuredContent` (the same JSON is also in `result.co
 A JSON-RPC `error` object or a network failure is an error state with a retry button. Never invent a reading on the client.
 
 The `fullDiagnostic.url` comes with `utm_source=chatgpt_plugin`. Replace that value with `haunted_ladder` before showing the link.
+
+## Live references
+
+Kiro reads these files together with this rule, so the contract above never drifts from the code:
+
+- Dictionaries, one key in all three languages: #[[file:src/locales/en.ts]]
+- How the server answer is parsed: #[[file:src/domain/server.ts]]
+- The property tests for the answer: #[[file:tests/domain/server.test.ts]]
+- The language switch and `t()`: #[[file:src/i18n.ts]]

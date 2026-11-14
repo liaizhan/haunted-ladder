@@ -1,0 +1,14 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Block git push",
+      "description": "Stops the agent before git push or creating a pull request, release or repository. Publishing waits for the author's explicit yes.",
+      "trigger": "PreToolUse",
+      "matcher": "execute_bash|shell",
+      "action": { "type": "command", "command": "node scripts/kiro/block-git-push.mjs" },
+      "timeout": 10,
+      "enabled": true
+    }
+  ]
+}

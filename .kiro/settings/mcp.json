@@ -4,6 +4,12 @@
       "url": "https://108psy.com/mcp",
       "disabled": false,
       "autoApprove": ["get_ladder_questions", "analyze_ladder"]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@0.0.84", "--headless", "--isolated"],
+      "disabled": false,
+      "autoApprove": ["browser_navigate", "browser_snapshot", "browser_take_screenshot", "browser_resize", "browser_console_messages"]
     }
   }
 }

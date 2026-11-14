@@ -1,0 +1,21 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Log before compaction",
+      "description": "Writes a line to .kiro/hook-runs.log before the conversation is compacted.",
+      "trigger": "PreCompact",
+      "action": { "type": "command", "command": "node scripts/kiro/compact-log.mjs PreCompact" },
+      "timeout": 10,
+      "enabled": true
+    },
+    {
+      "name": "Log after compaction",
+      "description": "Writes a line with the summary path to .kiro/hook-runs.log after the conversation is compacted.",
+      "trigger": "PostCompact",
+      "action": { "type": "command", "command": "node scripts/kiro/compact-log.mjs PostCompact" },
+      "timeout": 10,
+      "enabled": true
+    }
+  ]
+}

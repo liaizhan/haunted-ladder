@@ -1,0 +1,13 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Screenshots reminder",
+      "description": "When the agent stops after changing files in src, reminds it to retake the screenshots and check the README pictures.",
+      "trigger": "Stop",
+      "action": { "type": "command", "command": "node scripts/kiro/screens-reminder.mjs" },
+      "timeout": 10,
+      "enabled": true
+    }
+  ]
+}

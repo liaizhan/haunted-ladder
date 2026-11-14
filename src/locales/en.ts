@@ -8,8 +8,8 @@ export const en = {
 
   introTagline: 'Climb if you dare.',
   introP1:
-    'Write down your goal. Every fear that holds you in place takes a step as a spirit from Kazakh legends. Call it by its name and watch it fade.',
-  introP2: 'A few minutes. Your words never leave your browser. By Aizhan Li, author of the Ladder method.',
+    'Write down your goal. Every fear that holds you in place takes a step as a spirit from Kazakh legends. Name it, write one small step, and the spirit turns into a light one.',
+  introP2: 'A few minutes. Your words go to the Ladder server only for the reading, and the server does not keep them. By Aizhan Li, author of the Ladder method.',
   introStart: 'Start',
   introSample: 'See a sample ladder',
 
@@ -59,7 +59,7 @@ export const en = {
   editAnswers: 'Edit my answers',
   saveLadder: 'Save my ladder as a picture',
   closingLine:
-    'Every ghost has a name and a next step now. That is a real way to make a fear smaller.',
+    'Every ghost has a name and a next step now. A named fear often feels smaller.',
   ghostBlockTitle: 'Turn every dark spirit into a light one',
   ghostBlockHelp: 'Write one small step for a fear, and its dark spirit turns into a light one.',
   stepLabel: 'My step this week',
@@ -91,7 +91,7 @@ export const en = {
   noGhosts: 'No ghosts were found above your goal.',
   ghostAria: 'Ghost: {fear}',
   ghostFadedAria: 'Ghost, faded, has a small step: {fear}',
-  heartRate: 'Heart: {bpm} beats per minute. Every small step calms it down.',
+  heartRate: 'Heart: {bpm} beats per minute. A small step can help it calm down.',
   heartUnit: 'beats per minute',
   heartStageFear: 'Fear grips the heart.',
   heartStageEasing: 'It gets lighter. One more step.',
@@ -99,15 +99,15 @@ export const en = {
 
   legendTitle: 'Who lives on this ladder',
   legendZheztyrnaq:
-    'Zheztyrnaq, the copper-clawed spirit of Kazakh legends. Here she is a fear without a step.',
+    'A copper-clawed witch (Zheztyrnaq) from Kazakh legends. On your ladder she is a fear with no step yet.',
   legendPeri:
-    'Peri, a bright spirit of Turkic tales. A fear turns into her when you write one small step.',
-  legendShanyraq: 'Shanyraq, the crown of the yurt: home and the place you start.',
-  legendAsyq: 'Asyq, the knucklebone of an old Kazakh game: luck for your nearest obstacle.',
-  legendTumar: 'Tumar, a folk amulet: protection on the hard steps.',
+    'A bright fairy (Peri) from Persian and Turkic tales. A fear turns into her once you write one small step.',
+  legendShanyraq: 'The crown of the yurt (Shanyraq): home, the place you start from.',
+  legendAsyq: 'A lucky knucklebone (Asyq) from an old Kazakh game. Here it marks your nearest obstacle.',
+  legendTumar: 'A folk amulet (Tumar): in the legends, a charm against harm. Here it marks the hard steps.',
   legendQobyz:
-    'Qobyz, the instrument of Korkyt Ata. In the legend, death could not come near while he played.',
-  legendBurkit: 'Burkit, the golden eagle: freedom at your goal.',
+    'A horsehair fiddle (Qobyz). In the legend, the bard Korkyt Ata played it to keep death away.',
+  legendBurkit: 'A golden eagle (Burkit): freedom at your goal.',
 };
 
 export type Dict = Record<keyof typeof en, string>;

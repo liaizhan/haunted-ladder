@@ -1,0 +1,14 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Locales keys check",
+      "description": "When a dictionary in src/locales is saved, checks that every interface key exists in English, Russian and Kazakh.",
+      "trigger": "PostFileSave",
+      "matcher": "src/locales/.*\\.ts$",
+      "action": { "type": "command", "command": "node scripts/kiro/check-locales.mjs" },
+      "timeout": 30,
+      "enabled": true
+    }
+  ]
+}
