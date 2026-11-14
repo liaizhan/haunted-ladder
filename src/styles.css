@@ -1878,3 +1878,209 @@ body.calm .q-scene {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.35) rotate(18deg); }
 }
+
+/* Result: the right column in the same gold as the questions screen */
+.result {
+  --gold: #f2b547;
+  --gold-soft: rgba(242, 181, 71, 0.55);
+  --q-corner: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44' fill='none' stroke='%23f2b547' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M3 41V16C3 8 8 3 16 3h25'/%3E%3Cpath d='M11 30V22c0-7 4-11 11-11h8'/%3E%3Cpath d='M11 22c0-5 6-6 7-2 1 3-2 4-3 2'/%3E%3Cpath d='M22 11c5 0 6 6 2 7-3 1-4-2-2-3'/%3E%3C/svg%3E");
+}
+
+.result > h2,
+.result .reading h2,
+.result .legend h2 {
+  font-family: 'Cormorant SC', Georgia, serif;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  color: #ffe3a3;
+  text-shadow: 0 0 18px rgba(255, 170, 70, 0.35);
+}
+
+.result > h2 {
+  font-size: clamp(1.9rem, 5.6vw, 2.6rem);
+}
+
+.result .reading h2,
+.result .legend h2 {
+  font-size: clamp(1.45rem, 4.4vw, 1.8rem);
+}
+
+/* The step fields sit in a gold-framed card with ram-horn corners */
+.result .ghost-block {
+  position: relative;
+  padding: 1.6rem 1.5rem 1.75rem;
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(34, 28, 69, 0.85), rgba(20, 17, 43, 0.92));
+  box-shadow: 0 0 0 1px rgba(242, 181, 71, 0.22), 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.result .ghost-block::before,
+.result .ghost-block::after {
+  content: '';
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: var(--q-corner) center / contain no-repeat;
+  pointer-events: none;
+}
+
+.result .ghost-block::before { top: 9px; left: 9px; }
+.result .ghost-block::after { bottom: 9px; right: 9px; transform: scale(-1, -1); }
+
+.result .ghost-block .ghost-heading {
+  margin: 0.4rem 0 0.4rem 1.6rem;
+}
+
+.result .ghost-block > .help {
+  color: #d9d3ec;
+}
+
+.result .ghost-step input {
+  padding: 0.85rem 2.4rem 0.85rem 1.05rem;
+  border-radius: 14px;
+  border: 1px solid var(--gold-soft);
+  background: linear-gradient(180deg, rgba(34, 28, 69, 0.95), rgba(20, 17, 43, 0.95));
+  box-shadow:
+    inset 0 0 0 3px rgba(20, 17, 43, 0.9),
+    inset 0 0 0 4px rgba(242, 181, 71, 0.16),
+    0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.result .ghost-step input:focus {
+  outline: none;
+  border-color: #ffd98a;
+  box-shadow:
+    inset 0 0 0 3px rgba(20, 17, 43, 0.9),
+    inset 0 0 0 4px rgba(242, 181, 71, 0.35),
+    0 0 0 3px rgba(242, 181, 71, 0.28),
+    0 0 26px rgba(255, 170, 70, 0.3);
+}
+
+.result .ghost-step .step-mark {
+  right: 1rem;
+  bottom: 0.85rem;
+  color: #ffd98a;
+}
+
+.result .ghost-block .closing {
+  color: #ffe3a3;
+  font-style: italic;
+}
+
+.result button {
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.result .save,
+.result .demo-note button {
+  padding: 0.85rem 2rem;
+  color: #2a1406;
+  background: linear-gradient(180deg, #ffd98a 0%, #f2a43e 60%, #cf7422 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 245, 210, 0.8),
+    0 0 0 1px rgba(255, 210, 130, 0.5),
+    0 10px 28px rgba(255, 138, 61, 0.4);
+}
+
+.result .save:disabled {
+  opacity: 0.45;
+  box-shadow: inset 0 1px 0 rgba(255, 245, 210, 0.6), 0 0 0 1px rgba(255, 210, 130, 0.4);
+}
+
+.result .demo-note button {
+  padding: 0.6rem 1.4rem;
+  margin-left: 0.4rem;
+}
+
+.result .sound-row button,
+.result button.secondary {
+  padding: 0.75rem 1.4rem;
+  color: #ffe3a3;
+  border: 1px solid var(--gold-soft);
+  background: rgba(20, 17, 43, 0.45);
+}
+
+/* A gold ornament above "What I see" and "Questions for you" */
+.result .reading > h2::before {
+  content: '';
+  display: block;
+  height: 22px;
+  margin: 0 0 0.9rem;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 22' fill='none' stroke='%23f2b547' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 5l6 6-6 6-6-6z'/%3E%3Cpath d='M53 11c-6 0-9-6-14-5-5 1-4 9 1 8 3-1 2-5-1-4'/%3E%3Cpath d='M67 11c6 0 9-6 14-5 5 1 4 9-1 8-3-1-2-5 1-4'/%3E%3Cpath d='M30 11h-4M94 11h-4'/%3E%3C/svg%3E") center / 120px 22px no-repeat,
+    linear-gradient(90deg, rgba(242, 181, 71, 0), rgba(242, 181, 71, 0.6)) left center / calc(50% - 64px) 1px no-repeat,
+    linear-gradient(90deg, rgba(242, 181, 71, 0.6), rgba(242, 181, 71, 0)) right center / calc(50% - 64px) 1px no-repeat;
+}
+
+.result .reading > h2 {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.result .insights,
+.result .questions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.result .insights li,
+.result .questions li {
+  position: relative;
+  padding-left: 1.6rem;
+  margin-bottom: 0.75rem;
+  color: #e9e4f5;
+  line-height: 1.6;
+}
+
+.result .insights li::before,
+.result .questions li::before {
+  content: '';
+  position: absolute;
+  left: 0.2rem;
+  top: 0.6em;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--gold);
+  transform: rotate(45deg);
+  box-shadow: 0 0 8px rgba(255, 170, 70, 0.6);
+}
+
+.result .disclaimer {
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.result a.diagnostic {
+  color: #ffd98a;
+  font-weight: 600;
+  text-decoration-color: var(--gold-soft);
+  text-underline-offset: 0.2em;
+}
+
+.result a.diagnostic:hover {
+  color: #ffe3a3;
+}
+
+@media (max-width: 480px) {
+  .result .ghost-block {
+    padding: 1.4rem 1.05rem 1.6rem;
+  }
+  .result .ghost-block::before,
+  .result .ghost-block::after {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .result .ghost-step input,
+  .result button {
+    transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.15s ease;
+  }
+  .result button:not(:disabled):active {
+    transform: translateY(1px);
+  }
+}
