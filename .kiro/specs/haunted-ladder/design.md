@@ -92,6 +92,23 @@ Key: `haunted-ladder:v1`.
 - `i18n.ts` with `locales/en.ts`, `locales/ru.ts`, `locales/kk.ts`: `t(key)`, `getLang()`, `setLang(lang)`; the language is saved in `localStorage` and sets `<html lang>`. The Russian and Kazakh question texts are copied from the Ladder server's `get_ladder_questions`.
 - `nightSound.ts`: Web Audio only, no files. Wind is filtered brown noise with a slow gain wobble. The heartbeat is two short low sine thumps ("lub-dub") scheduled on the audio clock at the current beat rate. `start()` needs a user gesture; `stop()` ramps gain to 0 in 2 seconds; `kill()` stops at once (used by the calm screens).
 
+#### Side staircase layout (Requirement 17)
+
+The look follows `Ladder.tsx` on 108psy.com: plate i (0 = the "I" step) sits at `x = pad + i * w`, `y = top + (N - 1 - i) * row`, so the staircase rises to the right, with the floor line under plate 0.
+
+- One geometry for every width: `vw = clamp(containerWidth, 300, 680)` (0 or missing means 680), 1 SVG unit = 1 CSS px, `data-layout="narrow"` below 640 and `"wide"` otherwise.
+- `pad = 12`, `row = 60`, `top = 64` (room for the banister and the moon), floor 28 below the last row.
+- Stair area: `stairW = min(round(vw * 0.42), vw - 2 * pad - 14 - 160)` so cards always keep at least 160 px; plate width `w = clamp(floor(stairW / N), 10, 56)`; plate height `row - 8` with `rx = 5`. A 2 px darker copy under each plate stands in for a shadow (no SVG filter, so the saved picture matches).
+- Number: centered, bold, 13 px when `w >= 24`, 11 px when `w >= 16`, and left out on thinner plates (the plate's `<title>` and `aria-label` still carry the number and words). Badges ("me", "goal") are small pills (class `badge`, 11 px bold text, solid fill with AA contrast) at the start of the first line of their note card, so they never collide with the banister or the next plate.
+- Banister: one post per plate (2 px wide, 22 px tall from the plate's top left corner) and a rail through the post tops.
+- Notes column: `noteX = pad + N * w + 14`, card width `vw - pad - noteX`, card height 54 centered on the plate row, `rx = 8`, solid `NIGHT_2` fill, 13 px text, up to 3 wrapped lines with `wrapText` and `charWidth(13)`. Fear cards keep 34 px on the left for the ghost (body drawn at scale 0.5 in an inner group, so `.ghost-body` keeps a plain `translate(x y)` for `motes.ts`).
+- Leader line: from `(plate right, plate middle)` to `(noteX, plate middle)`, 1 px `MIST`, with a 2.5 px dot at the plate end; dashed for the goal.
+- Colors: "I" plate `MOON` with `NIGHT` number; obstacle `NIGHT_2` with `MIST` outline and a 3-thread cobweb in the top left corner; nearest obstacle outline `PUMPKIN` 2.5 px; goal plate `PUMPKIN` with `NIGHT` number and the `.goal-light` lantern (a small circle with a crisp ring) above it; fear plate dashed `MIST` outline with no fill until its ghost fades, then class `lit` with `MOON` outline and `NIGHT_2` fill.
+- Faded ghost: the `.ghost-float` group gets opacity 0.15, the check mark shows, the label turns `MIST` and keeps AA contrast on `NIGHT_2`.
+- Moon in the empty top left corner above the low plates.
+
+`heart.ts` (Requirement 17.6) becomes a pulse panel: a flex row above the staircase with a 56 px crisp heart (path with a linear gradient from `#E23B4E` to `PUMPKIN`, a 1.5 px `MOON` outline, one small highlight, no filter and no blur), a pulse line (an SVG polyline with a flat line and one beat spike, moved with a CSS animation whose length is `var(--beat)`), and the beat rate text from `t('heartRate')`, always visible. The panel is in normal flow before the staircase, not absolutely placed over it.
+
 ### domain/pulse.ts
 
 ```ts
@@ -195,6 +212,14 @@ Validates: Requirements 13.1, 13.2, 13.3
 Property 17: Motes leave no trace
 For any sequence of 1 to 20 step adds and clears, after all mote animations finish the SVG contains no mote elements, and under reduced motion no mote is ever created.
 Validates: Requirements 14.2, 14.4
+
+Property 19: A side staircase that reads
+For any reading with 1 to 5 obstacles and 0 to 5 fears, any phrases, and any container width from 300 to 680 px: there is exactly one plate (`.stair` with `data-zone`) per step in reading order, plate i+1 is exactly one plate width to the right of and one row higher than plate i, every plate and card lies inside the viewBox, every note card starts to the right of the right edge of every plate, no two cards overlap and no card overlaps a plate, every leader line runs from its plate's right edge to its card's left edge at one height, card text is 13 px or larger and every wrapped line fits its card, and every number and card text has contrast 4.5:1 or more against its own fill.
+Validates: Requirements 17.1, 17.2, 17.3, 17.4, 17.7
+
+Property 20: A clear heart apart from the text
+For any list of 0 to 5 ghosts with any steps, the heart panel comes before the staircase in the stage and is not laid over it, has no blur filter and no body fill opacity below 1, always shows the beat rate as text equal to `beatsPerMinute` of the unfaded ghosts (after the ease), and holds one pulse line whose animation length follows `--beat`.
+Validates: Requirements 17.6, 9.2
 
 Property 18: Same words in every language
 The `en`, `ru` and `kk` dictionaries have the same key set, no value is empty, and no value in any language contains "psycholog", "therapist", "психолог" or "психотерапевт" (case-insensitive).

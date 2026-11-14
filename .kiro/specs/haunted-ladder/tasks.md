@@ -173,7 +173,17 @@
   - [x] 23.1 "See a sample ladder" and `?demo=1` send the sample at once and show fog then result; the result shows "Sample ladder" and "Write my own"; update Property 13 tests and the app test to the new path
     - _Requirements: 16.1, 16.2, 16.3, 10.3, 10.4_
 
-- [ ] 24. Judge-ready README
+- [ ] 24. A side staircase like the Ladder site and a clear heart
+  - [ ] 24.1 Rewrite `src/ui/staircase.ts` to Requirement 17: plates for every step on a side staircase with a floor line and a banister, numbers and the "me" and "goal" badges (new keys in all three locale files), note cards in one right column with leader lines, cobwebs in a plate corner, the lantern over the goal, ghosts inside the fear cards (keep `.ghost[data-ghost]`, `.ghost-body` with `translate(x y)`, `.ghost-float`, `.ghost-check`, `.ghost-label`, `.goal-light`, `.nearest`, `.cobweb`, `.moon` in the empty top left corner), one geometry for 300 to 680 px at 1 unit = 1 CSS px; keep `updateGhosts`, `wrapText` and the export path working
+    - _Requirements: 17.1, 17.2, 17.3, 17.4, 17.5, 17.7, 17.8_
+  - [ ] 24.2 Rewrite `src/ui/heart.ts` and its CSS to a pulse panel above the staircase: crisp heart, pulse line in time with `--beat`, beat rate always written; reduced motion still; calm screens show no heart; update `main.ts` and the export picture if they need it
+    - _Requirements: 17.6, 9.2, 9.3, 9.9_
+  - [ ] 24.3 Update the tests for Properties 14 and 15 and the other staircase, phone, accessibility, dawn, motes and export tests to the new picture, and write property tests for Properties 19 and 20
+    - **Property 19: A side staircase that reads**
+    - **Property 20: A clear heart apart from the text**
+    - **Validates: Requirements 17.1 to 17.8**
+
+- [ ] 25. Judge-ready README
   - Top block "Summary for judges": what it is, who it is for, the live link and the `?demo=1` link
   - A short GIF of one ghost fading and the heart slowing, and a captioned screenshot of every screen (intro, form, fog, staircase, all ghosts faded, crisis)
   - Numbers from the repo: requirements, correctness properties, tasks, steering files, hooks, test count

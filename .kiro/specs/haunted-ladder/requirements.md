@@ -111,7 +111,7 @@ Haunted Ladder is a one-page web app built on the Ladder method by Aizhan Li, au
 
 #### Acceptance Criteria
 
-1. WHEN the result screen is shown THEN the system SHALL draw a glowing x-ray heart behind the staircase: a translucent cold grey-blue heart with a warm red-orange glow at its center.
+1. WHEN the result screen is shown THEN the system SHALL draw a glowing x-ray heart behind the staircase: a translucent cold grey-blue heart with a warm red-orange glow at its center. (Changed by Requirement 17: the heart is now a crisp heart in its own pulse panel above the staircase, not behind it.)
 2. WHEN ghosts are drawn THEN the system SHALL make the heart beat at a rate that depends only on the number of ghosts without a step: 60 beats per minute when none are left, plus 12 beats per minute for each unfaded ghost, never above 120.
 3. WHEN the last ghost gets a step THEN the system SHALL slow the heart to 60 beats per minute over about 3 seconds and soften its glow.
 4. WHEN the request is in progress THEN the system SHALL cover the staircase with slow drifting fog, and WHEN the reading arrives THEN the fog SHALL lift and the moonlight SHALL reach the steps one by one from the bottom up.
@@ -141,7 +141,7 @@ Haunted Ladder is a one-page web app built on the Ladder method by Aizhan Li, au
 
 1. WHEN the intro screen is shown THEN the system SHALL draw a night scene in inline SVG behind the text: a moon with a soft halo, a few stars, a ladder silhouette rising from low fog toward the moon, and one small ghost peeking from behind the ladder. It SHALL load no external file.
 2. WHEN the intro screen is shown THEN the title "Haunted Ladder" SHALL glow softly with a slow candle flicker, and the system SHALL show a second button "See a sample ladder" next to "Start" that opens the same page with `?demo=1`.
-3. WHEN the result screen is shown THEN every step label SHALL sit on its own solid step color, drawn above the heart, so that step text keeps WCAG AA contrast (4.5:1) no matter what is behind it, and no ghost label SHALL overlap a ghost or another label.
+3. WHEN the result screen is shown THEN every step label SHALL sit on its own solid step color, drawn above the heart (Changed by Requirement 17: labels now sit in solid note cards to the right of the staircase, and nothing is drawn behind them), so that step text keeps WCAG AA contrast (4.5:1) no matter what is behind it, and no ghost label SHALL overlap a ghost or another label.
 4. WHEN ghosts without a step are drawn THEN each SHALL float gently up and down in a loop of 3 to 5 seconds with a different phase per ghost; a faded ghost SHALL stop floating.
 5. WHEN `prefers-reduced-motion: reduce` is set THEN the flicker and the floating SHALL be off, and the scene SHALL be shown still.
 6. WHEN the crisis, health or error screen is shown THEN the intro scene, the glow and the floating SHALL NOT appear (Requirement 6.1 still holds).
@@ -204,4 +204,19 @@ Haunted Ladder is a one-page web app built on the Ladder method by Aizhan Li, au
 1. WHEN "See a sample ladder" is pressed on the intro, or the page opens with `?demo=1`, THEN the system SHALL send the sample ladder to the Ladder server at once and show the fog and then the result, without the form screens.
 2. WHEN the sample result is shown THEN it SHALL say "Sample ladder" with a "Write my own" button that clears the sample and opens question 1.
 3. WHEN the sample is shown THEN Requirements 10.3 and 10.4 SHALL still hold: no saved draft is overwritten, the demo answers are not saved, and the reading comes from the real server.
+
+### Requirement 17: A staircase seen from the side, like the Ladder site, and a clear heart
+
+**User Story:** As a person who knows the Ladder method from 108psy.com, I want the haunted staircase to look like the Ladder I know, a staircase seen from the side with numbered steps and my words next to them, and I want the heart to be sharp and easy to read, so that the picture feels finished and I understand it at a glance.
+
+#### Acceptance Criteria
+
+1. WHEN the result screen is shown THEN the system SHALL draw every step of the reading, fears included, as one numbered plate on a staircase seen from the side: the "I" step at the bottom left, then the obstacles from the nearest up, then the goal, then the fears above the goal, each plate one step to the right of and one row above the one before it, standing on a floor line, like the Ladder on 108psy.com.
+2. WHEN the plates are drawn THEN each SHALL show its step number in the middle, the "I" step SHALL carry a small "me" badge and the goal step a small "goal" badge in its note card (texts in all three languages), and a thin banister SHALL run along the staircase with one short post on each plate.
+3. WHEN a step has words THEN the system SHALL show them in a solid note card in one column to the right of the whole staircase, at the height of that step's plate, joined to the plate by a thin leader line with a dot at the plate end; no note card SHALL overlap another card or any plate.
+4. WHEN the plates and cards are colored THEN the "I" plate SHALL be moonlight, obstacle plates dark with a small cobweb in one corner (the nearest obstacle outlined in pumpkin), the goal plate lit pumpkin with a lantern light above it, and fear plates dashed and empty while their ghost has no step and solid and moonlit once it has one; every number and every card text SHALL keep WCAG AA contrast (4.5:1) against its own solid fill.
+5. WHEN a fear has no step THEN its ghost SHALL float inside that fear's note card, to the left of the words; WHEN the fear gets a step THEN the ghost SHALL fade to 0.15 with a pumpkin check mark, the words SHALL stay readable, and Requirements 5, 13 and 14 (fade, dawn, motes) SHALL still hold.
+6. WHEN the heart is shown THEN the system SHALL draw it as a crisp vector heart, solid red to pumpkin with a light outline and no blur, in its own pulse panel above the staircase together with a moving pulse line (one beat spike per beat, in time with the heart) and the beat rate written as text; the heart SHALL NOT sit behind or over any text. Requirement 9.2, 9.3 and 9.9 still hold (under reduced motion the heart and the pulse line are still).
+7. WHEN the staircase is drawn THEN it SHALL be drawn at 1 SVG unit = 1 CSS px for containers from 300 to 680 px wide (wider containers get the 680 px picture, the saved picture always uses 680 px), with note text at 13 px or larger, so Requirements 11.7 and 12 still hold at 360 and 375 px and in the two-column layout at 900 px and wider.
+8. WHEN the staircase is drawn THEN the person's words SHALL still go in only as SVG text nodes (Property 10) and the full words of every step SHALL be in the plate's `<title>` even when the card text is cut with an ellipsis.
 
