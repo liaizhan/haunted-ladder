@@ -17,10 +17,6 @@ export type FormOptions = {
   onSubmit: (draft: LadderDraft) => void;
   /** Called when the person presses "Clear my answers". */
   onClear: () => void;
-  /** Demo mode: open on the last screen and show the sample line. */
-  demo?: boolean;
-  /** Called when the person presses "Clear" on the demo line. */
-  onDemoClear?: () => void;
 };
 
 type StepKey = 'goal' | 'me' | 'blocks' | 'fears';
@@ -85,7 +81,7 @@ export function createForm(opts: FormOptions): HTMLElement {
   if (draft.fears.length === 0) draft.fears.push('');
   if (draft.fears.length > MAX_FEARS) draft.fears.length = MAX_FEARS;
 
-  let step = opts.demo ? STEPS.length - 1 : 0;
+  let step = 0;
 
   const root = document.createElement('form-screen') as FormScreen;
   root.className = 'screen form';
@@ -121,15 +117,6 @@ export function createForm(opts: FormOptions): HTMLElement {
     root.replaceChildren();
     const key = STEPS[step] ?? 'goal';
     const last = step === STEPS.length - 1;
-
-    if (opts.demo) {
-      const demo = el('p', `${t('demoNote')} `, 'demo-note');
-      const clearDemo = el('button', t('demoClear'));
-      clearDemo.type = 'button';
-      clearDemo.addEventListener('click', () => opts.onDemoClear?.());
-      demo.append(clearDemo);
-      root.append(demo);
-    }
 
     root.append(el('p', t('progress', { n: step + 1, total: STEPS.length }), 'progress'));
     const title = el('h2', t(TITLES[key]));

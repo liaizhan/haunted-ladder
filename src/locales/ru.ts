@@ -45,8 +45,8 @@ export const ru: Dict = {
   back: 'Назад',
   showLadder: 'Показать мою лестницу',
   clearAnswers: 'Очистить мои ответы',
-  demoNote: 'Пример лестницы. Очисти его, чтобы написать свою.',
-  demoClear: 'Очистить',
+  sampleLine: 'Пример лестницы.',
+  writeOwn: 'Написать свою',
 
   waiting: 'Читаю твою лестницу…',
 

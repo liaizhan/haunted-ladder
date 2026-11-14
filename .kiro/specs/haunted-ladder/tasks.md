@@ -169,8 +169,8 @@
     - **Property 18: Same words in every language**
     - **Validates: Requirements 15.2, 15.5**
 
-- [ ] 23. One click to a real ladder
-  - [ ] 23.1 "See a sample ladder" and `?demo=1` send the sample at once and show fog then result; the result shows "Sample ladder" and "Write my own"; update Property 13 tests and the app test to the new path
+- [x] 23. One click to a real ladder
+  - [x] 23.1 "See a sample ladder" and `?demo=1` send the sample at once and show fog then result; the result shows "Sample ladder" and "Write my own"; update Property 13 tests and the app test to the new path
     - _Requirements: 16.1, 16.2, 16.3, 10.3, 10.4_
 
 - [ ] 24. Judge-ready README

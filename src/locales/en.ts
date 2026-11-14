@@ -40,8 +40,8 @@ export const en = {
   back: 'Back',
   showLadder: 'Show my ladder',
   clearAnswers: 'Clear my answers',
-  demoNote: 'Sample ladder. Clear it to write your own.',
-  demoClear: 'Clear',
+  sampleLine: 'Sample ladder.',
+  writeOwn: 'Write my own',
 
   waiting: 'Reading your ladder…',
 

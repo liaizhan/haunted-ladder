@@ -84,7 +84,7 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
 
   const saved = store && !demoActive ? load(store) : null;
   const state: State = {
-    screen: demoActive ? 'form' : 'intro',
+    screen: 'intro',
     draft: demoActive ? demoDraft(getLang()) : saved ? saved.draft : emptyDraft(),
     answer: null,
     steps: saved ? saved.steps : {},
@@ -170,6 +170,16 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
     // An untouched sample ladder follows the language; edited answers are never replaced.
     if (demoActive && JSON.stringify(state.draft) === JSON.stringify(demoDraft(previous))) {
       state.draft = demoDraft(lang);
+      setLang(lang, store);
+      // The reading must come back in the new language, so ask the server again.
+      if (state.screen === 'result') {
+        fog?.destroy();
+        fog = null;
+        void submit();
+        return;
+      }
+      render();
+      return;
     }
     setLang(lang, store);
     if (state.screen === 'result') {
@@ -206,6 +216,15 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
     go('intro');
   }
 
+  /** Leaves the sample without touching anything saved in the browser; opens question 1. */
+  function writeOwn(): void {
+    demoActive = false;
+    state.draft = emptyDraft();
+    state.steps = {};
+    state.answer = null;
+    go('form');
+  }
+
   function renderForm(): void {
     container.replaceChildren(
       createForm({
@@ -220,15 +239,6 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
           void submit();
         },
         onClear: startOver,
-        demo: demoActive,
-        onDemoClear: () => {
-          // Leave the demo without touching anything saved in the browser.
-          demoActive = false;
-          state.draft = emptyDraft();
-          state.steps = {};
-          state.answer = null;
-          go('form');
-        },
       }),
     );
   }
@@ -294,6 +304,14 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
     const ghosts: Ghost[] = applySavedSteps(ghostsFromReading(reading), state.steps);
     const root = el('section', undefined, 'screen result');
     root.append(el('h2', t('resultTitle')));
+    if (demoActive) {
+      const note = el('p', `${t('sampleLine')} `, 'demo-note');
+      const own = el('button', t('writeOwn'));
+      own.type = 'button';
+      own.addEventListener('click', writeOwn);
+      note.append(own);
+      root.append(note);
+    }
 
     const stage = el('div', undefined, 'stage');
     root.append(stage);
@@ -376,7 +394,9 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
     }
   }
 
-  render();
+  // A sample link goes straight to the server: fog first, then the result.
+  if (demoActive) void submit();
+  else render();
 }
 
 const app = document.getElementById('app');
