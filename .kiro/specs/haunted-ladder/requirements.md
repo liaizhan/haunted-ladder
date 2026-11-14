@@ -243,3 +243,18 @@ Haunted Ladder is a one-page web app built on the Ladder method by Aizhan Li, au
 8. WHEN the picture is saved (Requirement 7) THEN every `<image>` in the saved SVG SHALL be inlined as a `data:` URL before it is drawn on the canvas, so the steppe, the spirits and the emblems are in the PNG; IF a picture cannot be loaded THEN it SHALL be left out and the save SHALL still work.
 9. WHEN `prefers-reduced-motion: reduce` is set THEN the Zheztyrnaq SHALL not float and SHALL change to the Peri at once, with no turning animation (Requirement 9.9).
 10. WHEN the crisis, health or error screen is shown THEN none of these pictures SHALL be shown there (safety steering).
+
+### Requirement 19: One night scene with carpet steps, big spirits and a blood moon
+
+**User Story:** As a judge who sees the result screen for a few seconds, I want one strong picture, a Kazakh night with a blood moon, big spirits in the sky and a staircase of carpet steps rising to the yurt, with my words in cards under it, so that the costume reads at a glance on a phone and on a laptop.
+
+This requirement changes Requirements 17.1 to 17.5 and 18.1, 18.2 and 18.4: the side view with posts, a floor line and leader lines is replaced by the scene below. Every other criterion of Requirements 17 and 18 still holds.
+
+#### Acceptance Criteria
+
+1. WHEN the staircase is drawn THEN the SVG SHALL start with a solid night sky fill, then the steppe picture mirrored so the yurt stands on the right (`image.backdrop`), then a soft fade and a dark veil, then a blood moon with a slow glow (hidden from screen readers), then the steps, then the spirits.
+2. WHEN the steps are drawn THEN each step SHALL be one carpet step picture (`art/step.webp`) with its number on it, step i+1 one rise higher and to the right of step i, all inside the night scene; the non-fear steps SHALL carry their golden emblem on the carpet and the goal a warm light above it.
+3. WHEN the words are shown THEN every step SHALL have one solid card under the scene (one column below 600 px, two columns from 600 px), with a numbered disc, the emblem or the spirit of the fear, the "me" or "goal" badge and the words; no card SHALL overlap another, obstacle cards SHALL carry a cobweb, and the nearest obstacle card SHALL be outlined in pumpkin.
+4. WHEN a fear has no step THEN its big Zheztyrnaq SHALL float in the sky band, each spirit in its own slot from left to right, with the step number under it outside the floating group; its carpet step SHALL be dim and cold and its card disc dashed. WHEN the fear gets a step THEN the spirit SHALL turn into the Peri (Requirement 18.3), the carpet step SHALL light up with a star, and the card SHALL show the Peri.
+5. WHEN dawn comes (Requirement 13) THEN the moon and the night sky fill SHALL fade away and the saved picture SHALL leave them out.
+6. WHEN the result screen is shown on a phone THEN the staircase SHALL scroll with the page (it is taller than the screen), not stick to the top.

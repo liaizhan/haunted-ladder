@@ -121,14 +121,14 @@ describe('Property 21: The Zheztyrnaq turns into a Peri', () => {
           const ghosts = ghostsFromReading(r);
           const svg = buildStaircase(r, ghosts);
 
-          const first = svg.firstElementChild;
-          expect(first?.tagName.toLowerCase()).toBe('image');
-          expect(first?.classList.contains('backdrop')).toBe(true);
+          // The night sky fill comes first, then the mirrored steppe picture over the whole scene.
+          expect(svg.firstElementChild?.classList.contains('night-sky')).toBe(true);
+          const first = svg.querySelector('image.backdrop');
+          expect(first).not.toBeNull();
+          expect(Array.from(svg.children).indexOf(first as Element)).toBeLessThanOrEqual(2);
           expect(first?.getAttribute('href')).toBe(artUrl('steppe-night'));
-          expect(first?.getAttribute('preserveAspectRatio')).toBe('xMidYMid slice');
-          const vb = (svg.getAttribute('viewBox') ?? '').split(' ').map(Number);
-          expect(attr(first, 'width')).toBe(vb[2]);
-          expect(attr(first, 'height')).toBe(vb[3]);
+          expect(attr(first, 'width')).toBeGreaterThan(0);
+          expect(attr(first, 'height')).toBeGreaterThan(0);
 
           const reading = buildReading(r, ghosts, { onStepsChange: () => {}, onSave: () => {} });
           const legend = buildLegend();
@@ -137,8 +137,10 @@ describe('Property 21: The Zheztyrnaq turns into a Peri', () => {
           expect(heading?.querySelector('img')?.getAttribute('src')).toBe(artUrl('qobyz'));
 
           const pictures = [...allArt(svg), ...allArt(reading), ...allArt(legend)];
-          // backdrop + 3 per ghost + 1 emblem per other card + qobyz + 7 legend pictures
-          expect(pictures.length).toBe(1 + 3 * fears.length + (blocks.length + 2) + 1 + 7);
+          // backdrop + 3 per ghost; per step a carpet plate, a star and a card emblem or spirit;
+          // the steps without a fear also carry an emblem on the carpet; + qobyz + 7 legend pictures
+          const steps = blocks.length + 2 + fears.length;
+          expect(pictures.length).toBe(1 + 3 * fears.length + 3 * steps + (blocks.length + 2) + 1 + 7);
           for (const pic of pictures) {
             const href = pic.getAttribute('href') ?? pic.getAttribute('src') ?? '';
             expect(href.startsWith(ART_BASE)).toBe(true);

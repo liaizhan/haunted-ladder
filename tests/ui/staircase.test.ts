@@ -6,7 +6,7 @@ import { buildHeart } from '../../src/ui/heart';
 import css from '../../src/styles.css?raw';
 import { ghostsFromReading } from '../../src/domain/ghosts';
 import type { Reading } from '../../src/domain/server';
-import { contrast, overlaps, partsOf, readingWith, rectBox, textBox, textFitsCard, type Box } from './staircaseHelpers';
+import { contrast, overlaps, partsOf, readingWith, textFitsCard, type Box } from './staircaseHelpers';
 
 const RUNS = { numRuns: 100 };
 
@@ -89,7 +89,6 @@ describe('staircase readability', () => {
 
           const parts = partsOf(svg);
           expect(parts.length).toBe(blocks.length + 2 + fears.length);
-          const boxes: Box[] = [];
           for (const p of parts) {
             // Solid card fill, no transparency, label drawn after the card.
             expect(p.note.getAttribute('fill')).toBe(STEP_FILL);
@@ -98,27 +97,34 @@ describe('staircase readability', () => {
             expect(p.label.getAttribute('fill')).toBe(LABEL_COLOR);
             expect(contrast(STEP_FILL, LABEL_COLOR)).toBeGreaterThanOrEqual(4.5);
             expect(p.note.compareDocumentPosition(p.label) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-            expect(textFitsCard(p.label, p.note, p.zone)).toBe(true);
-            if (p.zone === 'fear') boxes.push(textBox(p.label));
+            expect(textFitsCard(p.label, p.note)).toBe(true);
           }
-          expect(boxes.length).toBe(fears.length);
+          // The big spirits stand in the sky band, each in its own slot, left to right,
+          // and their step numbers never overlap.
+          const vw = Number((svg.getAttribute('viewBox') ?? '').split(' ')[2]);
+          const centers = Array.from(svg.querySelectorAll('.ghost')).map((g) => {
+            const m = /translate\(([-\d.]+) ([-\d.]+)\)/.exec(g.querySelector('.ghost-body')?.getAttribute('transform') ?? '');
+            return { x: Number(m?.[1]), y: Number(m?.[2]) };
+          });
+          expect(centers.length).toBe(fears.length);
+          centers.forEach((c, i) => {
+            expect(c.x).toBeGreaterThan(0);
+            expect(c.x).toBeLessThan(vw);
+            const prev = centers[i - 1];
+            if (prev) expect(c.x).toBeGreaterThan(prev.x);
+          });
+          const boxes: Box[] = Array.from(svg.querySelectorAll('.ghost-num')).map((n) => {
+            const r = Number(n.getAttribute('r'));
+            const x = Number(n.getAttribute('cx'));
+            const y = Number(n.getAttribute('cy'));
+            return { left: x - r, right: x + r, top: y - r, bottom: y + r };
+          });
           for (let i = 0; i < boxes.length; i++) {
             for (let j = i + 1; j < boxes.length; j++) {
               const a = boxes[i];
               const b = boxes[j];
               if (a && b) expect(overlaps(a, b)).toBe(false);
             }
-          }
-          // Every ghost sits inside its own card.
-          for (const g of Array.from(svg.querySelectorAll('.ghost'))) {
-            const gi = g.getAttribute('data-ghost');
-            const plate = svg.querySelector(`rect.plate[data-ghost="${gi}"]`);
-            const card = rectBox(plate?.parentElement?.querySelector('rect.note'));
-            const m = /translate\(([-\d.]+) ([-\d.]+)\)/.exec(g.querySelector('.ghost-body')?.getAttribute('transform') ?? '');
-            expect(Number(m?.[1])).toBeGreaterThan(card.left);
-            expect(Number(m?.[1])).toBeLessThan(card.right);
-            expect(Number(m?.[2])).toBeGreaterThan(card.top);
-            expect(Number(m?.[2])).toBeLessThan(card.bottom);
           }
         },
       ),

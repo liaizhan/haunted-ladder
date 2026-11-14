@@ -138,7 +138,8 @@ export function buildExportSvg(svg: SVGSVGElement, ghosts: Ghost[]): SVGSVGEleme
 
   if (dawn) {
     // The night becomes morning: sky gradient, a sun behind the top of the ladder, no moon.
-    copy.querySelector('.moon')?.remove();
+    copy.querySelector('.moon-sky')?.remove();
+    copy.querySelectorAll('.night-sky').forEach((node) => node.remove());
     // The night steppe lets the dawn sky show through, like the CSS on the page.
     copy.querySelector('.backdrop')?.setAttribute('opacity', String(DAWN_BACKDROP_OPACITY));
     const defs = document.createElementNS(NS, 'defs');

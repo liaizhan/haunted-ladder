@@ -1,7 +1,7 @@
 import type { Reading, Step } from '../domain/server';
 import { isFaded, type Ghost } from '../domain/ghosts';
 import { t } from '../i18n';
-import { svgArt, type ArtName } from './art';
+import { artUrl, svgArt, type ArtName } from './art';
 
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -11,11 +11,9 @@ const NIGHT_2 = '#221C45';
 const MOON = '#F4EFE6';
 const MIST = '#A9A3C7';
 const PUMPKIN = '#FF8A3D';
+const GOLD = '#E8B04A';
 const SHADOW = '#0B0919';
-
-/** Height of the spirit pictures and size of the golden emblems, in SVG units. */
-export const SPIRIT_H = 52;
-export const EMBLEM_SIZE = 24;
+const SKY = '#061331';
 const FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
 
 /** Average glyph width (px at font-size 11) used for wrapping; tests use it to size text boxes. */
@@ -32,23 +30,29 @@ export const VIEW_MAX = 680;
 /** Containers narrower than this (CSS px) are reported as the "narrow" layout. */
 export const NARROW_MAX = 640;
 export const NARROW_MIN = VIEW_MIN;
+/** Below this width the scene uses the phone sizes. */
+export const PHONE_MAX = 520;
+/** From this width the word cards stand in two columns. */
+export const TWO_COLUMNS = 600;
 
 export const PAD = 12;
-export const ROW = 60;
-export const TOP = 64;
-export const PLATE_H = ROW - 8;
-export const FLOOR_ROOM = 28;
 export const CARD_H = 54;
 export const CARD_PAD = 8;
-export const NOTE_GAP = 14;
-export const NOTE_MIN_W = 160;
+export const CARD_GAP = 8;
 export const NOTE_FONT = 13;
 export const NOTE_LINES = 3;
-export const GHOST_ROOM = 40;
-/** Room for the golden emblem at the left of a card that is not a fear. */
-export const EMBLEM_ROOM = 34;
-export const PLATE_MIN_W = 8;
-export const PLATE_MAX_W = 56;
+/** Number disc at the left of every card. */
+export const NUM_R = 13;
+/** Golden emblem (or small spirit) next to the number. */
+export const EMBLEM_SIZE = 28;
+/** Room taken by the number disc and the emblem before the words of a card. */
+export const TEXT_ROOM = 2 * NUM_R + 6 + EMBLEM_SIZE + 8;
+/** The carpet step picture is 388 x 91. */
+const STEP_RATIO = 91 / 388;
+/** The night steppe picture is 1376 x 768. */
+const STEPPE_RATIO = 768 / 1376;
+/** The spirit pictures are about 0.69 as wide as tall. */
+const SPIRIT_RATIO = 0.69;
 
 export type StaircaseOptions = {
   /** Container width in CSS px. Clamped to 300..680. 0 or missing means 680. */
@@ -58,35 +62,64 @@ export type StaircaseOptions = {
 export type Layout = {
   /** Width of the picture in SVG units (= CSS px). */
   vw: number;
-  /** Number of plates. */
+  /** Number of steps. */
   n: number;
-  /** Plate width. */
-  w: number;
-  /** Left edge of the note cards. */
-  noteX: number;
-  cardW: number;
-  height: number;
   narrow: boolean;
+  phone: boolean;
+  /** Size factor of numbers, stars and emblems in the scene. */
+  k: number;
+  /** Height of the sky band where the spirits fly. */
+  bandH: number;
+  /** How much each step rises above the one before. */
+  rise: number;
+  /** Step picture width and height. */
+  sw: number;
+  sh: number;
+  /** How far right each step stands from the one before. */
+  shift: number;
+  /** Height of the night scene; the word cards start under it. */
+  sceneH: number;
+  cols: number;
+  cardW: number;
+  cardsY: number;
+  height: number;
 };
 
 const clamp = (v: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, v));
+const r1 = (v: number): number => Math.round(v * 10) / 10;
 
 /** One geometry for every width. `count` is the number of steps, fears included. */
 export function staircaseLayout(count: number, width?: number): Layout {
   const n = Math.max(1, count);
   const cw = width !== undefined && width > 0 ? width : VIEW_MAX;
   const vw = clamp(Math.round(cw), VIEW_MIN, VIEW_MAX);
-  const stairW = Math.min(Math.round(vw * 0.42), vw - 2 * PAD - NOTE_GAP - NOTE_MIN_W);
-  const w = clamp(Math.floor(stairW / n), PLATE_MIN_W, PLATE_MAX_W);
-  const noteX = PAD + n * w + NOTE_GAP;
+  const phone = vw < PHONE_MAX;
+  const k = phone ? 1 : 1.25;
+  const bandH = phone ? 175 : 220;
+  const rise = phone ? 54 : 64;
+  const sw = Math.min(phone ? 170 : 260, vw - 2 * PAD);
+  const shift = n > 1 ? (vw - 2 * PAD - sw) / (n - 1) : 0;
+  const sceneH = Math.round(bandH + (n - 1) * rise + 70 * k + 16);
+  const cols = vw >= TWO_COLUMNS ? 2 : 1;
+  const cardW = r1((vw - 2 * PAD - (cols - 1) * CARD_GAP) / cols);
+  const rows = Math.ceil(n / cols);
+  const cardsY = sceneH + 12;
   return {
     vw,
     n,
-    w,
-    noteX,
-    cardW: vw - PAD - noteX,
-    height: TOP + n * ROW + FLOOR_ROOM,
     narrow: cw < NARROW_MAX,
+    phone,
+    k,
+    bandH,
+    rise,
+    sw,
+    sh: r1(sw * STEP_RATIO),
+    shift,
+    sceneH,
+    cols,
+    cardW,
+    cardsY,
+    height: cardsY + rows * (CARD_H + CARD_GAP) - CARD_GAP + PAD,
   };
 }
 
@@ -96,6 +129,11 @@ function el<K extends keyof SVGElementTagNameMap>(
 ): SVGElementTagNameMap[K] {
   const node = document.createElementNS(NS, name);
   for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, String(v));
+  return node;
+}
+
+function hidden<T extends Element>(node: T): T {
+  node.setAttribute('aria-hidden', 'true');
   return node;
 }
 
@@ -156,14 +194,9 @@ function textBlock(
 }
 
 function cobweb(x: number, y: number, w: number, h: number): SVGGElement {
-  const g = el('g', {
-    class: 'cobweb',
-    fill: 'none',
-    stroke: MIST,
-    'stroke-width': 1,
-    opacity: 0.7,
-    'aria-hidden': 'true',
-  });
+  const g = hidden(
+    el('g', { class: 'cobweb', fill: 'none', stroke: MIST, 'stroke-width': 1, opacity: 0.6 }),
+  );
   const mx = x + w / 2;
   const my = y + h / 2;
   g.appendChild(el('path', { d: `M${x} ${y} L${x + w} ${y + h}` }));
@@ -182,43 +215,12 @@ function cobweb(x: number, y: number, w: number, h: number): SVGGElement {
   return g;
 }
 
-const stepX = (i: number, L: Layout): number => PAD + i * L.w;
-const stepY = (i: number, L: Layout): number => TOP + (L.n - 1 - i) * ROW;
+/** Ids of gradients and filters are unique per picture, so two staircases never share them. */
+let pictureCount = 0;
+type Ids = { blood: string; soft: string; haloGold: string; haloCold: string; skyFade: string };
 
-/** First text baseline so a block of `lines` lines sits in the middle of a card. */
-function noteBaseline(cardY: number, lines: number): number {
-  const total = NOTE_FONT + (lines - 1) * NOTE_FONT * 1.25;
-  return cardY + CARD_H / 2 - total / 2 + NOTE_FONT * 0.77;
-}
-
-type PlateStyle = {
-  fill: string;
-  stroke: string;
-  strokeWidth: number;
-  dash: string | null;
-  num: string;
-};
-
-function plateStyle(step: Step, nearest: boolean, lit: boolean): PlateStyle {
-  switch (step.zone) {
-    case 'current':
-      return { fill: MOON, stroke: MOON, strokeWidth: 1, dash: null, num: NIGHT };
-    case 'goal':
-      return { fill: PUMPKIN, stroke: PUMPKIN, strokeWidth: 1, dash: null, num: NIGHT };
-    case 'fear':
-      return lit
-        ? { fill: NIGHT_2, stroke: MOON, strokeWidth: 1.5, dash: null, num: MOON }
-        : { fill: NIGHT, stroke: MIST, strokeWidth: 1.5, dash: '4 3', num: MOON };
-    default:
-      return {
-        fill: NIGHT_2,
-        stroke: nearest ? PUMPKIN : MIST,
-        strokeWidth: nearest ? 2.5 : 1,
-        dash: null,
-        num: MOON,
-      };
-  }
-}
+const stepX = (i: number, L: Layout): number => r1(PAD + i * L.shift);
+const stepY = (i: number, L: Layout): number => r1(L.bandH + (L.n - 1 - i) * L.rise + 4);
 
 function badgeLabel(step: Step): string | null {
   if (step.zone === 'current') return t('badgeMe');
@@ -226,13 +228,48 @@ function badgeLabel(step: Step): string | null {
   return null;
 }
 
-/** The golden emblem of a card that is not a fear. */
+/** The golden emblem of a step that is not a fear. */
 function emblemFor(step: Step, nearest: boolean): ArtName {
   if (step.zone === 'current') return 'shanyraq';
   if (step.zone === 'goal') return 'burkit';
   return nearest ? 'asyq' : 'tumar';
 }
 
+/** A dark fear step looks cold and dim until its spirit has a small step. */
+const DIM_STEP = 'filter: brightness(.5) saturate(.3) hue-rotate(200deg)';
+const EMBLEM_GLOW =
+  'filter: drop-shadow(0 0 .6px #0B0919) drop-shadow(0 0 .6px #0B0919) drop-shadow(0 1px 1px #0B0919) drop-shadow(0 0 5px rgba(255,194,74,.55))';
+const STAR_GLOW = 'filter: drop-shadow(0 0 6px #FFC24A) drop-shadow(0 0 12px #FF9A2A)';
+
+type NumStyle = { fill: string; stroke: string; dash: string | null; text: string };
+
+function numStyle(step: Step, lit: boolean): NumStyle {
+  if (step.zone !== 'fear') return { fill: GOLD, stroke: GOLD, dash: null, text: NIGHT };
+  return lit
+    ? { fill: PUMPKIN, stroke: PUMPKIN, dash: null, text: NIGHT }
+    : { fill: NIGHT, stroke: MIST, dash: '3 2', text: MOON };
+}
+
+function paintNum(disc: Element | null, label: Element | null, s: NumStyle): void {
+  if (disc) {
+    disc.setAttribute('fill', s.fill);
+    disc.setAttribute('stroke', s.stroke);
+    if (s.dash) disc.setAttribute('stroke-dasharray', s.dash);
+    else disc.removeAttribute('stroke-dasharray');
+  }
+  label?.setAttribute('fill', s.text);
+}
+
+/** First text baseline so a block of `lines` lines sits in the middle of a card. */
+function noteBaseline(cardY: number, lines: number): number {
+  const total = NOTE_FONT + (lines - 1) * NOTE_FONT * 1.25;
+  return r1(cardY + CARD_H / 2 - total / 2 + NOTE_FONT * 0.77);
+}
+
+/**
+ * One step: the carpet step in the night scene (with its number, emblem and star) and its word
+ * card under the scene. The card carries the person's words.
+ */
 function stairGroup(
   step: Step,
   index: number,
@@ -240,126 +277,128 @@ function stairGroup(
   nearest: boolean,
   fearIndex: number | null,
 ): SVGGElement {
-  const x = stepX(index, L);
-  const y = stepY(index, L);
-  const midY = y + PLATE_H / 2;
-  const cardY = midY - CARD_H / 2;
   const cls = ['stair', `stair-${step.zone}`, nearest ? 'nearest' : ''].filter(Boolean).join(' ');
-
   const g = el('g', { class: cls, 'data-zone': step.zone });
+  if (fearIndex !== null) g.setAttribute('data-fear', String(fearIndex));
   g.setAttribute('role', 'img');
   g.setAttribute('aria-label', `${step.zoneLabel}: ${step.text}`);
   const title = el('title');
   title.textContent = step.text; // the full words, even when the card text is cut
   g.appendChild(title);
 
-  const style = plateStyle(step, nearest, false);
-  g.appendChild(
-    el('rect', {
-      class: 'plate-shadow',
-      x: x + 2,
-      y: y + 2,
-      width: L.w,
-      height: PLATE_H,
-      rx: 5,
-      fill: SHADOW,
-      'aria-hidden': 'true',
-    }),
-  );
-  const plate = el('rect', {
-    class: 'plate',
-    x,
-    y,
-    width: L.w,
-    height: PLATE_H,
-    rx: 5,
-    fill: style.fill,
-    stroke: style.stroke,
-    'stroke-width': style.strokeWidth,
-  });
-  if (style.dash) plate.setAttribute('stroke-dasharray', style.dash);
+  // The step in the scene.
+  const x = stepX(index, L);
+  const y = stepY(index, L);
+  const plate = svgArt('step', 'plate', { x, y, width: L.sw, height: L.sh, preserveAspectRatio: 'none' });
   if (fearIndex !== null) plate.setAttribute('data-ghost', String(fearIndex));
   g.appendChild(plate);
 
-  if (step.zone === 'block') {
-    g.appendChild(cobweb(x + 1, y + 1, Math.min(L.w - 2, 20), 20));
-  }
-
-  if (L.w >= 16) {
-    const size = L.w >= 24 ? 13 : 11;
-    const num = el('text', {
+  const num = hidden(
+    el('text', {
       class: 'plate-num',
-      x: x + L.w / 2,
-      y: midY + size * 0.36,
-      'font-size': size,
-      'font-weight': 700,
-      fill: style.num,
+      x: r1(x + L.sw * 0.52),
+      y: r1(y + L.sh * 0.74),
+      'font-size': r1(11 * L.k),
+      'font-weight': 800,
       'text-anchor': 'middle',
+      fill: '#FFE3A3',
+      stroke: NIGHT,
+      'stroke-width': 3,
+      'paint-order': 'stroke',
       'font-family': FONT,
-    });
-    num.textContent = String(step.number);
-    g.appendChild(num);
-  }
-
-  if (step.zone === 'goal') {
-    g.appendChild(
-      el('circle', { class: 'goal-ring', cx: x + L.w / 2, cy: y - 12, r: 8, fill: 'none', stroke: PUMPKIN, 'stroke-width': 1.5, opacity: 0.6 }),
-    );
-    g.appendChild(
-      el('circle', { class: 'goal-light', cx: x + L.w / 2, cy: y - 12, r: 5, fill: PUMPKIN }),
-    );
-  }
-
-  // Leader line from the plate to its card, with a dot at the plate end.
-  const leader = el('line', {
-    class: 'leader',
-    x1: x + L.w,
-    y1: midY,
-    x2: L.noteX,
-    y2: midY,
-    stroke: MIST,
-    'stroke-width': 1,
-    'aria-hidden': 'true',
-  });
-  if (step.zone === 'goal') leader.setAttribute('stroke-dasharray', '3 3');
-  g.appendChild(leader);
-  g.appendChild(
-    el('circle', { class: 'leader-dot', cx: x + L.w, cy: midY, r: 2.5, fill: MIST, 'aria-hidden': 'true' }),
-  );
-
-  g.appendChild(
-    el('rect', {
-      class: 'note',
-      x: L.noteX,
-      y: cardY,
-      width: L.cardW,
-      height: CARD_H,
-      rx: 8,
-      fill: NIGHT_2,
-      stroke: MIST,
-      'stroke-opacity': 0.35,
-      'stroke-width': 1,
     }),
   );
+  num.textContent = String(step.number);
+  g.appendChild(num);
 
-  // The emblem sits in the room that a fear card gives to its ghost; the words start after it.
   if (step.zone !== 'fear') {
+    const es = r1(17 * L.k * 2.3);
     g.appendChild(
-      svgArt(emblemFor(step, nearest), 'emblem', {
-        'data-emblem': emblemFor(step, nearest),
-        x: L.noteX + CARD_PAD + (EMBLEM_ROOM - EMBLEM_SIZE) / 2,
-        y: midY - EMBLEM_SIZE / 2,
-        width: EMBLEM_SIZE,
-        height: EMBLEM_SIZE,
+      svgArt(emblemFor(step, nearest), 'step-emblem', {
+        x: r1(x + L.sw * 0.8 - es / 2),
+        y: r1(y + L.sh * 0.62 - es / 2),
+        width: es,
+        height: es,
+        style: EMBLEM_GLOW,
       }),
     );
   }
 
-  let left = EMBLEM_ROOM;
+  const starS = r1(20 * L.k);
+  const starX = r1(x + L.sw * 0.3 - starS / 2);
+  const starY = r1(y - 14 * L.k);
+  if (step.zone === 'goal') {
+    // The light the motes fly to at dawn.
+    g.appendChild(
+      hidden(
+        el('circle', {
+          class: 'goal-light',
+          cx: r1(starX + starS / 2),
+          cy: r1(starY + starS / 2),
+          r: r1(starS * 0.7),
+          fill: '#FFC24A',
+          opacity: 0.35,
+        }),
+      ),
+    );
+  }
+  const star = svgArt('star', 'step-star', { x: starX, y: starY, width: starS, height: starS, style: STAR_GLOW });
+  g.appendChild(star);
+
+  // The word card.
+  const col = index % L.cols;
+  const row = Math.floor(index / L.cols);
+  const cx = r1(PAD + col * (L.cardW + CARD_GAP));
+  const cy = L.cardsY + row * (CARD_H + CARD_GAP);
+  const midY = cy + CARD_H / 2;
+  g.appendChild(
+    el('rect', {
+      class: 'note',
+      x: cx,
+      y: cy,
+      width: L.cardW,
+      height: CARD_H,
+      rx: 10,
+      fill: NIGHT_2,
+      stroke: nearest ? PUMPKIN : MIST,
+      'stroke-opacity': nearest ? 1 : 0.35,
+      'stroke-width': nearest ? 2 : 1,
+    }),
+  );
+  if (step.zone === 'block') g.appendChild(cobweb(r1(cx + L.cardW - 22), cy + 2, 20, 18));
+
+  const style = numStyle(step, false);
+  const disc = el('circle', {
+    class: 'num-disc',
+    cx: cx + CARD_PAD + NUM_R,
+    cy: midY,
+    r: NUM_R,
+    'stroke-width': 1.5,
+  });
+  const cardNum = el('text', {
+    class: 'card-num',
+    x: cx + CARD_PAD + NUM_R,
+    y: midY + 5,
+    'font-size': 14,
+    'font-weight': 700,
+    'text-anchor': 'middle',
+    'font-family': FONT,
+  });
+  cardNum.textContent = String(step.number);
+  paintNum(disc, cardNum, style);
+  g.appendChild(hidden(disc));
+  g.appendChild(hidden(cardNum));
+
+  const iconX = cx + CARD_PAD + 2 * NUM_R + 6;
+  const icon = { x: iconX, y: midY - EMBLEM_SIZE / 2, width: EMBLEM_SIZE, height: EMBLEM_SIZE };
+  if (step.zone === 'fear') g.appendChild(svgArt('zheztyrnaq', 'card-spirit', icon));
+  else g.appendChild(svgArt(emblemFor(step, nearest), 'emblem', { 'data-emblem': emblemFor(step, nearest), ...icon }));
+
+  let left = TEXT_ROOM;
   const badge = badgeLabel(step);
   if (badge !== null) {
     const bw = Math.ceil(badge.length * charWidth(11) * 1.15) + 14;
-    const bx = L.noteX + CARD_PAD + EMBLEM_ROOM;
+    const bx = cx + CARD_PAD + TEXT_ROOM;
     g.appendChild(
       el('rect', {
         class: 'badge',
@@ -383,34 +422,103 @@ function stairGroup(
     });
     bt.textContent = badge;
     g.appendChild(bt);
-    left = EMBLEM_ROOM + bw + 6;
+    left = TEXT_ROOM + bw + 6;
   }
 
-  // Fear words are drawn by the ghost, next to the ghost inside the same card.
-  if (step.zone !== 'fear') {
-    const avail = L.cardW - 2 * CARD_PAD - left;
-    const chars = Math.max(1, Math.floor(avail / charWidth(NOTE_FONT)));
-    const lines = wrapText(step.text, chars, NOTE_LINES);
-    const label = textBlock(
-      lines,
-      L.noteX + CARD_PAD + left,
-      noteBaseline(cardY, lines.length),
-      NOTE_FONT,
-      LABEL_COLOR,
-      'start',
+  const avail = L.cardW - 2 * CARD_PAD - left;
+  const chars = Math.max(1, Math.floor(avail / charWidth(NOTE_FONT)));
+  const lines = wrapText(step.text, chars, NOTE_LINES);
+  const label = textBlock(lines, cx + CARD_PAD + left, noteBaseline(cy, lines.length), NOTE_FONT, LABEL_COLOR, 'start');
+  label.setAttribute('class', 'step-label');
+  g.appendChild(label);
+  return g;
+}
+
+/** The blood moon behind the spirits: glow, body, craters, a dark cloud and two bats. */
+function moonGroup(cx: number, cy: number, r: number, ids: Ids): SVGGElement {
+  const g = hidden(el('g', { class: 'moon-sky' }));
+  const glow = el('g', { class: 'moon-glow' });
+  for (const [k, o] of [
+    [2.3, 0.07],
+    [1.8, 0.12],
+    [1.4, 0.2],
+  ] as const) {
+    glow.appendChild(el('circle', { cx, cy, r: r1(r * k), fill: '#C0221B', opacity: o }));
+  }
+  g.appendChild(glow);
+  g.appendChild(el('circle', { class: 'moon', cx, cy, r, fill: `url(#${ids.blood})` }));
+  for (const [dx, dy, rr] of [
+    [-0.35, -0.2, 0.16],
+    [0.25, 0.3, 0.12],
+    [0.1, -0.42, 0.08],
+    [-0.15, 0.4, 0.07],
+    [0.42, -0.05, 0.09],
+  ] as const) {
+    g.appendChild(el('circle', { cx: r1(cx + dx * r), cy: r1(cy + dy * r), r: r1(rr * r), fill: '#4a0808', opacity: 0.45 }));
+  }
+  const q = (v: number): number => r1(v * r);
+  g.appendChild(
+    el('path', {
+      d: `M${r1(cx - r * 1.7)} ${r1(cy + r * 0.45)} q${q(0.4)} ${q(-0.35)} ${q(0.8)} ${q(-0.05)} q${q(0.35)} ${q(-0.3)} ${q(0.75)} 0 q${q(0.4)} ${q(-0.25)} ${q(0.8)} ${q(0.05)} q${q(0.5)} ${q(-0.1)} ${q(0.9)} ${q(0.25)} l0 ${q(0.22)} l${q(-3.25)} 0 z`,
+      fill: SHADOW,
+      opacity: 0.8,
+      filter: `url(#${ids.soft})`,
+    }),
+  );
+  for (const [bx, by, s] of [
+    [cx + r * 0.55, cy - r * 0.7, 1],
+    [cx - r * 0.9, cy - r * 0.2, 0.7],
+  ] as const) {
+    const b = (v: number): number => r1(v * s);
+    g.appendChild(
+      el('path', {
+        class: 'bat',
+        d: `M${r1(bx)} ${r1(by)} q${b(-6)} ${b(-6)} ${b(-14)} ${b(-2)} q${b(4)} ${b(1)} ${b(5)} ${b(5)} q${b(3)} ${b(-3)} ${b(9)} ${b(-1)} q${b(6)} ${b(-2)} ${b(9)} ${b(1)} q${b(1)} ${b(-4)} ${b(5)} ${b(-5)} q${b(-8)} ${b(-4)} ${b(-14)} ${b(2)} z`,
+        fill: SHADOW,
+      }),
     );
-    label.setAttribute('class', 'step-label');
-    g.appendChild(label);
   }
   return g;
 }
 
-function ghostGroup(g: Ghost, index: number, stepIndex: number, L: Layout): SVGGElement {
-  const midY = stepY(stepIndex, L) + PLATE_H / 2;
-  const cardY = midY - CARD_H / 2;
-  // The spirit stands in the ghost room at the left of its card, centered on the card.
-  const cx = L.noteX + CARD_PAD + GHOST_ROOM / 2;
-  const cy = midY;
+function defsFor(ids: Ids): SVGDefsElement {
+  const defs = el('defs');
+  const blood = el('radialGradient', { id: ids.blood, cx: '42%', cy: '38%', r: '65%' });
+  for (const [o, c] of [
+    ['0', '#F07A4A'],
+    ['.55', '#B8321F'],
+    ['1', '#5E0B0B'],
+  ] as const) {
+    blood.appendChild(el('stop', { offset: o, 'stop-color': c }));
+  }
+  defs.appendChild(blood);
+  const soft = el('filter', { id: ids.soft, x: '-20%', y: '-60%', width: '140%', height: '220%' });
+  soft.appendChild(el('feGaussianBlur', { stdDeviation: 5 }));
+  defs.appendChild(soft);
+  for (const [id, c, o] of [
+    [ids.haloGold, '#FFD27A', 0.45],
+    [ids.haloCold, '#9FA8FF', 0.3],
+  ] as const) {
+    const h = el('radialGradient', { id });
+    h.appendChild(el('stop', { offset: '0', 'stop-color': c, 'stop-opacity': o }));
+    h.appendChild(el('stop', { offset: '1', 'stop-color': c, 'stop-opacity': 0 }));
+    defs.appendChild(h);
+  }
+  const fade = el('linearGradient', { id: ids.skyFade, x1: 0, y1: 0, x2: 0, y2: 1 });
+  fade.appendChild(el('stop', { offset: '0', 'stop-color': SKY, 'stop-opacity': 1 }));
+  fade.appendChild(el('stop', { offset: '1', 'stop-color': SKY, 'stop-opacity': 0 }));
+  defs.appendChild(fade);
+  return defs;
+}
+
+/** A big spirit in the sky band, with the number of its step under it. */
+function ghostGroup(g: Ghost, index: number, count: number, number: number, L: Layout, ids: Ids): SVGGElement {
+  const slot = (L.vw - 2 * PAD) / count;
+  const spH = r1(Math.min(L.bandH - 34, (slot - 10) / SPIRIT_RATIO));
+  const spW = r1(spH * SPIRIT_RATIO);
+  const cx = r1(PAD + slot * (index + 0.5));
+  const top = 8;
+  const cy = r1(top + spH / 2);
 
   const root = el('g', { class: 'ghost', 'data-ghost': index });
   root.setAttribute('role', 'img');
@@ -428,42 +536,40 @@ function ghostGroup(g: Ghost, index: number, stepIndex: number, L: Layout): SVGG
   // each other; applyGhostState decides which one is shown. The turning picture is a short
   // CSS-only flash between the two.
   const body = el('g', { class: 'ghost-body', transform: `translate(${cx} ${cy})` });
-  // A soft moonlight halo behind the spirit, so the dark Zheztyrnaq stands out on the dark card.
-  // Stacked ellipses instead of a gradient: no ids to clash, and it survives the saved picture.
-  const halo = el('g', { class: 'spirit-halo', fill: MOON });
-  halo.setAttribute('aria-hidden', 'true');
-  for (const k of [1, 0.75, 0.5]) {
-    halo.appendChild(el('ellipse', { cx: 0, cy: 0, rx: (GHOST_ROOM / 2) * k, ry: (SPIRIT_H / 2) * k, opacity: 0.08 }));
-  }
-  body.appendChild(halo);
-  const spirit = { x: -GHOST_ROOM / 2, y: -SPIRIT_H / 2, width: GHOST_ROOM, height: SPIRIT_H };
+  const halo = { cx: 0, cy: 0, rx: r1(spW * 0.6), ry: r1(spH * 0.5) };
+  body.appendChild(hidden(el('ellipse', { class: 'halo-cold', ...halo, fill: `url(#${ids.haloCold})` })));
+  body.appendChild(hidden(el('ellipse', { class: 'halo-gold', ...halo, fill: `url(#${ids.haloGold})`, opacity: 0 })));
+  const spirit = { x: r1(-spW / 2), y: r1(-spH / 2), width: spW, height: spH };
   body.appendChild(svgArt('zheztyrnaq', 'spirit-dark', { ...spirit, opacity: 1 }));
   body.appendChild(svgArt('peri', 'spirit-light', { ...spirit, opacity: 0 }));
   body.appendChild(svgArt('spirit-turning', 'spirit-turning', { ...spirit, opacity: 0 }));
   float.appendChild(body);
   root.appendChild(float);
 
-  // The check sits outside the floating group so it stays still and crisp. A dark outline
-  // under the pumpkin stroke keeps it visible on the golden Peri.
-  const check = el('g', { class: 'ghost-check', fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
-  const d = `M${cx + 3} ${cy + 15} l3.5 4 l7 -8`;
-  check.appendChild(el('path', { d, stroke: NIGHT, 'stroke-width': 5.5 }));
-  check.appendChild(el('path', { d, stroke: PUMPKIN, 'stroke-width': 2.5 }));
-  root.appendChild(check);
-
-  const avail = L.cardW - 2 * CARD_PAD - GHOST_ROOM;
-  const chars = Math.max(1, Math.floor(avail / charWidth(NOTE_FONT)));
-  const lines = wrapText(g.fear, chars, NOTE_LINES);
-  const label = textBlock(
-    lines,
-    L.noteX + CARD_PAD + GHOST_ROOM,
-    noteBaseline(cardY, lines.length),
-    NOTE_FONT,
-    MOON,
-    'start',
+  // The number of its step stays still under the spirit.
+  const ty = r1(top + spH + 14);
+  root.appendChild(hidden(el('circle', { class: 'ghost-num', cx, cy: ty, r: 11, 'stroke-width': 1.5 })));
+  const label = hidden(
+    el('text', {
+      class: 'ghost-label',
+      x: cx,
+      y: r1(ty + 4.5),
+      'font-size': 13,
+      'font-weight': 700,
+      'text-anchor': 'middle',
+      'font-family': FONT,
+    }),
   );
-  label.setAttribute('class', 'ghost-label');
+  label.textContent = String(number);
   root.appendChild(label);
+
+  // The check stays still and crisp. A dark outline under the pumpkin stroke keeps it visible
+  // on the golden Peri.
+  const check = el('g', { class: 'ghost-check', fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
+  const d = `M${r1(cx + spW * 0.22)} ${r1(top + spH * 0.72)} l5 6 l10 -12`;
+  check.appendChild(el('path', { d, stroke: NIGHT, 'stroke-width': 7 }));
+  check.appendChild(el('path', { d, stroke: PUMPKIN, 'stroke-width': 3.5 }));
+  root.appendChild(check);
   return root;
 }
 
@@ -473,6 +579,8 @@ function restartTurn(root: Element): void {
   void root.getBoundingClientRect();
   root.classList.add('turning');
 }
+
+const FEAR_STEP: Step = { number: 0, zone: 'fear', zoneLabel: '', text: '' };
 
 function applyGhostState(
   svg: Element,
@@ -491,26 +599,33 @@ function applyGhostState(
   // The Zheztyrnaq turns into the Peri at full strength, and back when the step is cleared.
   root.querySelector('.spirit-dark')?.setAttribute('opacity', faded ? '0' : '1');
   root.querySelector('.spirit-light')?.setAttribute('opacity', faded ? '1' : '0');
+  root.querySelector('.halo-cold')?.setAttribute('opacity', faded ? '0' : '1');
+  root.querySelector('.halo-gold')?.setAttribute('opacity', faded ? '1' : '0');
   root.querySelector('.ghost-check')?.setAttribute('visibility', faded ? 'visible' : 'hidden');
+  const style = numStyle(FEAR_STEP, faded);
+  paintNum(root.querySelector('.ghost-num'), root.querySelector('.ghost-label'), style);
   if (animate && changed) restartTurn(root);
 
-  const plate = svg.querySelector(`rect.plate[data-ghost="${index}"]`);
-  if (plate) {
-    const style = plateStyle({ number: 0, zone: 'fear', zoneLabel: '', text: '' }, false, faded);
-    plate.classList.toggle('lit', faded);
-    plate.setAttribute('fill', style.fill);
-    plate.setAttribute('stroke', style.stroke);
-    plate.setAttribute('stroke-width', String(style.strokeWidth));
-    if (style.dash) plate.setAttribute('stroke-dasharray', style.dash);
-    else plate.removeAttribute('stroke-dasharray');
-  }
+  // Its step lights up: warm carpet, a star, an orange number and a Peri on the card.
+  const stair = svg.querySelector(`.stair[data-fear="${index}"]`);
+  if (!stair) return;
+  const plate = stair.querySelector('.plate');
+  plate?.classList.toggle('lit', faded);
+  plate?.classList.toggle('dim', !faded);
+  if (faded) plate?.removeAttribute('style');
+  else plate?.setAttribute('style', DIM_STEP);
+  stair.querySelector('.plate-num')?.setAttribute('fill', faded ? '#FFE3A3' : '#C9C4E6');
+  stair.querySelector('.step-star')?.setAttribute('visibility', faded ? 'visible' : 'hidden');
+  stair.querySelector('.card-spirit')?.setAttribute('href', artUrl(faded ? 'peri' : 'zheztyrnaq'));
+  paintNum(stair.querySelector('.num-disc'), stair.querySelector('.card-num'), style);
 }
 
 /**
- * Builds the staircase seen from the side, like the Ladder on 108psy.com: one numbered plate per
- * step, each one step right of and one row above the one before, with the person's words in a
- * note card in a column to the right. Drawn at 1 SVG unit = 1 CSS px for containers from 300 to
- * 680 px wide. The person's phrases are written only as SVG text nodes.
+ * Builds the night staircase: a starry steppe with the yurt and the mountains, a blood moon, the
+ * big spirits of the fears across the sky, and carpet steps going up from bottom left to top
+ * right, each with its number, golden emblem and star. The person's words stand in numbered cards
+ * under the scene. Drawn at 1 SVG unit = 1 CSS px for containers from 300 to 680 px wide. The
+ * person's phrases are written only as SVG text nodes.
  */
 export function buildStaircase(
   reading: Reading,
@@ -519,6 +634,15 @@ export function buildStaircase(
 ): SVGSVGElement {
   const steps = reading.steps;
   const L = staircaseLayout(steps.length, opts.width);
+  pictureCount += 1;
+  const p = `hl${pictureCount}`;
+  const ids: Ids = {
+    blood: `${p}-blood`,
+    soft: `${p}-soft`,
+    haloGold: `${p}-halo-gold`,
+    haloCold: `${p}-halo-cold`,
+    skyFade: `${p}-sky-fade`,
+  };
 
   const svg = el('svg', {
     class: 'staircase',
@@ -529,46 +653,38 @@ export function buildStaircase(
     'data-layout': L.narrow ? 'narrow' : 'wide',
   });
 
+  // Night sky, then the steppe low in the picture, mirrored so the yurt with its glowing
+  // shanyraq stands right of the stairs and the high peak shows on the left.
+  svg.appendChild(hidden(el('rect', { class: 'night-sky', x: 0, y: 0, width: L.vw, height: L.height, fill: SKY })));
+  svg.appendChild(defsFor(ids));
+  const bgH = L.phone ? L.sceneH * 0.62 : L.sceneH * 0.8;
+  const bgW = Math.max(L.vw, bgH / STEPPE_RATIO);
+  const ox = Math.min(0, Math.max(L.vw - bgW, L.vw * 0.72 - bgW * 0.72));
   svg.appendChild(
     svgArt('steppe-night', 'backdrop', {
       x: 0,
-      y: 0,
-      width: L.vw,
-      height: L.height,
-      preserveAspectRatio: 'xMidYMid slice',
+      y: r1(L.sceneH - bgH),
+      width: r1(bgW),
+      height: r1(bgW * STEPPE_RATIO),
+      preserveAspectRatio: 'none',
+      transform: `translate(${r1(ox + bgW)} 0) scale(-1 1)`,
     }),
   );
-
-  // The moon waits in the empty top left corner above the low plates.
-  const moon = el('circle', { class: 'moon', cx: PAD + 28, cy: 34, r: 20, fill: MOON, opacity: 0.9 });
-  moon.setAttribute('aria-hidden', 'true');
-  svg.appendChild(moon);
-
-  const floorY = TOP + L.n * ROW - 4;
-  const back = el('g', { class: 'frame', 'aria-hidden': 'true' });
-  steps.forEach((_, i) => {
-    const top = stepY(i, L) + PLATE_H;
-    if (floorY > top) {
-      back.appendChild(
-        el('rect', { class: 'riser', x: stepX(i, L), y: top, width: L.w, height: floorY - top, fill: NIGHT_2, opacity: 0.35 }),
-      );
-    }
-  });
-  back.appendChild(
-    el('line', { class: 'floor', x1: PAD, y1: floorY, x2: PAD + L.n * L.w, y2: floorY, stroke: MIST, 'stroke-width': 2 }),
+  svg.appendChild(
+    hidden(
+      el('rect', {
+        class: 'night-sky sky-fade',
+        x: 0,
+        y: r1(L.sceneH - bgH - 1),
+        width: L.vw,
+        height: 70,
+        fill: `url(#${ids.skyFade})`,
+      }),
+    ),
   );
-  // Banister: one post on each plate and a rail through the post tops.
-  const rail: string[] = [];
-  steps.forEach((_, i) => {
-    const px = stepX(i, L);
-    const py = stepY(i, L) - 22;
-    back.appendChild(el('rect', { class: 'post', x: px, y: py, width: 2, height: 22, fill: MIST, opacity: 0.7 }));
-    rail.push(`${px + 1},${py}`);
-  });
-  back.appendChild(
-    el('polyline', { class: 'rail', points: rail.join(' '), fill: 'none', stroke: MIST, 'stroke-width': 1.5, opacity: 0.7 }),
-  );
-  svg.appendChild(back);
+  svg.appendChild(hidden(el('rect', { class: 'night-sky night-veil', x: 0, y: 0, width: L.vw, height: L.height, fill: SHADOW, opacity: 0.25 })));
+
+  svg.appendChild(moonGroup(r1(L.vw / 2), r1(L.bandH * 0.46), r1(Math.min(L.bandH * 0.36, 78)), ids));
 
   const fearSteps: number[] = [];
   let nearestUsed = false;
@@ -584,15 +700,16 @@ export function buildStaircase(
   });
 
   if (fearSteps.length === 0) {
-    const lines = wrapText(t('noGhosts'), Math.floor(L.cardW / charWidth(NOTE_FONT)), 2);
-    const none = textBlock(lines, L.noteX, 28, NOTE_FONT, MIST, 'start');
+    const lines = wrapText(t('noGhosts'), Math.floor((L.vw - 2 * PAD) / charWidth(NOTE_FONT)), 2);
+    const none = textBlock(lines, r1(L.vw / 2), 24, NOTE_FONT, MOON, 'middle');
     none.setAttribute('class', 'no-ghosts');
     svg.appendChild(none);
   } else {
     fearSteps.forEach((stepIndex, gi) => {
-      const fear = steps[stepIndex]?.text ?? '';
+      const step = steps[stepIndex];
+      const fear = step?.text ?? '';
       const ghost: Ghost = ghosts[gi] ?? { fear, step: '' };
-      const node = ghostGroup(ghost, gi, stepIndex, L);
+      const node = ghostGroup(ghost, gi, fearSteps.length, step?.number ?? stepIndex + 1, L, ids);
       svg.appendChild(node);
       applyGhostState(svg, node, ghost, gi);
     });
@@ -600,7 +717,7 @@ export function buildStaircase(
   return svg;
 }
 
-/** Updates fade, check marks and fear plates in place when a step is written or cleared. */
+/** Updates spirits, check marks and fear steps in place when a step is written or cleared. */
 export function updateGhosts(svg: SVGSVGElement, ghosts: Ghost[]): void {
   ghosts.forEach((g, i) => {
     const root = svg.querySelector(`.ghost[data-ghost="${i}"]`);

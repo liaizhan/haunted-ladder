@@ -203,3 +203,11 @@
   - A short GIF of one ghost fading and the heart slowing, and a captioned screenshot of every screen (intro, form, fog, staircase, all ghosts faded, crisis)
   - Numbers from the repo: requirements, correctness properties, tasks, steering files, hooks, test count
   - _Requirements: 8.5_
+
+- [x] 27. One night scene with carpet steps (approved mockup 4)
+  - [x] 27.1 Rewrite `src/ui/staircase.ts`: night sky, mirrored steppe, blood moon with glow, carpet steps with numbers, emblems, stars and the goal light, big spirits in the sky band, cards under the scene in one or two columns
+  - [x] 27.2 `src/styles.css`: moon glow pulse only with motion welcome, dawn fades the moon and the sky fill, the stage scrolls with the page
+  - [x] 27.3 `src/ui/exportImage.ts`: at dawn the saved picture leaves out the moon and the sky fill
+  - [x] 27.4 Update the tests for Properties 14, 19 and 21 to the new scene
+    - **Property 19: A night staircase that reads**
+    - **Validates: Requirements 19.1 to 19.6**

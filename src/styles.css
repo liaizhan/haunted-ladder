@@ -204,7 +204,24 @@ button.secondary {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-4px);
+    transform: translateY(-8px);
+  }
+}
+
+/* The blood moon breathes slowly, only when motion is welcome. */
+@media (prefers-reduced-motion: no-preference) {
+  .staircase .moon-glow {
+    animation: moon-glow 5s ease-in-out infinite;
+  }
+}
+
+@keyframes moon-glow {
+  0%,
+  100% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 0.55;
   }
 }
 
@@ -674,8 +691,7 @@ body.calm .intro-scene {
   .result > .stage {
     grid-column: 1;
     grid-row: 2 / span 30;
-    position: sticky;
-    top: 1rem;
+    align-self: start; /* the night scene with its word cards is taller than a screen, so it scrolls */
   }
   .result > :not(h2):not(.stage),
   .result > .reading > * {
@@ -774,13 +790,18 @@ body {
   opacity: 1;
 }
 
-.stage .staircase .moon {
+.stage .staircase .moon-sky {
   transform-box: fill-box;
   transform-origin: center;
 }
 
-.stage.dawn .staircase .moon {
+.stage.dawn .staircase .moon-sky {
   transform: translateY(40px);
+  opacity: 0;
+}
+
+/* At dawn the dark night sky over the steppe clears and the morning sky shows through. */
+.stage.dawn .staircase .night-sky {
   opacity: 0;
 }
 
@@ -790,14 +811,16 @@ body {
   .dawn-stars,
   .dawn-sun,
   .dawn-line,
-  .stage .staircase .moon {
+  .stage .staircase .moon-sky,
+  .stage .staircase .night-sky {
     transition: opacity 2s ease, transform 2s ease, visibility 2s;
   }
   .stage.dawn .dawn-glow,
   .stage.dawn .dawn-stars,
   .stage.dawn .dawn-sun,
   .stage.dawn .dawn-line,
-  .stage.dawn .staircase .moon {
+  .stage.dawn .staircase .moon-sky,
+  .stage.dawn .staircase .night-sky {
     transition: opacity 4s ease, transform 4s ease, visibility 4s;
   }
 }

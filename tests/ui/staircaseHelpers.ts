@@ -1,5 +1,5 @@
 import type { Reading } from '../../src/domain/server';
-import { charWidth, NOTE_FONT, CARD_PAD, GHOST_ROOM, EMBLEM_ROOM, CARD_H } from '../../src/ui/staircase';
+import { charWidth, NOTE_FONT, CARD_PAD, TEXT_ROOM, CARD_H } from '../../src/ui/staircase';
 
 export function lum(hex: string): number {
   const ch = [1, 3, 5].map((i) => {
@@ -76,35 +76,31 @@ export type Parts = {
   stair: Element;
   plate: Element;
   note: Element;
-  /** The words of this step: a step label, or the label of the step's ghost. */
+  /** The words of this step on its card. */
   label: Element;
   zone: string;
 };
 
-/** Every plate with its card and text, in drawing order. Works for fear steps through their ghost. */
+/** Every step picture with its word card and text, in drawing order (bottom step first). */
 export function partsOf(svg: SVGSVGElement): Parts[] {
   return Array.from(svg.querySelectorAll('.stair')).map((stair) => {
-    const plate = stair.querySelector('rect.plate');
+    const plate = stair.querySelector('.plate');
     const note = stair.querySelector('rect.note');
     if (!plate || !note) throw new Error('plate or note missing');
     const zone = stair.getAttribute('data-zone') ?? '';
-    let label: Element | null = stair.querySelector('text.step-label');
-    if (zone === 'fear') {
-      const gi = plate.getAttribute('data-ghost');
-      label = svg.querySelector(`.ghost[data-ghost="${gi}"] text.ghost-label`);
-    }
+    const label = stair.querySelector('text.step-label');
     if (!label) throw new Error('label missing');
     return { stair, plate, note, label, zone };
   });
 }
 
-/** The text fits its card: inside the card on every side, and not on the ghost's room. */
-export function textFitsCard(label: Element, note: Element, zone: string): boolean {
+/** The text fits its card: inside the card on every side, after the number and the emblem. */
+export function textFitsCard(label: Element, note: Element): boolean {
   const box = textBox(label);
   const card = rectBox(note);
   const size = attr(label, 'font-size');
   if (size < NOTE_FONT) return false;
-  const minLeft = card.left + CARD_PAD + (zone === 'fear' ? GHOST_ROOM : EMBLEM_ROOM); // ghost or emblem room first
+  const minLeft = card.left + CARD_PAD + TEXT_ROOM; // number disc and emblem first
   return (
     box.left >= minLeft &&
     box.right <= card.right - CARD_PAD + 0.001 &&

@@ -11,6 +11,8 @@ export const ART_NAMES = [
   'tumar',
   'burkit',
   'qobyz',
+  'step',
+  'star',
 ] as const;
 export type ArtName = (typeof ART_NAMES)[number];
 

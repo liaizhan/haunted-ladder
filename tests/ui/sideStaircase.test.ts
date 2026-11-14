@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { buildStaircase, updateGhosts, CARD_H, NOTE_FONT, PLATE_H, ROW } from '../../src/ui/staircase';
+import { buildStaircase, updateGhosts, staircaseLayout, NOTE_FONT } from '../../src/ui/staircase';
 import { ghostsFromReading, type Ghost } from '../../src/domain/ghosts';
 import { en } from '../../src/locales/en';
 import {
@@ -19,9 +19,9 @@ const RUNS = { numRuns: 100 };
 
 const word = fc.string({ minLength: 1, maxLength: 60 }).filter((s) => s.trim().length > 0);
 
-describe('Property 19: A side staircase that reads', () => {
-  // Feature: haunted-ladder, Property 19: A side staircase that reads
-  it('draws one plate per step, rising to the right, with cards to the right and nothing overlapping', () => {
+describe('Property 19: A night staircase that reads', () => {
+  // Feature: haunted-ladder, Property 19: A night staircase that reads
+  it('draws one carpet step per step, rising to the right, with a word card for each under the scene', () => {
     fc.assert(
       fc.property(
         fc.array(word, { minLength: 1, maxLength: 5 }),
@@ -30,6 +30,7 @@ describe('Property 19: A side staircase that reads', () => {
         (blocks, fears, width) => {
           const r = readingWith(blocks, fears);
           const svg = buildStaircase(r, ghostsFromReading(r), { width });
+          const L = staircaseLayout(r.steps.length, width);
           const vb = (svg.getAttribute('viewBox') ?? '').split(' ').map(Number);
           const vw = vb[2] ?? 0;
           const vh = vb[3] ?? 0;
@@ -41,51 +42,45 @@ describe('Property 19: A side staircase that reads', () => {
 
           const plates = parts.map((p) => rectBox(p.plate));
           const cards = parts.map((p) => rectBox(p.note));
-          const maxPlateRight = Math.max(...plates.map((b) => b.right));
 
           parts.forEach((p, i) => {
             const step = r.steps[i];
-            // Reading order, with the full words in the plate title.
+            // Reading order, with the full words in the step title.
             expect(p.stair.getAttribute('data-zone')).toBe(step?.zone);
             expect(p.stair.querySelector('title')?.textContent).toBe(step?.text);
 
-            // One plate width right and one row up from the previous plate.
+            // Each step stands right of and one rise above the previous one.
             const prev = plates[i - 1];
             const cur = plates[i];
             if (prev && cur) {
-              expect(cur.left - prev.left).toBe(attr(p.plate, 'width'));
-              expect(prev.top - cur.top).toBe(ROW);
+              expect(cur.left).toBeGreaterThan(prev.left);
+              expect(prev.top - cur.top).toBeCloseTo(L.rise, 0);
             }
 
-            // Inside the picture.
-            for (const b of [plates[i], cards[i]]) {
-              expect(b?.left).toBeGreaterThanOrEqual(0);
-              expect(b?.top).toBeGreaterThanOrEqual(0);
-              expect(b?.right).toBeLessThanOrEqual(vw);
-              expect(b?.bottom).toBeLessThanOrEqual(vh);
-            }
+            // Steps inside the night scene, cards under it, all inside the picture.
+            expect(cur?.left).toBeGreaterThanOrEqual(0);
+            expect(cur?.right).toBeLessThanOrEqual(vw);
+            expect(cur?.top).toBeGreaterThanOrEqual(L.bandH);
+            expect(cur?.bottom).toBeLessThanOrEqual(L.sceneH);
+            const card = cards[i];
+            expect(card?.left).toBeGreaterThanOrEqual(0);
+            expect(card?.right).toBeLessThanOrEqual(vw + 0.001);
+            expect(card?.top).toBeGreaterThan(L.sceneH);
+            expect(card?.bottom).toBeLessThanOrEqual(vh);
 
-            // The card starts right of every plate; its leader joins plate edge and card edge.
-            expect(cards[i]?.left).toBeGreaterThan(maxPlateRight);
-            const leader = p.stair.querySelector('line.leader');
-            expect(attr(leader, 'x1')).toBe(plates[i]?.right);
-            expect(attr(leader, 'x2')).toBe(cards[i]?.left);
-            expect(attr(leader, 'y1')).toBe(attr(leader, 'y2'));
-            expect(attr(leader, 'y1')).toBe((plates[i]?.top ?? 0) + PLATE_H / 2);
-            expect(attr(leader, 'y1')).toBe((cards[i]?.top ?? 0) + CARD_H / 2);
-            expect(p.stair.querySelector('circle.leader-dot')).not.toBeNull();
-
-            // Text: 13 px or more, every line inside the card.
+            // Text: 13 px or more, every line inside the card after the number and emblem.
             expect(attr(p.label, 'font-size')).toBeGreaterThanOrEqual(NOTE_FONT);
-            expect(textFitsCard(p.label, p.note, p.zone)).toBe(true);
+            expect(textFitsCard(p.label, p.note)).toBe(true);
 
             // Contrast against the element's own fill.
             expect(contrast(p.note.getAttribute('fill') ?? '', p.label.getAttribute('fill') ?? '')).toBeGreaterThanOrEqual(4.5);
             const num = p.stair.querySelector('text.plate-num');
-            if (num) {
-              expect(num.textContent).toBe(String(step?.number));
-              expect(contrast(p.plate.getAttribute('fill') ?? '', num.getAttribute('fill') ?? '')).toBeGreaterThanOrEqual(4.5);
-            }
+            expect(num?.textContent).toBe(String(step?.number));
+            expect(contrast(num?.getAttribute('stroke') ?? '', num?.getAttribute('fill') ?? '')).toBeGreaterThanOrEqual(4.5);
+            const disc = p.stair.querySelector('circle.num-disc');
+            const cardNum = p.stair.querySelector('text.card-num');
+            expect(cardNum?.textContent).toBe(String(step?.number));
+            expect(contrast(disc?.getAttribute('fill') ?? '', cardNum?.getAttribute('fill') ?? '')).toBeGreaterThanOrEqual(4.5);
             const badge = p.stair.querySelector('rect.badge');
             const badgeText = p.stair.querySelector('text.badge-text');
             expect(badge !== null).toBe(step?.zone === 'current' || step?.zone === 'goal');
@@ -94,21 +89,16 @@ describe('Property 19: A side staircase that reads', () => {
             }
           });
 
-          // No card overlaps another card or any plate.
+          // No card overlaps another card.
           for (let i = 0; i < cards.length; i++) {
-            for (let j = 0; j < cards.length; j++) {
+            for (let j = i + 1; j < cards.length; j++) {
               const a = cards[i];
               const b = cards[j];
-              if (a && b && i < j) expect(overlaps(a, b)).toBe(false);
-              const pl = plates[j];
-              if (a && pl) expect(overlaps(a, pl)).toBe(false);
+              if (a && b) expect(overlaps(a, b)).toBe(false);
             }
           }
-          // A banister post on each plate, one floor line, one lantern over the goal.
-          expect(svg.querySelectorAll('rect.post').length).toBe(r.steps.length);
-          expect(svg.querySelectorAll('line.floor').length).toBe(1);
+          // One warm light over the goal, cobwebs only on obstacles.
           expect(svg.querySelectorAll('.goal-light').length).toBe(1);
-          // Cobwebs only on obstacles.
           expect(svg.querySelectorAll('.cobweb').length).toBe(blocks.length);
         },
       ),
@@ -116,7 +106,7 @@ describe('Property 19: A side staircase that reads', () => {
     );
   });
 
-  it('fear plates are dashed while the ghost has no step and solid and moonlit once it has one', () => {
+  it('fear steps are cold and dim while the ghost has no step and warm with a star once it has one', () => {
     fc.assert(
       fc.property(
         fc.array(fc.boolean(), { minLength: 1, maxLength: 5 }),
@@ -127,11 +117,14 @@ describe('Property 19: A side staircase that reads', () => {
           const svg = buildStaircase(r, ghosts);
           const check = (): void => {
             ghosts.forEach((g, i) => {
-              const plate = svg.querySelector(`rect.plate[data-ghost="${i}"]`);
+              const plate = svg.querySelector(`.plate[data-ghost="${i}"]`);
+              const stair = svg.querySelector(`.stair[data-fear="${i}"]`);
               const ghost = svg.querySelector(`.ghost[data-ghost="${i}"]`);
               const faded = g.step.trim().length > 0;
-              expect(plate?.hasAttribute('stroke-dasharray')).toBe(!faded);
               expect(plate?.classList.contains('lit')).toBe(faded);
+              expect(plate?.classList.contains('dim')).toBe(!faded);
+              expect(stair?.querySelector('.step-star')?.getAttribute('visibility')).toBe(faded ? 'visible' : 'hidden');
+              expect(stair?.querySelector('.card-spirit')?.getAttribute('href')).toContain(faded ? 'peri' : 'zheztyrnaq');
               expect(ghost).not.toBeNull();
               if (!ghost) return;
               const float = ghost.querySelector('.ghost-float');
@@ -140,7 +133,7 @@ describe('Property 19: A side staircase that reads', () => {
               expect(ghost.querySelector('.spirit-light')?.getAttribute('opacity')).toBe(faded ? '1' : '0');
               expect(float?.getAttribute('opacity')).toBeNull();
               expect(ghost.querySelector('.ghost-check')?.getAttribute('visibility')).toBe(faded ? 'visible' : 'hidden');
-              // The words stay readable: the label is outside the faded group.
+              // The step number under the spirit stays still: it is outside the floating group.
               expect(label).not.toBeNull();
               expect(label ? float?.contains(label) : true).toBe(false);
             });
@@ -155,7 +148,7 @@ describe('Property 19: A side staircase that reads', () => {
     );
   });
 
-  it('puts a ghost inside its fear card and the "me" and "goal" badges in the cards', () => {
+  it('puts a spirit in each fear card and the "me" and "goal" badges in the cards', () => {
     const r = readingWith(['a', 'b', 'c'], ['f1', 'f2']);
     const svg = buildStaircase(r, ghostsFromReading(r));
     const parts = partsOf(svg);
@@ -165,10 +158,17 @@ describe('Property 19: A side staircase that reads', () => {
     expect(goal).toBe(en.badgeGoal);
     expect(svg.querySelectorAll('.ghost').length).toBe(2);
     expect(svg.querySelectorAll('.nearest').length).toBe(1);
-    expect(svg.querySelector('.nearest rect.plate')?.getAttribute('stroke')).toBe('#FF8A3D');
+    expect(svg.querySelector('.nearest rect.note')?.getAttribute('stroke')).toBe('#FF8A3D');
+    for (const p of parts.filter((x) => x.zone === 'fear')) {
+      const spirit = rectBox(p.stair.querySelector('.card-spirit'));
+      const card = rectBox(p.note);
+      expect(overlaps(spirit, card)).toBe(true);
+      expect(spirit.left).toBeGreaterThanOrEqual(card.left);
+      expect(spirit.right).toBeLessThanOrEqual(card.right);
+    }
   });
 
-  it('the long words stay whole in the plate title when the card text is cut', () => {
+  it('the long words stay whole in the step title when the card text is cut', () => {
     const long = 'word '.repeat(60).trim();
     const r = readingWith([long, 'b', 'c'], [long]);
     const svg = buildStaircase(r, ghostsFromReading(r), { width: 300 });

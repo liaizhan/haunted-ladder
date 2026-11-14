@@ -213,9 +213,9 @@ Property 17: Motes leave no trace
 For any sequence of 1 to 20 step adds and clears, after all mote animations finish the SVG contains no mote elements, and under reduced motion no mote is ever created.
 Validates: Requirements 14.2, 14.4
 
-Property 19: A side staircase that reads
-For any reading with 1 to 5 obstacles and 0 to 5 fears, any phrases, and any container width from 300 to 680 px: there is exactly one plate (`.stair` with `data-zone`) per step in reading order, plate i+1 is exactly one plate width to the right of and one row higher than plate i, every plate and card lies inside the viewBox, every note card starts to the right of the right edge of every plate, no two cards overlap and no card overlaps a plate, every leader line runs from its plate's right edge to its card's left edge at one height, card text is 13 px or larger and every wrapped line fits its card, and every number and card text has contrast 4.5:1 or more against its own fill.
-Validates: Requirements 17.1, 17.2, 17.3, 17.4, 17.7
+Property 19: A night staircase that reads
+For any reading with 1 to 5 obstacles and 0 to 5 fears, any phrases, and any container width from 300 to 680 px: there is exactly one `.stair` with `data-zone` per step in reading order with the full words in its `<title>`, carpet step i+1 is to the right of and exactly one rise above step i, every carpet step lies inside the night scene, every card lies under the scene and inside the viewBox, no two cards overlap, card text is 13 px or larger and every wrapped line fits its card after the number and emblem, every number, badge and card text has contrast 4.5:1 or more against its own fill, there is one goal light and one cobweb per obstacle.
+Validates: Requirements 17.4, 17.7, 19.1 to 19.4
 
 Property 20: A clear heart apart from the text
 For any list of 0 to 5 ghosts with any steps, the heart panel comes before the staircase in the stage and is not laid over it, has no blur filter and no body fill opacity below 1, always shows the beat rate as text equal to `beatsPerMinute` of the unfaded ghosts (after the ease), and holds one pulse line whose animation length follows `--beat`.
@@ -226,7 +226,7 @@ The `en`, `ru` and `kk` dictionaries have the same key set, no value is empty, a
 Validates: Requirements 15.2, 15.5
 
 Property 21: The Zheztyrnaq turns into a Peri
-For any reading and any steps on the fears, every ghost holds exactly one Zheztyrnaq image and one Peri image; the Zheztyrnaq has opacity 1 and the Peri 0 exactly when the ghost has no step, and the other way round when it has one, with the check shown only then; every non-fear card holds exactly one emblem that matches its zone (I: shanyraq, nearest obstacle: asyq, other obstacles: tumar, goal: burkit) and its text starts to the right of the emblem; every `<image>` in the staircase, the ghost heading and the legend points to `BASE_URL + "art/"`, is hidden from screen readers, and the backdrop is the first child of the SVG; and in the saved SVG every `<image>` href starts with `data:`.
+For any reading and any steps on the fears, every ghost holds exactly one Zheztyrnaq image and one Peri image; the Zheztyrnaq has opacity 1 and the Peri 0 exactly when the ghost has no step, and the other way round when it has one, with the check shown only then; every non-fear card holds exactly one emblem that matches its zone (I: shanyraq, nearest obstacle: asyq, other obstacles: tumar, goal: burkit) and its text starts to the right of the emblem; every `<image>` in the staircase, the ghost heading and the legend points to `BASE_URL + "art/"`, is hidden from screen readers, and the backdrop comes right after the night sky fill; and in the saved SVG every `<image>` href starts with `data:`.
 Validates: Requirements 18.1 to 18.9
 
 ## Testing Strategy

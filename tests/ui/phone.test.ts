@@ -38,7 +38,7 @@ describe('staircase on a phone', () => {
             const size = Number(p.label.getAttribute('font-size'));
             expect(size * scale).toBeGreaterThanOrEqual(13);
             expect(size).toBe(NOTE_FONT);
-            expect(textFitsCard(p.label, p.note, p.zone)).toBe(true);
+            expect(textFitsCard(p.label, p.note)).toBe(true);
             const card = rectBox(p.note);
             expect(card.right).toBeLessThanOrEqual(vw);
             expect(card.bottom).toBeLessThanOrEqual(vh);
@@ -88,7 +88,7 @@ describe('staircase on a phone', () => {
 describe('result layout and step icons', () => {
   it('lays out the result in two columns from 900 px, ghost steps first on a phone', () => {
     expect(css).toMatch(/@media \(min-width: 900px\)[\s\S]*?\.result\s*\{[^}]*display:\s*grid/);
-    expect(css).toMatch(/\.result > \.stage\s*\{[^}]*position:\s*sticky/);
+    expect(css).toMatch(/\.result > \.stage\s*\{[^}]*align-self:\s*start/);
     // Phone order: staircase, then ghost steps, then sound toggle, then the rest.
     const order = (sel: string): number => {
       const m = new RegExp(`${sel.replace(/[.>()]/g, '\\$&')}\\s*\\{\\s*order:\\s*(\\d+)`).exec(css);
