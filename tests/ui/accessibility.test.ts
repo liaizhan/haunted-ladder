@@ -150,10 +150,9 @@ describe('Accessibility: keyboard and labels', () => {
         });
 
         const svg = buildStaircase(r, ghosts);
-        const ghostNodes = Array.from(svg.querySelectorAll('.ghost'));
-        expect(ghostNodes).toHaveLength(fears.length);
-        ghostNodes.forEach((g, i) => {
-          expect(g.getAttribute('aria-label')).toContain(fears[i] ?? '');
+        expect(svg.querySelectorAll('.ghost')).toHaveLength(fears.length);
+        fears.forEach((fear, i) => {
+          expect(svg.querySelector(`.ghost[data-ghost="${i}"]`)?.getAttribute('aria-label')).toContain(fear);
         });
         for (const s of Array.from(svg.querySelectorAll('.stair'))) {
           expect(s.getAttribute('aria-label') ?? '').not.toBe('');

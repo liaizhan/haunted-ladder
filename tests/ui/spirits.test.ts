@@ -35,15 +35,17 @@ describe('Property 21: The Zheztyrnaq turns into a Peri', () => {
           const svg = buildStaircase(r, ghosts);
 
           const check = (gs: Ghost[]): void => {
-            const roots = Array.from(svg.querySelectorAll('.ghost'));
-            expect(roots.length).toBe(gs.length);
+            expect(svg.querySelectorAll('.ghost').length).toBe(gs.length);
+            // Lower spirits are drawn in front, so the DOM order is not the fear order.
+            const roots = gs.map((_, i) => svg.querySelector(`.ghost[data-ghost="${i}"]`) as Element);
             roots.forEach((root, i) => {
               const written = (gs[i]?.step ?? '').trim().length > 0;
               const dark = root.querySelectorAll('image.spirit-dark');
               const light = root.querySelectorAll('image.spirit-light');
               expect(dark.length).toBe(1);
               expect(light.length).toBe(1);
-              expect(dark[0]?.getAttribute('href')).toBe(artUrl('zheztyrnaq'));
+              // Each Zheztyrnaq has its own pose: rise, peek or crawl.
+              expect(dark[0]?.getAttribute('href') ?? '').toMatch(/zheztyrnaq-(rise|peek|crawl)\.webp$/);
               expect(light[0]?.getAttribute('href')).toBe(artUrl('peri'));
               expect(dark[0]?.getAttribute('opacity')).toBe(written ? '0' : '1');
               expect(light[0]?.getAttribute('opacity')).toBe(written ? '1' : '0');
@@ -125,7 +127,8 @@ describe('Property 21: The Zheztyrnaq turns into a Peri', () => {
           expect(svg.firstElementChild?.classList.contains('night-sky')).toBe(true);
           const first = svg.querySelector('image.backdrop');
           expect(first).not.toBeNull();
-          expect(Array.from(svg.children).indexOf(first as Element)).toBeLessThanOrEqual(2);
+          // Only the sky, the stars and the backdrop's clip path may come before it.
+          expect(Array.from(svg.children).indexOf(first as Element)).toBeLessThanOrEqual(3);
           expect(first?.getAttribute('href')).toBe(artUrl('steppe-night'));
           expect(attr(first, 'width')).toBeGreaterThan(0);
           expect(attr(first, 'height')).toBeGreaterThan(0);

@@ -52,7 +52,6 @@ const STEP_RATIO = 91 / 388;
 /** The night steppe picture is 1376 x 768. */
 const STEPPE_RATIO = 768 / 1376;
 /** The spirit pictures are about 0.69 as wide as tall. */
-const SPIRIT_RATIO = 0.69;
 
 export type StaircaseOptions = {
   /** Container width in CSS px. Clamped to 300..680. 0 or missing means 680. */
@@ -217,7 +216,7 @@ function cobweb(x: number, y: number, w: number, h: number): SVGGElement {
 
 /** Ids of gradients and filters are unique per picture, so two staircases never share them. */
 let pictureCount = 0;
-type Ids = { blood: string; soft: string; haloGold: string; haloCold: string; skyFade: string };
+type Ids = { blood: string; shade: string; smear: string; soft: string; haloGold: string; haloCold: string; skyFade: string };
 
 const stepX = (i: number, L: Layout): number => r1(PAD + i * L.shift);
 const stepY = (i: number, L: Layout): number => r1(L.bandH + (L.n - 1 - i) * L.rise + 4);
@@ -434,37 +433,53 @@ function stairGroup(
   return g;
 }
 
-/** The blood moon behind the spirits: glow, body, craters, a dark cloud and two bats. */
+/** The blood moon behind the spirits: a dark eclipse with a thin red rim, blotches, black cloud strands and two bats. */
 function moonGroup(cx: number, cy: number, r: number, ids: Ids): SVGGElement {
   const g = hidden(el('g', { class: 'moon-sky' }));
   const glow = el('g', { class: 'moon-glow' });
   for (const [k, o] of [
-    [2.3, 0.07],
-    [1.8, 0.12],
-    [1.4, 0.2],
+    [2.4, 0.05],
+    [1.8, 0.09],
+    [1.3, 0.16],
   ] as const) {
-    glow.appendChild(el('circle', { cx, cy, r: r1(r * k), fill: '#C0221B', opacity: o }));
+    glow.appendChild(el('circle', { cx, cy, r: r1(r * k), fill: '#6E0909', opacity: o }));
   }
   g.appendChild(glow);
   g.appendChild(el('circle', { class: 'moon', cx, cy, r, fill: `url(#${ids.blood})` }));
+  // Dark blotches like dried blood.
   for (const [dx, dy, rr] of [
-    [-0.35, -0.2, 0.16],
-    [0.25, 0.3, 0.12],
-    [0.1, -0.42, 0.08],
-    [-0.15, 0.4, 0.07],
-    [0.42, -0.05, 0.09],
+    [-0.35, -0.2, 0.2],
+    [0.25, 0.3, 0.16],
+    [0.1, -0.45, 0.1],
+    [-0.2, 0.42, 0.11],
+    [0.45, -0.1, 0.12],
+    [-0.55, 0.15, 0.09],
   ] as const) {
-    g.appendChild(el('circle', { cx: r1(cx + dx * r), cy: r1(cy + dy * r), r: r1(rr * r), fill: '#4a0808', opacity: 0.45 }));
+    g.appendChild(el('circle', { cx: r1(cx + dx * r), cy: r1(cy + dy * r), r: r1(rr * r), fill: '#1C0203', opacity: 0.5, filter: `url(#${ids.smear})` }));
   }
+  // The eclipse shadow eats the lower right side; a thin red rim stays.
+  g.appendChild(el('circle', { cx, cy, r, fill: `url(#${ids.shade})` }));
+  g.appendChild(el('circle', { cx, cy, r, fill: 'none', stroke: '#C4170F', 'stroke-width': 1.5, opacity: 0.75 }));
   const q = (v: number): number => r1(v * r);
-  g.appendChild(
-    el('path', {
-      d: `M${r1(cx - r * 1.7)} ${r1(cy + r * 0.45)} q${q(0.4)} ${q(-0.35)} ${q(0.8)} ${q(-0.05)} q${q(0.35)} ${q(-0.3)} ${q(0.75)} 0 q${q(0.4)} ${q(-0.25)} ${q(0.8)} ${q(0.05)} q${q(0.5)} ${q(-0.1)} ${q(0.9)} ${q(0.25)} l0 ${q(0.22)} l${q(-3.25)} 0 z`,
-      fill: SHADOW,
-      opacity: 0.8,
-      filter: `url(#${ids.soft})`,
-    }),
-  );
+  // Black cloud strands across the moon.
+  for (const [x0, y, len, bend, w, o] of [
+    [-1.45, -0.28, 2.3, -0.2, 0.11, 0.85],
+    [-0.4, 0.22, 1.9, 0.16, 0.08, 0.75],
+  ] as const) {
+    const k = len / 3;
+    g.appendChild(
+      el('path', {
+        class: 'moon-strand',
+        d: `M${r1(cx + r * x0)} ${r1(cy + r * y)} c${q(k)} ${q(bend)} ${q(2 * k)} ${q(-bend * 1.4)} ${q(len)} ${q(bend * 0.3)}`,
+        fill: 'none',
+        stroke: SHADOW,
+        'stroke-width': q(w),
+        'stroke-linecap': 'round',
+        opacity: o,
+        filter: `url(#${ids.smear})`,
+      }),
+    );
+  }
   for (const [bx, by, s] of [
     [cx + r * 0.55, cy - r * 0.7, 1],
     [cx - r * 0.9, cy - r * 0.2, 0.7],
@@ -485,16 +500,28 @@ function defsFor(ids: Ids): SVGDefsElement {
   const defs = el('defs');
   const blood = el('radialGradient', { id: ids.blood, cx: '42%', cy: '38%', r: '65%' });
   for (const [o, c] of [
-    ['0', '#F07A4A'],
-    ['.55', '#B8321F'],
-    ['1', '#5E0B0B'],
+    ['0', '#8A1212'],
+    ['.6', '#560808'],
+    ['1', '#2A0304'],
   ] as const) {
     blood.appendChild(el('stop', { offset: o, 'stop-color': c }));
   }
   defs.appendChild(blood);
+  const shade = el('linearGradient', { id: ids.shade, x1: '0', y1: '0', x2: '1', y2: '1' });
+  for (const [o, c, op] of [
+    ['.3', SHADOW, '0'],
+    ['.62', SHADOW, '.72'],
+    ['1', SHADOW, '.96'],
+  ] as const) {
+    shade.appendChild(el('stop', { offset: o, 'stop-color': c, 'stop-opacity': op }));
+  }
+  defs.appendChild(shade);
   const soft = el('filter', { id: ids.soft, x: '-20%', y: '-60%', width: '140%', height: '220%' });
   soft.appendChild(el('feGaussianBlur', { stdDeviation: 5 }));
   defs.appendChild(soft);
+  const smear = el('filter', { id: ids.smear, x: '-30%', y: '-80%', width: '160%', height: '260%' });
+  smear.appendChild(el('feGaussianBlur', { stdDeviation: 2.5 }));
+  defs.appendChild(smear);
   for (const [id, c, o] of [
     [ids.haloGold, '#FFD27A', 0.45],
     [ids.haloCold, '#9FA8FF', 0.3],
@@ -511,13 +538,40 @@ function defsFor(ids: Ids): SVGDefsElement {
   return defs;
 }
 
-/** A big spirit in the sky band, with the number of its step under it. */
-function ghostGroup(g: Ghost, index: number, count: number, number: number, L: Layout, ids: Ids): SVGGElement {
-  const slot = (L.vw - 2 * PAD) / count;
-  const spH = r1(Math.min(L.bandH - 34, (slot - 10) / SPIRIT_RATIO));
-  const spW = r1(spH * SPIRIT_RATIO);
-  const cx = r1(PAD + slot * (index + 0.5));
-  const top = 8;
+/**
+ * Each spirit stands at its own fear step, in its own pose: the first two beside the step with the
+ * waist at its level (right, then left), the third half lying on its step. `lab` and `labDy` move
+ * the number circle off the head when it would cover a step number.
+ */
+const SPIRIT_POSES = [
+  // Step 6: right beside her step, her waist at the level of the step.
+  { art: 'zheztyrnaq-rise', ratio: 0.686, h: 1.575, side: 1, lie: false, lab: 0.45, labDy: 0.12 },
+  // Step 7: left beside her step, her waist at the level of the step.
+  { art: 'zheztyrnaq-peek', ratio: 0.427, h: 1.575, side: -1, lie: false, lab: 0, labDy: 0 },
+  // Step 8: half lies on the right part of the top step.
+  { art: 'zheztyrnaq-crawl', ratio: 1.23, h: 1.125, side: 1, lie: true, lab: 0, labDy: 0 },
+] as const;
+
+function ghostGroup(g: Ghost, index: number, stepIndex: number, number: number, L: Layout, ids: Ids): SVGGElement {
+  const pose = SPIRIT_POSES[index % SPIRIT_POSES.length] ?? SPIRIT_POSES[0];
+  const spH = r1((L.phone ? 125 : 175) * pose.h);
+  const spW = r1(spH * pose.ratio);
+  const sx = stepX(stepIndex, L);
+  const sy = stepY(stepIndex, L);
+  const mid = sy + L.sh * 0.5;
+  let cx: number;
+  let top: number;
+  if (pose.lie) {
+    // Lies on the tread, on the right part of the step, the plate number stays clear.
+    cx = sx + L.sw - spW * 0.4;
+    top = sy + L.sh * 0.35 - spH;
+  } else {
+    // Beside the step, a little over its end, the waist at the level of the step.
+    cx = (pose.side > 0 ? sx + L.sw - spW * 0.25 : sx - spW * 0.35);
+    top = mid - spH * 0.45;
+  }
+  cx = r1(Math.min(Math.max(cx, PAD + spW / 2), L.vw - PAD - spW / 2));
+  top = r1(top);
   const cy = r1(top + spH / 2);
 
   const root = el('g', { class: 'ghost', 'data-ghost': index });
@@ -540,19 +594,20 @@ function ghostGroup(g: Ghost, index: number, count: number, number: number, L: L
   body.appendChild(hidden(el('ellipse', { class: 'halo-cold', ...halo, fill: `url(#${ids.haloCold})` })));
   body.appendChild(hidden(el('ellipse', { class: 'halo-gold', ...halo, fill: `url(#${ids.haloGold})`, opacity: 0 })));
   const spirit = { x: r1(-spW / 2), y: r1(-spH / 2), width: spW, height: spH };
-  body.appendChild(svgArt('zheztyrnaq', 'spirit-dark', { ...spirit, opacity: 1 }));
+  body.appendChild(svgArt(pose.art, 'spirit-dark', { ...spirit, opacity: 1 }));
   body.appendChild(svgArt('peri', 'spirit-light', { ...spirit, opacity: 0 }));
   body.appendChild(svgArt('spirit-turning', 'spirit-turning', { ...spirit, opacity: 0 }));
   float.appendChild(body);
   root.appendChild(float);
 
-  // The number of its step stays still under the spirit.
-  const ty = r1(top + spH + 14);
-  root.appendChild(hidden(el('circle', { class: 'ghost-num', cx, cy: ty, r: 11, 'stroke-width': 1.5 })));
+  // The number of its step stays still over the spirit's head.
+  const lx = r1(Math.min(cx + spW * pose.lab, L.vw - PAD - 12));
+  const ty = r1(top - 8 + spH * pose.labDy);
+  root.appendChild(hidden(el('circle', { class: 'ghost-num', cx: lx, cy: ty, r: 11, 'stroke-width': 1.5 })));
   const label = hidden(
     el('text', {
       class: 'ghost-label',
-      x: cx,
+      x: lx,
       y: r1(ty + 4.5),
       'font-size': 13,
       'font-weight': 700,
@@ -614,7 +669,9 @@ function applyGhostState(
   plate?.classList.toggle('dim', !faded);
   if (faded) plate?.removeAttribute('style');
   else plate?.setAttribute('style', DIM_STEP);
-  stair.querySelector('.plate-num')?.setAttribute('fill', faded ? '#FFE3A3' : '#C9C4E6');
+  const numFill = faded ? '#FFE3A3' : '#C9C4E6';
+  stair.querySelector('.plate-num')?.setAttribute('fill', numFill);
+  svg.querySelector(`.plate-num-over[data-fear="${index}"]`)?.setAttribute('fill', numFill);
   stair.querySelector('.step-star')?.setAttribute('visibility', faded ? 'visible' : 'hidden');
   stair.querySelector('.card-spirit')?.setAttribute('href', artUrl(faded ? 'peri' : 'zheztyrnaq'));
   paintNum(stair.querySelector('.num-disc'), stair.querySelector('.card-num'), style);
@@ -638,6 +695,8 @@ export function buildStaircase(
   const p = `hl${pictureCount}`;
   const ids: Ids = {
     blood: `${p}-blood`,
+    shade: `${p}-shade`,
+    smear: `${p}-smear`,
     soft: `${p}-soft`,
     haloGold: `${p}-halo-gold`,
     haloCold: `${p}-halo-cold`,
@@ -659,11 +718,19 @@ export function buildStaircase(
   svg.appendChild(defsFor(ids));
   const bgH = L.phone ? L.sceneH * 0.62 : L.sceneH * 0.8;
   const bgW = Math.max(L.vw, bgH / STEPPE_RATIO);
-  const ox = Math.min(0, Math.max(L.vw - bgW, L.vw * 0.72 - bgW * 0.72));
+  // The yurt sits lower and further right, so its shanyraq shows past the steps and the spirits.
+  const yurtDx = L.vw * 0.12;
+  const yurtDy = bgH * 0.16;
+  const ox = Math.min(0, Math.max(L.vw - bgW, L.vw * 0.72 - bgW * 0.72)) + yurtDx;
+  const clipId = `${ids.blood}-scene`;
+  const clip = el('clipPath', { id: clipId });
+  clip.appendChild(el('rect', { x: 0, y: 0, width: L.vw, height: L.sceneH }));
+  svg.appendChild(clip);
   svg.appendChild(
     svgArt('steppe-night', 'backdrop', {
+      'clip-path': `url(#${clipId})`,
       x: 0,
-      y: r1(L.sceneH - bgH),
+      y: r1(L.sceneH - bgH + yurtDy),
       width: r1(bgW),
       height: r1(bgW * STEPPE_RATIO),
       preserveAspectRatio: 'none',
@@ -675,7 +742,7 @@ export function buildStaircase(
       el('rect', {
         class: 'night-sky sky-fade',
         x: 0,
-        y: r1(L.sceneH - bgH - 1),
+        y: r1(L.sceneH - bgH - 1 + yurtDy),
         width: L.vw,
         height: 70,
         fill: `url(#${ids.skyFade})`,
@@ -709,10 +776,23 @@ export function buildStaircase(
       const step = steps[stepIndex];
       const fear = step?.text ?? '';
       const ghost: Ghost = ghosts[gi] ?? { fear, step: '' };
-      const node = ghostGroup(ghost, gi, fearSteps.length, step?.number ?? stepIndex + 1, L, ids);
-      svg.appendChild(node);
+      const node = ghostGroup(ghost, gi, stepIndex, step?.number ?? stepIndex + 1, L, ids);
+      // Spirits on lower steps stand in front of the ones above.
+      const prevGhost = svg.querySelector('.ghost');
+      if (prevGhost) svg.insertBefore(node, prevGhost);
+      else svg.appendChild(node);
       applyGhostState(svg, node, ghost, gi);
     });
+    // The numbers of the fear steps are drawn again over the spirits, so a claw never hides them.
+    const top = el('g', { class: 'plate-num-top', 'aria-hidden': 'true' });
+    svg.querySelectorAll('.stair[data-fear]').forEach((stair) => {
+      const copy = stair.querySelector('.plate-num')?.cloneNode(true) as SVGElement | undefined;
+      if (!copy) return;
+      copy.setAttribute('class', 'plate-num-over');
+      copy.setAttribute('data-fear', stair.getAttribute('data-fear') ?? '');
+      top.appendChild(copy);
+    });
+    svg.appendChild(top);
   }
   return svg;
 }

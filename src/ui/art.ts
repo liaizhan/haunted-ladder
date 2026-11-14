@@ -4,6 +4,9 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 export const ART_NAMES = [
   'steppe-night',
   'zheztyrnaq',
+  'zheztyrnaq-rise',
+  'zheztyrnaq-peek',
+  'zheztyrnaq-crawl',
   'peri',
   'spirit-turning',
   'shanyraq',

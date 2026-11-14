@@ -99,7 +99,7 @@ describe('staircase readability', () => {
             expect(p.note.compareDocumentPosition(p.label) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
             expect(textFitsCard(p.label, p.note)).toBe(true);
           }
-          // The big spirits stand in the sky band, each in its own slot, left to right,
+          // The big spirits stand inside the scene, each at its own fear step,
           // and their step numbers never overlap.
           const vw = Number((svg.getAttribute('viewBox') ?? '').split(' ')[2]);
           const centers = Array.from(svg.querySelectorAll('.ghost')).map((g) => {
@@ -107,11 +107,9 @@ describe('staircase readability', () => {
             return { x: Number(m?.[1]), y: Number(m?.[2]) };
           });
           expect(centers.length).toBe(fears.length);
-          centers.forEach((c, i) => {
+          centers.forEach((c) => {
             expect(c.x).toBeGreaterThan(0);
             expect(c.x).toBeLessThan(vw);
-            const prev = centers[i - 1];
-            if (prev) expect(c.x).toBeGreaterThan(prev.x);
           });
           const boxes: Box[] = Array.from(svg.querySelectorAll('.ghost-num')).map((n) => {
             const r = Number(n.getAttribute('r'));
