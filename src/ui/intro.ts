@@ -44,6 +44,40 @@ function buildScene(): HTMLElement {
 }
 
 /**
+ * The title in two moods: "Haunted" trembles red like fear, the letters of "Ladder" stand on a rising
+ * baseline like steps and light up gold one by one from the bottom. The text stays "Haunted Ladder".
+ */
+function createTitle(): HTMLElement {
+  const title = document.createElement('h1');
+  title.className = 'flicker';
+  const haunted = document.createElement('span');
+  haunted.className = 'title-haunted';
+  haunted.textContent = 'Haunted';
+  const ladder = document.createElement('span');
+  ladder.className = 'title-ladder';
+  [...'Ladder'].forEach((ch, i) => {
+    const letter = document.createElement('span');
+    letter.className = 'title-letter';
+    letter.style.setProperty('--i', String(i));
+    letter.textContent = ch;
+    ladder.append(letter);
+  });
+  title.append(haunted, ' ', ladder);
+  return title;
+}
+
+/**
+ * A taste of calm before the first step: while the "Start" button is hovered, focused or held, the
+ * moon turns gold and its beat slows, the Zheztyrnaq sinks into the fog. Letting go brings the night back.
+ */
+function previewCalm(root: HTMLElement, button: HTMLButtonElement): void {
+  const on = (): void => root.classList.add('preview-calm');
+  const off = (): void => root.classList.remove('preview-calm');
+  for (const type of ['pointerenter', 'pointerdown', 'focus']) button.addEventListener(type, on);
+  for (const type of ['pointerleave', 'pointercancel', 'blur']) button.addEventListener(type, off);
+}
+
+/**
  * The intro screen: a night scene behind a flickering title, a tagline, a short explanation, a "Start"
  * button and a link to the sample ladder. No price, no sign-in, no external file.
  */
@@ -56,9 +90,7 @@ export function createIntro(onStart: () => void): HTMLElement {
   const content = document.createElement('div');
   content.className = 'intro-content';
 
-  const title = document.createElement('h1');
-  title.className = 'flicker';
-  title.textContent = 'Haunted Ladder';
+  const title = createTitle();
 
   const tagline = document.createElement('p');
   tagline.className = 'intro-tagline';
@@ -75,6 +107,7 @@ export function createIntro(onStart: () => void): HTMLElement {
   start.type = 'button';
   start.textContent = t('introStart');
   start.addEventListener('click', onStart);
+  previewCalm(root, start);
   const sample = document.createElement('a');
   sample.className = 'button secondary';
   sample.href = '?demo=1';

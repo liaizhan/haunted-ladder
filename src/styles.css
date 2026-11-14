@@ -974,11 +974,12 @@ body.calm .legend {
   width: 46%;
   left: calc(var(--i) * 13.5%);
   bottom: calc(var(--i) * 19%);
-  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.6));
+  --step-filter: brightness(1) saturate(1) drop-shadow(0 6px 10px rgba(0, 0, 0, 0.6));
+  filter: var(--step-filter);
 }
 
 .intro-step:nth-of-type(n + 5) {
-  filter: brightness(0.45) saturate(0.3) drop-shadow(0 6px 10px rgba(0, 0, 0, 0.6));
+  --step-filter: brightness(0.45) saturate(0.3) drop-shadow(0 6px 10px rgba(0, 0, 0, 0.6));
 }
 
 .intro-star {
@@ -1025,9 +1026,6 @@ body.calm .legend {
   font-size: clamp(2.9rem, 13vw, 5rem);
   line-height: 0.92;
   letter-spacing: 0.01em;
-  background: linear-gradient(180deg, #fff3cf 0%, #f6c35a 52%, #c06a1e 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
   color: transparent;
   text-shadow: none;
   filter: drop-shadow(0 0 16px rgba(255, 138, 61, 0.45));
@@ -1071,14 +1069,166 @@ body.calm .legend {
     animation: intro-flicker 4s ease-in-out infinite;
   }
   .intro-star {
-    animation: star-twinkle 5s ease-in-out infinite;
-    animation-delay: calc(var(--i) * -1.2s);
+    animation: intro-star-flash 6s ease-out infinite;
+    animation-delay: calc(var(--i) * 0.35s + 0.25s);
+  }
+  .intro-step {
+    animation: intro-step-light 6s ease-out infinite;
+    animation-delay: calc(var(--i) * 0.35s);
+  }
+  .intro-moon {
+    animation: intro-heartbeat 0.625s ease-in-out infinite;
+    transition: box-shadow 1.2s ease;
+  }
+  .intro-moon::after {
+    animation: intro-heartbeat-glow 0.625s ease-in-out infinite;
+  }
+  .intro-moon::before {
+    transition: opacity 1.2s ease;
+  }
+  .intro.preview-calm .intro-moon,
+  .intro.preview-calm .intro-moon::after {
+    animation-duration: 1.25s;
+  }
+  .intro-spirit {
+    transition: translate 1.4s ease, scale 1.4s ease, opacity 1.4s ease;
+  }
+  .title-haunted {
+    animation: title-fear 3.2s linear infinite;
+    transition: filter 1.2s ease;
+  }
+  .intro.preview-calm .title-haunted {
+    animation: none;
+  }
+  .title-letter {
+    animation: title-letter-light 1.1s ease-out both;
+    animation-delay: calc(var(--i) * 0.22s + 0.5s);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .intro .intro-content h1.flicker {
     animation: none;
+  }
+}
+
+/* The moon beats like a frightened heart, 96 beats a minute: a strong beat, then a softer one */
+.intro-moon::before,
+.intro-moon::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.intro-moon::before {
+  inset: 0;
+  background: radial-gradient(circle at 38% 36%, #fff3cf 0%, #f6c35a 45%, #c06a1e 100%);
+  opacity: 0;
+}
+
+.intro-moon::after {
+  inset: -35%;
+  background: radial-gradient(circle, rgba(255, 60, 50, 0.4) 0%, rgba(255, 60, 50, 0) 65%);
+  opacity: 0;
+}
+
+.intro.preview-calm .intro-moon {
+  box-shadow:
+    0 0 0 1.5px rgba(255, 220, 140, 0.7),
+    0 0 40px 12px rgba(242, 181, 71, 0.4),
+    0 0 140px 50px rgba(242, 160, 70, 0.25);
+}
+
+.intro.preview-calm .intro-moon::before {
+  opacity: 1;
+}
+
+.intro.preview-calm .intro-moon::after {
+  background: radial-gradient(circle, rgba(255, 210, 120, 0.35) 0%, rgba(255, 210, 120, 0) 65%);
+}
+
+/* The Zheztyrnaq sinks into the fog while calm is tasted */
+.intro.preview-calm .intro-spirit {
+  translate: 0 22%;
+  scale: 0.88;
+  opacity: 0.12;
+}
+
+/* The title: fear in red, the ladder in gold on a rising baseline */
+.title-haunted,
+.title-letter {
+  display: inline-block;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.title-haunted {
+  background-image: linear-gradient(180deg, #ffb3a6 0%, #ff5a4a 50%, #a8141c 100%);
+  filter: hue-rotate(0deg) drop-shadow(0 0 10px rgba(255, 40, 40, 0.5));
+}
+
+.intro.preview-calm .title-haunted {
+  filter: hue-rotate(38deg) drop-shadow(0 0 10px rgba(255, 190, 90, 0.5));
+}
+
+.title-ladder {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.title-letter {
+  background-image: linear-gradient(180deg, #fff3cf 0%, #f6c35a 52%, #c06a1e 100%);
+  transform: translateY(calc(var(--i) * -0.05em));
+}
+
+@keyframes intro-heartbeat {
+  0%, 55%, 100% { transform: scale(1); }
+  12% { transform: scale(1.07); }
+  26% { transform: scale(0.99); }
+  38% { transform: scale(1.035); }
+}
+
+@keyframes intro-heartbeat-glow {
+  0%, 60%, 100% { opacity: 0; }
+  12% { opacity: 1; }
+  26% { opacity: 0.3; }
+  38% { opacity: 0.65; }
+}
+
+@keyframes intro-step-light {
+  0%, 18%, 100% { filter: var(--step-filter); }
+  7% { filter: brightness(1.6) saturate(1.25) drop-shadow(0 0 18px rgba(255, 200, 90, 0.95)); }
+}
+
+@keyframes intro-star-flash {
+  0%, 20%, 100% { transform: scale(1); filter: drop-shadow(0 0 8px rgba(255, 200, 90, 0.9)); }
+  7% { transform: scale(1.7) rotate(25deg); filter: drop-shadow(0 0 18px rgba(255, 230, 150, 1)); }
+}
+
+@keyframes title-fear {
+  0%, 70%, 100% { transform: translate(0, 0) rotate(0deg); }
+  72% { transform: translate(-1.5px, 1px) rotate(-0.6deg); }
+  74% { transform: translate(2px, -1px) rotate(0.5deg); }
+  76% { transform: translate(-1px, -1.5px) rotate(-0.3deg); }
+  78% { transform: translate(1.5px, 1px) rotate(0.4deg); }
+  80% { transform: translate(-1px, 0.5px) rotate(-0.2deg); }
+  82% { transform: translate(0, 0) rotate(0deg); }
+}
+
+@keyframes title-letter-light {
+  from {
+    opacity: 0.15;
+    filter: brightness(0.5) drop-shadow(0 0 0 rgba(255, 210, 120, 0));
+  }
+  45% {
+    opacity: 1;
+    filter: brightness(1.5) drop-shadow(0 0 14px rgba(255, 210, 120, 0.95));
+  }
+  to {
+    opacity: 1;
+    filter: brightness(1) drop-shadow(0 0 0 rgba(255, 210, 120, 0));
   }
 }
 
