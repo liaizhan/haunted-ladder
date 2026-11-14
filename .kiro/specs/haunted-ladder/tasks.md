@@ -151,12 +151,12 @@
     - **Property 16: Dawn comes only with every step**
     - **Validates: Requirements 13.1, 13.2, 13.3**
 
-- [ ] 21. A ghost dissolves into light
-  - [ ] 21.1 Add `src/ui/motes.ts` with `dissolve`, call it when a ghost's step goes from empty to non-empty, remove motes on finish, skip under reduced motion
+- [x] 21. A ghost dissolves into light
+  - [x] 21.1 Add `src/ui/motes.ts` with `dissolve`, call it when a ghost's step goes from empty to non-empty, remove motes on finish, skip under reduced motion
     - _Requirements: 14.1, 14.2, 14.4_
-  - [ ] 21.2 Add `chime()` to `nightSound.ts` (Web Audio, fades, peak gain 0.15, only while the sound is on) and test it with the fake AudioContext
+  - [x] 21.2 Add `chime()` to `nightSound.ts` (Web Audio, fades, peak gain 0.15, only while the sound is on) and test it with the fake AudioContext
     - _Requirements: 14.3_
-  - [ ] 21.3 Write property test for Property 17
+  - [x] 21.3 Write property test for Property 17
     - **Property 17: Motes leave no trace**
     - **Validates: Requirements 14.2, 14.4**
 

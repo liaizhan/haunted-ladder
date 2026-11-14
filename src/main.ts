@@ -2,7 +2,7 @@ import './styles.css';
 import { analyze } from './api/ladderClient';
 import { validateDraft, type LadderDraft } from './domain/ladder';
 import type { Answer, Reading } from './domain/server';
-import { applySavedSteps, ghostsFromReading, stepsRecord, type Ghost } from './domain/ghosts';
+import { applySavedSteps, ghostsFromReading, isFaded, stepsRecord, type Ghost } from './domain/ghosts';
 import { clear, load, save } from './domain/storage';
 import { demoDraft, isDemo } from './domain/demo';
 import { createForm } from './ui/form';
@@ -26,6 +26,7 @@ import {
 import { leaveCalm, showCalm, type CalmAnswer } from './ui/calm';
 import { saveLadderImage } from './ui/exportImage';
 import { buildDawn, isDawn, setDawn } from './ui/dawn';
+import { dissolve } from './ui/motes';
 
 export type Screen = 'intro' | 'form' | 'waiting' | 'result' | 'calm';
 
@@ -284,13 +285,23 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
     const message = el('p', '', 'save-message');
     message.setAttribute('role', 'alert');
 
+    const wasFaded = ghosts.map((g) => isFaded(g));
     const readingEl = buildReading(reading, ghosts, {
       onStepsChange: (gs) => {
         state.steps = stepsRecord(gs);
         persist();
         updateGhosts(svg, gs);
         h.update(gs);
-        setDawn(stage, isDawn(gs));
+        const dawnNow = isDawn(gs);
+        setDawn(stage, dawnNow);
+        gs.forEach((g, i) => {
+          const now = isFaded(g);
+          if (now && wasFaded[i] === false) {
+            dissolve(svg, i, dawnNow ? 'sun' : 'moon');
+            night.chime();
+          }
+          wasFaded[i] = now;
+        });
       },
       onSave: () => {
         // The picture always uses the wide layout, so the written steps fit under it.

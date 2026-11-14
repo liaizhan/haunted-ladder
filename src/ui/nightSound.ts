@@ -12,8 +12,13 @@ export type NightSound = {
   stop: () => void;
   /** Stops at once and releases the audio. Used by the calm screens. */
   kill: () => void;
+  /** One soft short chime. Plays only while the sound is on; does nothing otherwise. */
+  chime: () => void;
   readonly active: boolean;
 };
+
+/** Loudest gain the chime ever reaches (Requirement 14.3). */
+export const CHIME_PEAK = 0.15;
 
 export type NightSoundOptions = {
   /** Seconds per beat, read live so the heartbeat follows `--beat`. */
@@ -196,6 +201,30 @@ export function createNightSound(opts: NightSoundOptions): NightSound {
       tickTimer = undefined;
       fadeTo(0);
       stopTimer = setTimeout(teardown, FADE_SECONDS * 1000 + 100);
+    },
+    chime(): void {
+      if (!on || !ctx || !master) return;
+      const c = ctx;
+      const out = master;
+      try {
+        const when = c.currentTime + 0.02;
+        const g = c.createGain();
+        g.gain.setValueAtTime(0, when);
+        g.gain.linearRampToValueAtTime(CHIME_PEAK, when + 0.12);
+        g.gain.linearRampToValueAtTime(0, when + 0.9);
+        g.connect(out);
+        for (const freq of [659.25, 987.77]) {
+          const osc = c.createOscillator();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          osc.connect(g);
+          osc.start(when);
+          osc.stop(when + 0.95);
+          sources.push(osc);
+        }
+      } catch {
+        // a failed chime must never break typing
+      }
     },
     kill(): void {
       on = false;

@@ -54,6 +54,7 @@ function viewBoxSize(svg: SVGSVGElement): { w: number; h: number } {
 export function buildExportSvg(svg: SVGSVGElement, ghosts: Ghost[]): SVGSVGElement {
   const { w, h } = viewBoxSize(svg);
   const copy = svg.cloneNode(true) as SVGSVGElement;
+  copy.querySelectorAll('.motes').forEach((m) => m.remove());
 
   const dawn = isDawn(ghosts);
   const ink = dawn ? DAWN_TEXT : MOON;
