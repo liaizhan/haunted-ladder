@@ -181,6 +181,10 @@ Property 14: Labels stay readable
 For any reading with 1 to 5 obstacles and 1 to 5 fears and any phrases, every step label in the staircase SVG is drawn after (above) the heart and on a filled step rectangle whose color with the label color has contrast of at least 4.5:1, and the bounding boxes of ghost labels computed from their x, y and wrapped line count do not overlap each other.
 Validates: Requirements 11.3
 
+Property 15: Readable on a phone
+For any reading with 1 to 5 obstacles and 1 to 5 fears and any phrases, the staircase built for a 375 px wide container has every step label and ghost label font size times (rendered width / viewBox width) of at least 13, every wrapped line fits its slot width, and Property 14 still holds.
+Validates: Requirements 12.3
+
 ## Testing Strategy
 
 - Vitest + jsdom for unit and DOM tests, fast-check for Properties 1 to 13 (at least 100 runs each). `AudioContext` is replaced by a fake in tests.

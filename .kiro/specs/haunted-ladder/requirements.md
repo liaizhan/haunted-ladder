@@ -147,3 +147,14 @@ Haunted Ladder is a one-page web app built on the Ladder method by Aizhan Li, au
 6. WHEN the crisis, health or error screen is shown THEN the intro scene, the glow and the floating SHALL NOT appear (Requirement 6.1 still holds).
 7. WHEN the page is 360 px wide THEN the intro scene, the staircase and the buttons SHALL fit without horizontal scrolling.
 
+### Requirement 12: The ghost fades where you type, and every label reads on a phone
+
+**User Story:** As a person writing my small steps, I want to see the ghost fade right next to the field I am typing in, and to read every step on my phone without zooming, so that the main moment of the app is not missed.
+
+#### Acceptance Criteria
+
+1. WHEN the result screen is at least 900 px wide THEN the staircase with the heart SHALL sit in a left column that stays in view (sticky) while the person scrolls, and the "Make the ghosts smaller" fields SHALL sit in the right column next to it, so the ghost fade is seen while typing.
+2. WHEN the result screen is narrower than 900 px THEN the "Make the ghosts smaller" block SHALL come right after the staircase (before the sound toggle, the insights and the questions), and each step field SHALL show its own small ghost icon whose opacity follows that ghost (full without a step, 0.15 with a step), so the fade is seen next to the field.
+3. WHEN the page is 375 px wide THEN every step label and every ghost label on the staircase SHALL render at 13 CSS px or larger, with wrapping that keeps all text inside its step or ghost slot and no overlap (Property 14 still holds).
+4. WHEN the layout changes THEN Requirements 6.1, 11.5 and 11.7 SHALL still hold: no horizontal scroll at 360 px, reduced motion respected, calm screens unchanged.
+
