@@ -128,7 +128,7 @@ Haunted Ladder is a one-page web app built on the Ladder method by Aizhan Li, au
 
 #### Acceptance Criteria
 
-1. WHEN the page opens with `?demo=1` in the address THEN the system SHALL fill the form with the sample ladder from `tech.md` (one goal, one "I" phrase, 3 obstacles, 3 fears) and SHALL show the last form screen with the "Show my ladder" button, so one press sends the real request.
+1. WHEN the page opens with `?demo=1` in the address THEN the system SHALL fill the form with the sample ladder from `tech.md` (one goal, one "I" phrase, 3 obstacles, 3 fears) and SHALL show the last form screen with the "Show my ladder" button, so one press sends the real request. (Changed by Requirement 16: the sample ladder is now sent at once, without the form screen.)
 2. WHEN the demo ladder is shown THEN the system SHALL mark it with a short line "Sample ladder. Clear it to write your own." and a "Clear" button.
 3. WHEN the demo ladder is loaded THEN the system SHALL NOT overwrite a draft already saved in `localStorage` and SHALL NOT save the demo answers.
 4. WHEN the demo ladder is sent THEN the system SHALL call the same Ladder server and follow Requirements 2 to 9 exactly as for a person's own ladder; the client SHALL NOT use a canned or invented reading.
@@ -157,4 +157,51 @@ Haunted Ladder is a one-page web app built on the Ladder method by Aizhan Li, au
 2. WHEN the result screen is narrower than 900 px THEN the "Make the ghosts smaller" block SHALL come right after the staircase (before the sound toggle, the insights and the questions), and each step field SHALL show its own small ghost icon whose opacity follows that ghost (full without a step, 0.15 with a step), so the fade is seen next to the field.
 3. WHEN the page is 375 px wide THEN every step label and every ghost label on the staircase SHALL render at 13 CSS px or larger, with wrapping that keeps all text inside its step or ghost slot and no overlap (Property 14 still holds).
 4. WHEN the layout changes THEN Requirements 6.1, 11.5 and 11.7 SHALL still hold: no horizontal scroll at 360 px, reduced motion respected, calm screens unchanged.
+
+### Requirement 13: Dawn when the last ghost fades
+
+**User Story:** As a person who gave every fear a small step, I want the night to end, so that I feel the change and not only read about it.
+
+#### Acceptance Criteria
+
+1. WHEN the reading has at least one ghost and every ghost has a non-empty step THEN the result scene SHALL turn to dawn over about 4 seconds: the sky gradient moves from night to a soft rose and gold, the stars fade out, the moon sinks and a sun rises behind the top of the ladder, the fog thins, and a short line appears under the staircase: "Morning. Every fear has a next step."
+2. WHEN a step is cleared after dawn THEN the night SHALL come back gently over about 2 seconds.
+3. WHEN the reading has no ghosts THEN the system SHALL NOT show the dawn.
+4. WHEN `prefers-reduced-motion: reduce` is set THEN the switch to dawn and back SHALL happen at once, without animation.
+5. WHEN the dawn is shown THEN every step label and the dawn line SHALL keep WCAG AA contrast (4.5:1) on the dawn colors, and "Save my ladder" SHALL save the picture with the dawn.
+6. WHEN the crisis, health or error screen is shown THEN no dawn element SHALL appear (Requirement 6.1 still holds).
+
+### Requirement 14: A ghost dissolves into light
+
+**User Story:** As a person typing a small step, I want the ghost to break into light and float up to the moon, so that the moment feels alive.
+
+#### Acceptance Criteria
+
+1. WHEN a ghost gets a step (from empty to non-empty) THEN the system SHALL draw 8 to 14 small light motes at the ghost that drift up toward the moon (or the sun at dawn) and fade out over 1.2 to 1.8 seconds, while the ghost itself fades to 0.15.
+2. WHEN the motes finish THEN the system SHALL remove them from the DOM, so that adding and clearing steps many times leaves no motes behind.
+3. WHEN "Night sound" is on THEN the dissolve SHALL play one soft short chime made with Web Audio (fade in and out, peak gain at most 0.15); WHEN the sound is off, no sound SHALL play.
+4. WHEN `prefers-reduced-motion: reduce` is set THEN no motes SHALL be drawn and the ghost SHALL simply fade.
+
+### Requirement 15: Russian and Kazakh
+
+**User Story:** As a woman in Kazakhstan, I want to use the app in Russian or Kazakh, so that I can write my fears in my own language.
+
+#### Acceptance Criteria
+
+1. WHEN any screen except the calm screens is shown THEN the system SHALL show a language switch EN / RU / KZ; the first choice SHALL come from `navigator.language` (ru to RU, kk to KZ, anything else to EN), and the person's choice SHALL be saved in `localStorage` and SHALL update `<html lang>`.
+2. WHEN the interface shows any text THEN it SHALL come from one dictionary per language (`en`, `ru`, `kk`) with exactly the same keys and no empty values.
+3. WHEN the form shows the question titles and hints in Russian or Kazakh THEN they SHALL be the Ladder server's own texts from `get_ladder_questions`, copied into the dictionaries during development; the app SHALL NOT call `get_ladder_questions` at runtime (the only runtime call stays `analyze_ladder`).
+4. WHEN the ladder is sent THEN `analyze_ladder` SHALL get the chosen language (`en`, `ru` or `kk`), so that the reading comes back in it.
+5. WHEN the author is named THEN Russian SHALL say «автор методики «Лестница»» and Kazakh «Баспалдақ» әдістемесінің авторы; no language SHALL call her a psychologist or therapist (психолог, психотерапевт).
+6. WHEN the demo ladder is sent THEN it SHALL use sample phrases written in the chosen language.
+
+### Requirement 16: One click from the entrance to a real ladder
+
+**User Story:** As a judge with two minutes, I want one click to take me from the entrance to a real haunted ladder, so that I see the main moment before I leave.
+
+#### Acceptance Criteria
+
+1. WHEN "See a sample ladder" is pressed on the intro, or the page opens with `?demo=1`, THEN the system SHALL send the sample ladder to the Ladder server at once and show the fog and then the result, without the form screens.
+2. WHEN the sample result is shown THEN it SHALL say "Sample ladder" with a "Write my own" button that clears the sample and opens question 1.
+3. WHEN the sample is shown THEN Requirements 10.3 and 10.4 SHALL still hold: no saved draft is overwritten, the demo answers are not saved, and the reading comes from the real server.
 

@@ -87,6 +87,9 @@ Key: `haunted-ladder:v1`.
 - `heart.ts`: inline SVG x-ray heart drawn behind the staircase. It reads the beat rate from `domain/pulse.ts` and sets the CSS variable `--beat` (seconds per beat) on the heart element. CSS does the beat with a scale and glow keyframe.
 - `fog.ts`: two layers of blurred SVG shapes that drift while waiting; `lift()` fades them out and adds a `lit` class to each step with a growing delay, bottom up.
 - `intro.ts`: builds the intro screen: a full-width inline SVG night scene (moon with a radial-gradient halo, 12 to 20 stars at fixed positions, a ladder silhouette fading into a fog band, one small ghost behind a rail), the title with class `flicker`, and two buttons, "Start" and "See a sample ladder" (a link to `?demo=1`). Motion is CSS only and lives under `@media (prefers-reduced-motion: no-preference)`.
+- `dawn.ts`: `isDawn(ghosts)` is true when there is at least one ghost and every ghost has a non-empty step. `setDawn(scene, on)` toggles class `dawn` on the result stage; CSS moves the sky gradient, stars, moon, sun and fog with transitions (4 s in, 2 s out, none under reduced motion). The dawn line text comes from the dictionary.
+- `motes.ts`: `dissolve(svg, ghostIndex, target)` adds 8 to 14 SVG circles at the ghost, animates them up toward the moon or sun with the Web Animations API, and removes them on finish. Does nothing under reduced motion. `nightSound.chime()` plays the soft chime only while the sound is on.
+- `i18n.ts` with `locales/en.ts`, `locales/ru.ts`, `locales/kk.ts`: `t(key)`, `getLang()`, `setLang(lang)`; the language is saved in `localStorage` and sets `<html lang>`. The Russian and Kazakh question texts are copied from the Ladder server's `get_ladder_questions`.
 - `nightSound.ts`: Web Audio only, no files. Wind is filtered brown noise with a slow gain wobble. The heartbeat is two short low sine thumps ("lub-dub") scheduled on the audio clock at the current beat rate. `start()` needs a user gesture; `stop()` ramps gain to 0 in 2 seconds; `kill()` stops at once (used by the calm screens).
 
 ### domain/pulse.ts
@@ -184,6 +187,18 @@ Validates: Requirements 11.3
 Property 15: Readable on a phone
 For any reading with 1 to 5 obstacles and 1 to 5 fears and any phrases, the staircase built for a 375 px wide container has every step label and ghost label font size times (rendered width / viewBox width) of at least 13, every wrapped line fits its slot width, and Property 14 still holds.
 Validates: Requirements 12.3
+
+Property 16: Dawn comes only with every step
+For any list of 0 to 5 ghosts with any steps, `isDawn` is true exactly when the list is not empty and every step is non-empty after trimming; setting and clearing steps in any order leaves the stage class `dawn` equal to `isDawn`.
+Validates: Requirements 13.1, 13.2, 13.3
+
+Property 17: Motes leave no trace
+For any sequence of 1 to 20 step adds and clears, after all mote animations finish the SVG contains no mote elements, and under reduced motion no mote is ever created.
+Validates: Requirements 14.2, 14.4
+
+Property 18: Same words in every language
+The `en`, `ru` and `kk` dictionaries have the same key set, no value is empty, and no value in any language contains "psycholog", "therapist", "психолог" or "психотерапевт" (case-insensitive).
+Validates: Requirements 15.2, 15.5
 
 ## Testing Strategy
 

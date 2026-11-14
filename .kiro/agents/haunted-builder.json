@@ -1,0 +1,85 @@
+{
+  "name": "haunted-builder",
+  "description": "Builds Haunted Ladder from the spec. Reads steering and spec on spawn, checks words after every write, runs the tests when it stops, and can call the Ladder MCP server.",
+  "prompt": "You build Haunted Ladder strictly from .kiro/specs/haunted-ladder and the rules in .kiro/steering. You cannot run shell commands; hooks run the checks for you and their output is in .kiro/hook-runs.log.",
+  "mcpServers": {},
+  "includeMcpJson": true,
+  "tools": [
+    "@ladder",
+    "glob",
+    "grep",
+    "read",
+    "write"
+  ],
+  "allowedTools": [
+    "read",
+    "write",
+    "grep",
+    "glob",
+    "@ladder/get_ladder_questions",
+    "@ladder/analyze_ladder"
+  ],
+  "resources": [
+    "file://.kiro/steering/**/*.md",
+    "file://.kiro/specs/haunted-ladder/*.md"
+  ],
+  "hooks": [
+    {
+      "name": "agentSpawn-0",
+      "trigger": "agentSpawn",
+      "action": {
+        "type": "command",
+        "command": "echo \"$(date '+%F %T') agentSpawn: $(git log --oneline -1)\" >> .kiro/hook-runs.log; git status --short"
+      },
+      "timeout": 10
+    },
+    {
+      "name": "postToolUse-0",
+      "trigger": "postToolUse",
+      "matcher": "write",
+      "action": {
+        "type": "command",
+        "command": "if grep -rnE '[Pp]sychologist|[Tt]herapist|\\.innerHTML *=|autoplay' src index.html; then echo \"$(date '+%F %T') postToolUse words-check: FAILED\" >> .kiro/hook-runs.log; exit 1; else echo \"$(date '+%F %T') postToolUse words-check: passed\" >> .kiro/hook-runs.log; fi"
+      },
+      "timeout": 10
+    },
+    {
+      "name": "stop-0",
+      "trigger": "stop",
+      "action": {
+        "type": "command",
+        "command": "r=$(npm test --silent 2>&1 | grep -E 'Tests +[0-9]+' | tail -1); echo \"$(date '+%F %T') stop npm-test: ${r:-no result}\" >> .kiro/hook-runs.log"
+      },
+      "timeout": 10
+    }
+  ],
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_write",
+        "effect": "allow"
+      },
+      {
+        "capability": "mcp",
+        "match": [
+          "ladder/analyze_ladder",
+          "ladder/get_ladder_questions"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "skill",
+        "effect": "allow"
+      }
+    ]
+  },
+  "kiroUpgrade": {
+    "revision": 3,
+    "fingerprint": "sha256:8a490265b3f517c88598726e79e0fe8f882a642018c42e74d82d09845f0a0cbf",
+    "source": "sha256:f1497be311502ce16dc374d14168c24e0a8402aa760189ff2f470c6410a9de34"
+  }
+}

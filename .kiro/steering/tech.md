@@ -35,7 +35,7 @@ Request:
 }
 ```
 
-Limits: every phrase 1 to 300 characters, `blocks` 3 to 5 items, `fears` 0 to 5 items, `language` is `en` in this app.
+Limits: every phrase 1 to 300 characters, `blocks` 3 to 5 items, `fears` 0 to 5 items, `language` is the interface language chosen by the person: `en`, `ru` or `kk` (Requirement 15).
 
 The answer is in `result.structuredContent` (the same JSON is also in `result.content[0].text`). `kind` is one of:
 

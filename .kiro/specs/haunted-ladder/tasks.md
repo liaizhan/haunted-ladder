@@ -142,7 +142,38 @@
     - **Property 15: Readable on a phone**
     - **Validates: Requirements 12.3, 12.4**
 
-- [ ] 20. Judge-ready README
+- [ ] 20. Dawn when the last ghost fades
+  - [ ] 20.1 Add `src/ui/dawn.ts` (`isDawn`, `setDawn`), the sun, the dawn sky gradient and the dawn line; call it from the same `onStepsChange` path in `main.ts`
+    - _Requirements: 13.1, 13.2, 13.3_
+  - [ ] 20.2 CSS transitions (4 s in, 2 s out), instant under reduced motion, AA contrast on dawn colors, dawn included in the saved picture, nothing on calm screens
+    - _Requirements: 13.4, 13.5, 13.6_
+  - [ ] 20.3 Write property test for Property 16 and extend the accessibility test with the dawn color pairs
+    - **Property 16: Dawn comes only with every step**
+    - **Validates: Requirements 13.1, 13.2, 13.3**
+
+- [ ] 21. A ghost dissolves into light
+  - [ ] 21.1 Add `src/ui/motes.ts` with `dissolve`, call it when a ghost's step goes from empty to non-empty, remove motes on finish, skip under reduced motion
+    - _Requirements: 14.1, 14.2, 14.4_
+  - [ ] 21.2 Add `chime()` to `nightSound.ts` (Web Audio, fades, peak gain 0.15, only while the sound is on) and test it with the fake AudioContext
+    - _Requirements: 14.3_
+  - [ ] 21.3 Write property test for Property 17
+    - **Property 17: Motes leave no trace**
+    - **Validates: Requirements 14.2, 14.4**
+
+- [ ] 22. Russian and Kazakh
+  - [ ] 22.1 Call the `ladder` MCP tool `get_ladder_questions` with `ru` and with `kk` and copy its question titles and hints into the dictionaries; record in a comment at the top of each locale file that these texts come from that tool
+    - _Requirements: 15.3_
+  - [ ] 22.2 Add `src/i18n.ts` and `src/locales/{en,ru,kk}.ts`, move every interface string into them, add the EN / RU / KZ switch, save the choice, set `<html lang>`, send the language to `analyze_ladder`, add sample phrases per language
+    - _Requirements: 15.1, 15.2, 15.4, 15.5, 15.6_
+  - [ ] 22.3 Write property test for Property 18 and extend the words check to the Russian forbidden words
+    - **Property 18: Same words in every language**
+    - **Validates: Requirements 15.2, 15.5**
+
+- [ ] 23. One click to a real ladder
+  - [ ] 23.1 "See a sample ladder" and `?demo=1` send the sample at once and show fog then result; the result shows "Sample ladder" and "Write my own"; update Property 13 tests and the app test to the new path
+    - _Requirements: 16.1, 16.2, 16.3, 10.3, 10.4_
+
+- [ ] 24. Judge-ready README
   - Top block "Summary for judges": what it is, who it is for, the live link and the `?demo=1` link
   - A short GIF of one ghost fading and the heart slowing, and a captioned screenshot of every screen (intro, form, fog, staircase, all ghosts faded, crisis)
   - Numbers from the repo: requirements, correctness properties, tasks, steering files, hooks, test count
