@@ -1,7 +1,9 @@
 import { allFaded, type Ghost } from '../domain/ghosts';
+import { en } from '../locales/en';
+import { t } from '../i18n';
 
-/** The line shown under the staircase (and in the saved picture) at dawn. */
-export const DAWN_LINE = 'Morning. Every fear has a next step.';
+/** The English dawn line. The screen and the picture show `t('dawnLine')`. */
+export const DAWN_LINE = en.dawnLine;
 
 // Literal colors so the saved PNG matches the screen. Same values as the CSS variables
 // --dawn-top, --dawn-bottom and --dawn-text; a test keeps them equal.
@@ -70,7 +72,7 @@ export function buildDawn(): DawnHandle {
   const line = document.createElement('p');
   line.className = 'dawn-line';
   line.setAttribute('role', 'status');
-  line.textContent = DAWN_LINE;
+  line.textContent = t('dawnLine');
 
   return { sky, line };
 }

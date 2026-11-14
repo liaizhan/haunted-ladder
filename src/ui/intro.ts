@@ -1,3 +1,5 @@
+import { t } from '../i18n';
+
 const NS = 'http://www.w3.org/2000/svg';
 
 function svgEl(name: string, attrs: Record<string, string | number> = {}): SVGElement {
@@ -149,23 +151,20 @@ export function createIntro(onStart: () => void): HTMLElement {
   title.textContent = 'Haunted Ladder';
 
   const p1 = document.createElement('p');
-  p1.textContent =
-    'A gentle, spooky self-check built on the Ladder method by Aizhan Li. ' +
-    'Write your goal, where you are now, what stands in the way and what scares you. ' +
-    'Your fears become ghosts you can see, name and make fade.';
+  p1.textContent = t('introP1');
   const p2 = document.createElement('p');
-  p2.textContent = 'It takes a few minutes. Your words stay in your browser.';
+  p2.textContent = t('introP2');
 
   const actions = document.createElement('div');
   actions.className = 'intro-actions';
   const start = document.createElement('button');
   start.type = 'button';
-  start.textContent = 'Start';
+  start.textContent = t('introStart');
   start.addEventListener('click', onStart);
   const sample = document.createElement('a');
   sample.className = 'button secondary';
   sample.href = '?demo=1';
-  sample.textContent = 'See a sample ladder';
+  sample.textContent = t('introSample');
   actions.append(start, sample);
 
   content.append(title, p1, p2, actions);

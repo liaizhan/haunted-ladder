@@ -1,6 +1,8 @@
 import type { Reading } from '../domain/server';
 import { rewriteUtm } from '../domain/server';
 import { allFaded, isFaded, type Ghost } from '../domain/ghosts';
+import { en } from '../locales/en';
+import { t } from '../i18n';
 
 export type ReadingOptions = {
   /** Called after every change to a step field. The ghosts array is already updated. */
@@ -9,8 +11,8 @@ export type ReadingOptions = {
   onSave: () => void;
 };
 
-export const CLOSING_LINE =
-  'Every ghost has a name and a next step now. That is a real way to make a fear smaller.';
+/** The English closing line. The screen itself shows `t('closingLine')`. */
+export const CLOSING_LINE = en.closingLine;
 
 function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -74,9 +76,9 @@ export function buildReading(
 ): HTMLElement {
   const root = el('section', undefined, 'reading');
 
-  const closing = el('p', CLOSING_LINE, 'closing');
+  const closing = el('p', t('closingLine'), 'closing');
   closing.setAttribute('role', 'status');
-  const save = el('button', 'Save my ladder', 'save');
+  const save = el('button', t('saveLadder'), 'save');
   save.type = 'button';
 
   const refresh = (): void => {
@@ -92,8 +94,8 @@ export function buildReading(
 
   if (ghosts.length > 0) {
     block.append(
-      el('h2', 'Make the ghosts smaller'),
-      el('p', 'A fear becomes smaller when it has a name and a next step.', 'help'),
+      el('h2', t('ghostBlockTitle')),
+      el('p', t('ghostBlockHelp'), 'help'),
     );
     const steps = el('div', undefined, 'ghost-steps');
     ghosts.forEach((g, i) => {
@@ -104,8 +106,8 @@ export function buildReading(
       const icon = buildGhostIcon();
       const label = el('label', undefined);
       label.htmlFor = id;
-      label.append(el('span', 'My small step this week', 'step-label'));
-      label.append(el('span', ` for the fear: ${g.fear}`, 'step-fear'));
+      label.append(el('span', t('stepLabel'), 'step-label'));
+      label.append(el('span', ` ${t('stepFor', { fear: g.fear })}`, 'step-fear'));
       head.append(icon, label);
       const input = el('input');
       input.type = 'text';
@@ -140,10 +142,10 @@ export function buildReading(
   block.append(save);
 
   if (reading.insights.length > 0) {
-    root.append(el('h2', 'What your ladder shows'), list(reading.insights, 'insights'));
+    root.append(el('h2', t('insightsTitle')), list(reading.insights, 'insights'));
   }
   if (reading.questions.length > 0) {
-    root.append(el('h2', 'Two questions to think about'), list(reading.questions, 'questions'));
+    root.append(el('h2', t('questionsTitle')), list(reading.questions, 'questions'));
   }
 
   root.append(el('p', reading.disclaimer, 'disclaimer'));

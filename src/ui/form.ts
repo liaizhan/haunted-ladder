@@ -6,6 +6,7 @@ import {
   validatePhrase,
   type LadderDraft,
 } from '../domain/ladder';
+import { t, type Key } from '../i18n';
 
 export type FormOptions = {
   /** Starting values (a saved draft or the demo). */
@@ -25,20 +26,18 @@ export type FormOptions = {
 type StepKey = 'goal' | 'me' | 'blocks' | 'fears';
 const STEPS: StepKey[] = ['goal', 'me', 'blocks', 'fears'];
 
-const TITLES: Record<StepKey, string> = {
-  goal: 'What is your goal?',
-  me: 'Where are you now?',
-  blocks: 'What stands in the way?',
-  fears: 'What scares you if it comes true?',
+const TITLES: Record<StepKey, Key> = {
+  goal: 'qGoalTitle',
+  me: 'qMeTitle',
+  blocks: 'qBlocksTitle',
+  fears: 'qFearsTitle',
 };
 
-const HELP: Record<StepKey, string> = {
-  goal: 'Something you can measure, like "Launch my online course by March".',
-  me: 'One honest sentence about where you stand today.',
-  blocks:
-    'Short things people said that you believe, like "Dad: nobody pays for courses". Write 3 to 5.',
-  fears:
-    'Optional, up to 5. A fear becomes smaller when it has a name and a next step.',
+const HELP: Record<StepKey, Key> = {
+  goal: 'qGoalHelp',
+  me: 'qMeHelp',
+  blocks: 'qBlocksHelp',
+  fears: 'qFearsHelp',
 };
 
 function el<K extends keyof HTMLElementTagNameMap>(
@@ -68,8 +67,8 @@ if (!customElements.get('form-screen')) customElements.define('form-screen', For
 function hintFor(text: string, optionalEmpty: boolean): string {
   if (optionalEmpty && text.trim().length === 0) return '';
   const e = validatePhrase(text);
-  if (e === 'empty') return 'Write a few words to continue.';
-  if (e === 'tooLong') return `Please keep it to ${MAX_PHRASE} characters or fewer.`;
+  if (e === 'empty') return t('hintEmpty');
+  if (e === 'tooLong') return t('hintTooLong', { max: MAX_PHRASE });
   return '';
 }
 
@@ -124,20 +123,20 @@ export function createForm(opts: FormOptions): HTMLElement {
     const last = step === STEPS.length - 1;
 
     if (opts.demo) {
-      const demo = el('p', 'Sample ladder. Clear it to write your own. ', 'demo-note');
-      const clearDemo = el('button', 'Clear');
+      const demo = el('p', `${t('demoNote')} `, 'demo-note');
+      const clearDemo = el('button', t('demoClear'));
       clearDemo.type = 'button';
       clearDemo.addEventListener('click', () => opts.onDemoClear?.());
       demo.append(clearDemo);
       root.append(demo);
     }
 
-    root.append(el('p', `Question ${step + 1} of ${STEPS.length}`, 'progress'));
-    const title = el('h2', TITLES[key]);
+    root.append(el('p', t('progress', { n: step + 1, total: STEPS.length }), 'progress'));
+    const title = el('h2', t(TITLES[key]));
     title.tabIndex = -1;
-    root.append(title, el('p', HELP[key], 'help'));
+    root.append(title, el('p', t(HELP[key]), 'help'));
 
-    const next = el('button', last ? 'Show my ladder' : 'Next');
+    const next = el('button', last ? t('showLadder') : t('next'));
     next.type = 'button';
     const updateNext = (): void => {
       next.disabled = !isStepValid(key);
@@ -179,7 +178,7 @@ export function createForm(opts: FormOptions): HTMLElement {
 
     if (key === 'goal' || key === 'me') {
       const f = makeField(
-        key === 'goal' ? 'My goal' : 'I am here',
+        key === 'goal' ? t('fieldGoal') : t('fieldMe'),
         draft[key],
         false,
         (v) => {
@@ -192,14 +191,14 @@ export function createForm(opts: FormOptions): HTMLElement {
       const list = key === 'blocks' ? draft.blocks : draft.fears;
       const max = key === 'blocks' ? MAX_BLOCKS : MAX_FEARS;
       const min = key === 'blocks' ? MIN_BLOCKS : 0;
-      const noun = key === 'blocks' ? 'obstacle' : 'fear';
+      const isBlocks = key === 'blocks';
       const rows = el('div', undefined, 'rows');
       let focusTarget = null as HTMLInputElement | null;
 
       list.forEach((value, i) => {
         const row = el('div', undefined, 'row');
         const f = makeField(
-          `${noun === 'obstacle' ? 'Obstacle' : 'Fear'} ${i + 1}`,
+          t(isBlocks ? 'fieldObstacle' : 'fieldFear', { n: i + 1 }),
           value,
           key === 'fears',
           (v) => {
@@ -211,9 +210,12 @@ export function createForm(opts: FormOptions): HTMLElement {
         if (i === focusIndex) focusTarget = f.input;
         const canRemove = list.length > Math.max(min, key === 'fears' ? 1 : 0);
         if (canRemove) {
-          const rm = el('button', 'Remove', 'secondary');
+          const rm = el('button', t('remove'), 'secondary');
           rm.type = 'button';
-          rm.setAttribute('aria-label', `Remove ${noun} ${i + 1}`);
+          rm.setAttribute(
+            'aria-label',
+            t(isBlocks ? 'removeObstacleAria' : 'removeFearAria', { n: i + 1 }),
+          );
           rm.addEventListener('click', () => {
             list.splice(i, 1);
             emit();
@@ -225,11 +227,11 @@ export function createForm(opts: FormOptions): HTMLElement {
       });
       root.append(rows);
 
-      const add = el('button', `Add ${noun}`, 'secondary');
+      const add = el('button', t(isBlocks ? 'addObstacle' : 'addFear'), 'secondary');
       add.type = 'button';
       add.addEventListener('click', () => {
         if (list.length >= max) {
-          notice.textContent = `${max} is the limit.`;
+          notice.textContent = t('limit', { max });
           return;
         }
         list.push('');
@@ -237,13 +239,13 @@ export function createForm(opts: FormOptions): HTMLElement {
         render(list.length - 1);
       });
       root.append(add, notice);
-      if (list.length >= max) notice.textContent = `${max} is the limit.`;
+      if (list.length >= max) notice.textContent = t('limit', { max });
       if (focusTarget) firstInput = focusTarget;
     }
 
     const nav = el('div', undefined, 'nav');
     if (step > 0) {
-      const back = el('button', 'Back', 'secondary');
+      const back = el('button', t('back'), 'secondary');
       back.type = 'button';
       back.addEventListener('click', () => {
         step -= 1;
@@ -269,7 +271,7 @@ export function createForm(opts: FormOptions): HTMLElement {
     nav.append(next);
     root.append(nav);
 
-    const clear = el('button', 'Clear my answers', 'secondary clear');
+    const clear = el('button', t('clearAnswers'), 'secondary clear');
     clear.type = 'button';
     clear.addEventListener('click', () => opts.onClear());
     root.append(clear);

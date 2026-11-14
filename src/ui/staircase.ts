@@ -1,5 +1,6 @@
 import type { Reading, Step } from '../domain/server';
 import { isFaded, type Ghost } from '../domain/ghosts';
+import { t } from '../i18n';
 
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -275,7 +276,7 @@ function applyGhostState(root: Element, ghost: Ghost): void {
   root.setAttribute('opacity', String(faded ? FADED_OPACITY : 1));
   root.setAttribute(
     'aria-label',
-    faded ? `Ghost, faded, has a small step: ${ghost.fear}` : `Ghost: ${ghost.fear}`,
+    faded ? t('ghostFadedAria', { fear: ghost.fear }) : t('ghostAria', { fear: ghost.fear }),
   );
   const check = root.querySelector('.ghost-check');
   if (check) check.setAttribute('visibility', faded ? 'visible' : 'hidden');
@@ -370,7 +371,7 @@ export function buildStaircase(
     viewBox: `0 0 ${vw} ${height}`,
     width: '100%',
     role: 'group',
-    'aria-label': 'Your ladder as a staircase at night',
+    'aria-label': t('staircaseAria'),
     'data-layout': narrow ? 'narrow' : 'wide',
   });
 
@@ -389,7 +390,7 @@ export function buildStaircase(
   });
 
   if (ghosts.length === 0) {
-    const text = 'No ghosts were found above your goal.';
+    const text = t('noGhosts');
     const none = narrow
       ? textBlock(
           wrapText(text, Math.floor((vw - 2 * N_PAD) / charWidth(14)), 2),

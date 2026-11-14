@@ -160,12 +160,12 @@
     - **Property 17: Motes leave no trace**
     - **Validates: Requirements 14.2, 14.4**
 
-- [ ] 22. Russian and Kazakh
-  - [ ] 22.1 Call the `ladder` MCP tool `get_ladder_questions` with `ru` and with `kk` and copy its question titles and hints into the dictionaries; record in a comment at the top of each locale file that these texts come from that tool
+- [x] 22. Russian and Kazakh
+  - [x] 22.1 Call the `ladder` MCP tool `get_ladder_questions` with `ru` and with `kk` and copy its question titles and hints into the dictionaries; record in a comment at the top of each locale file that these texts come from that tool
     - _Requirements: 15.3_
-  - [ ] 22.2 Add `src/i18n.ts` and `src/locales/{en,ru,kk}.ts`, move every interface string into them, add the EN / RU / KZ switch, save the choice, set `<html lang>`, send the language to `analyze_ladder`, add sample phrases per language
+  - [x] 22.2 Add `src/i18n.ts` and `src/locales/{en,ru,kk}.ts`, move every interface string into them, add the EN / RU / KZ switch, save the choice, set `<html lang>`, send the language to `analyze_ladder`, add sample phrases per language
     - _Requirements: 15.1, 15.2, 15.4, 15.5, 15.6_
-  - [ ] 22.3 Write property test for Property 18 and extend the words check to the Russian forbidden words
+  - [x] 22.3 Write property test for Property 18 and extend the words check to the Russian forbidden words
     - **Property 18: Same words in every language**
     - **Validates: Requirements 15.2, 15.5**
 

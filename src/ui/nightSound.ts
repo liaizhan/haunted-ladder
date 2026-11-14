@@ -1,4 +1,5 @@
 import { loadSettings, saveSettings } from '../domain/settings';
+import { t } from '../i18n';
 
 const FADE_SECONDS = 2;
 const PEAK_GAIN = 0.18;
@@ -251,12 +252,12 @@ export function buildSoundToggle(sound: NightSound, store?: Storage): SoundToggl
   const element = document.createElement('button');
   element.type = 'button';
   element.className = 'night-sound secondary';
-  element.textContent = 'Night sound';
+  element.textContent = t('nightSound');
   element.setAttribute('aria-pressed', 'false');
 
   const target = store ?? (typeof localStorage !== 'undefined' ? localStorage : undefined);
   if (target && loadSettings(target).sound) {
-    element.title = 'Sound was on last time. Press to play.';
+    element.title = t('soundWasOn');
   }
 
   element.addEventListener('click', () => {

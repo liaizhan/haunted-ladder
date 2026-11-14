@@ -1,5 +1,6 @@
 import { allFaded, isFaded, type Ghost } from '../domain/ghosts';
 import { beatsPerMinute, secondsPerBeat } from '../domain/pulse';
+import { t } from '../i18n';
 
 const NS = 'http://www.w3.org/2000/svg';
 const EASE_MS = 3000;
@@ -92,7 +93,7 @@ export function buildHeart(ghosts: Ghost[]): HeartHandle {
     currentBpm = bpm;
     element.style.setProperty('--beat', `${secondsPerBeat(bpm)}s`);
     element.dataset['bpm'] = String(Math.round(bpm));
-    if (reduced) rate.textContent = `Heart rate: ${Math.round(bpm)} beats per minute`;
+    if (reduced) rate.textContent = t('heartRate', { bpm: Math.round(bpm) });
   };
 
   if (reduced) {

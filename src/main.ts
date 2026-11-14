@@ -27,6 +27,7 @@ import { leaveCalm, showCalm, type CalmAnswer } from './ui/calm';
 import { saveLadderImage } from './ui/exportImage';
 import { buildDawn, isDawn, setDawn } from './ui/dawn';
 import { dissolve } from './ui/motes';
+import { LANGS, LANG_NAMES, getLang, initLang, isLang, setLang, t, type Lang } from './i18n';
 
 export type Screen = 'intro' | 'form' | 'waiting' | 'result' | 'calm';
 
@@ -72,8 +73,10 @@ function el<K extends keyof HTMLElementTagNameMap>(
 
 /** Starts the app inside `container`. */
 export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
-  const run = deps.analyze ?? ((d: LadderDraft) => analyze(d));
+  const run = deps.analyze ?? ((d: LadderDraft) => analyze(d, undefined, undefined, getLang()));
   const store = deps.store ?? defaultStore();
+  // The saved choice, or the browser language the first time. Also sets <html lang>.
+  initLang(store);
 
   const search = deps.search ?? (typeof location !== 'undefined' ? location.search : '');
   // The demo lives in memory only. It never touches the saved draft.
@@ -82,7 +85,7 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
   const saved = store && !demoActive ? load(store) : null;
   const state: State = {
     screen: demoActive ? 'form' : 'intro',
-    draft: demoActive ? demoDraft() : saved ? saved.draft : emptyDraft(),
+    draft: demoActive ? demoDraft(getLang()) : saved ? saved.draft : emptyDraft(),
     answer: null,
     steps: saved ? saved.steps : {},
     soundOn: false,
@@ -133,6 +136,8 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
   function render(): void {
     stopLive(state.screen === 'result');
     if (state.screen !== 'calm') leaveCalm();
+    const skip = document.querySelector('.skip-link');
+    if (skip) skip.textContent = t('skipLink');
     switch (state.screen) {
       case 'intro':
         container.replaceChildren(createIntro(() => go('form')));
@@ -153,6 +158,43 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
         else go('intro');
         break;
     }
+    // The EN / RU / KZ switch sits on every screen except the calm ones.
+    Array.from(container.children)
+      .find((c) => c.classList.contains('lang-switch'))
+      ?.remove();
+    if (state.screen !== 'calm') container.prepend(buildLangSwitch());
+  }
+
+  function changeLang(lang: Lang): void {
+    const previous = getLang();
+    // An untouched sample ladder follows the language; edited answers are never replaced.
+    if (demoActive && JSON.stringify(state.draft) === JSON.stringify(demoDraft(previous))) {
+      state.draft = demoDraft(lang);
+    }
+    setLang(lang, store);
+    if (state.screen === 'result') {
+      fog?.destroy();
+      fog = null;
+    }
+    render();
+  }
+
+  function buildLangSwitch(): HTMLElement {
+    const wrap = el('div', undefined, 'lang-switch');
+    const select = document.createElement('select');
+    select.setAttribute('aria-label', t('langLabel'));
+    for (const lang of LANGS) {
+      const option = document.createElement('option');
+      option.value = lang;
+      option.textContent = LANG_NAMES[lang];
+      select.append(option);
+    }
+    select.value = getLang();
+    select.addEventListener('change', () => {
+      if (isLang(select.value)) changeLang(select.value);
+    });
+    wrap.append(select);
+    return wrap;
   }
 
   function startOver(): void {
@@ -193,7 +235,7 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
 
   function renderWaiting(): void {
     const root = el('section', undefined, 'screen waiting');
-    const status = el('p', 'Reading your ladder…', 'waiting-note');
+    const status = el('p', t('waiting'), 'waiting-note');
     status.setAttribute('role', 'status');
     const stage = el('div', undefined, 'stage waiting-stage');
     fog = buildFog();
@@ -251,7 +293,7 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
   function renderResult(reading: Reading): void {
     const ghosts: Ghost[] = applySavedSteps(ghostsFromReading(reading), state.steps);
     const root = el('section', undefined, 'screen result');
-    root.append(el('h2', 'Your haunted ladder'));
+    root.append(el('h2', t('resultTitle')));
 
     const stage = el('div', undefined, 'stage');
     root.append(stage);
@@ -317,7 +359,7 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
     });
     readingEl.addEventListener('focusout', () => drift?.focusGhost(null));
 
-    const back = el('button', 'Edit my answers', 'secondary');
+    const back = el('button', t('editAnswers'), 'secondary');
     back.type = 'button';
     back.addEventListener('click', () => go('form'));
     const nav = el('div', undefined, 'nav');

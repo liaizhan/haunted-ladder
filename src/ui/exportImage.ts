@@ -1,6 +1,8 @@
 import { isFaded, type Ghost } from '../domain/ghosts';
 import { wrapText } from './staircase';
-import { DAWN_BOTTOM, DAWN_LINE, DAWN_TEXT, DAWN_TOP, isDawn } from './dawn';
+import { DAWN_BOTTOM, DAWN_TEXT, DAWN_TOP, isDawn } from './dawn';
+import { en } from '../locales/en';
+import { t } from '../i18n';
 
 const NS = 'http://www.w3.org/2000/svg';
 const NIGHT = '#14112B';
@@ -9,10 +11,10 @@ const MIST = '#A9A3C7';
 const PUMPKIN = '#FF8A3D';
 const FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
 
-export const CREDIT_LINE = 'Haunted Ladder, built on the Ladder method by Aizhan Li';
+/** English texts. The picture itself uses the current language through `t()`. */
+export const CREDIT_LINE = en.creditLine;
 export const FILE_NAME = 'haunted-ladder.png';
-export const SAVE_FAILED_MESSAGE =
-  'We could not make the picture this time. Your steps are still here, please try again.';
+export const SAVE_FAILED_MESSAGE = en.saveFailed;
 
 const SCALE = 2;
 
@@ -63,8 +65,8 @@ export function buildExportSvg(svg: SVGSVGElement, ghosts: Ghost[]): SVGSVGEleme
 
   const written = ghosts.filter(isFaded);
   const rows: { fear: string[]; step: string[] }[] = written.map((g) => ({
-    fear: wrapText(`Fear: ${g.fear}`, 80, 2),
-    step: wrapText(`My small step: ${g.step.trim()}`, 80, 3),
+    fear: wrapText(t('exportFear', { fear: g.fear }), 80, 2),
+    step: wrapText(t('exportStep', { step: g.step.trim() }), 80, 3),
   }));
   const lineH = 16;
   let extra = 20;
@@ -118,11 +120,11 @@ export function buildExportSvg(svg: SVGSVGElement, ghosts: Ghost[]): SVGSVGEleme
 
   let y = h + 20;
   if (dawn) {
-    copy.appendChild(text(DAWN_LINE, w / 2, y + 6, 14, DAWN_TEXT, 'middle'));
+    copy.appendChild(text(t('dawnLine'), w / 2, y + 6, 14, DAWN_TEXT, 'middle'));
     y += 30;
   }
   if (rows.length > 0) {
-    copy.appendChild(text('My small steps this week', 40, y + 8, 15, accent));
+    copy.appendChild(text(t('exportTitle'), 40, y + 8, 15, accent));
     y += 30;
     for (const r of rows) {
       for (const line of r.fear) {
@@ -136,7 +138,7 @@ export function buildExportSvg(svg: SVGSVGElement, ghosts: Ghost[]): SVGSVGEleme
       y += 10;
     }
   }
-  copy.appendChild(text(CREDIT_LINE, w / 2, total - 16, 11, softInk, 'middle'));
+  copy.appendChild(text(t('creditLine'), w / 2, total - 16, 11, softInk, 'middle'));
   return copy;
 }
 
@@ -193,7 +195,7 @@ export async function saveLadderImage(
     a.remove();
     return { ok: true };
   } catch {
-    return { ok: false, message: SAVE_FAILED_MESSAGE };
+    return { ok: false, message: t('saveFailed') };
   } finally {
     if (svgUrl) URL.revokeObjectURL(svgUrl);
     if (pngUrl) {

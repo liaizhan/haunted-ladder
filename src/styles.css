@@ -795,3 +795,24 @@ body.calm .dawn-sky,
 body.calm .dawn-line {
   display: none;
 }
+
+/* EN / RU / KZ switch: top right of every screen except the calm ones. */
+.lang-switch {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
+}
+
+.lang-switch select {
+  background: var(--night-2);
+  color: var(--moon);
+  border: 1px solid var(--mist);
+  border-radius: 10px;
+  padding: 0.4rem 0.6rem;
+  font: inherit;
+}
+
+.lang-switch select:focus-visible {
+  outline: 3px solid var(--pumpkin);
+  outline-offset: 2px;
+}

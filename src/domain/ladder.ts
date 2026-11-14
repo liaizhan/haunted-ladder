@@ -14,7 +14,7 @@ export type JsonRpcRequest = {
   params: {
     name: 'analyze_ladder';
     arguments: {
-      language: 'en';
+      language: 'en' | 'ru' | 'kk';
       goal: string;
       me: string;
       blocks: string[];
@@ -72,7 +72,11 @@ export function validateDraft(d: LadderDraft): {
 }
 
 /** Builds the JSON-RPC body. Trims every phrase and drops empty fears. */
-export function buildRequest(d: LadderDraft, id: number): JsonRpcRequest {
+export function buildRequest(
+  d: LadderDraft,
+  id: number,
+  language: 'en' | 'ru' | 'kk' = 'en',
+): JsonRpcRequest {
   return {
     jsonrpc: '2.0',
     id,
@@ -80,7 +84,7 @@ export function buildRequest(d: LadderDraft, id: number): JsonRpcRequest {
     params: {
       name: 'analyze_ladder',
       arguments: {
-        language: 'en',
+        language,
         goal: d.goal.trim(),
         me: d.me.trim(),
         blocks: d.blocks.map((b) => b.trim()),

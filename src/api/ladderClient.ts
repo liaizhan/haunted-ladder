@@ -14,6 +14,7 @@ export async function analyze(
   draft: LadderDraft,
   fetchImpl: typeof fetch = (input, init) => fetch(input, init),
   timeoutMs: number = DEFAULT_TIMEOUT_MS,
+  language: 'en' | 'ru' | 'kk' = 'en',
 ): Promise<Answer> {
   const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -33,7 +34,7 @@ export async function analyze(
           'Content-Type': 'application/json',
           Accept: 'application/json, text/event-stream',
         },
-        body: JSON.stringify(buildRequest(draft, 1)),
+        body: JSON.stringify(buildRequest(draft, 1, language)),
         signal: controller.signal,
       });
       let body: unknown;

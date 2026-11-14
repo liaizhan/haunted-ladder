@@ -1,5 +1,7 @@
 import type { Crisis, Failure, Health } from '../domain/server';
 import { clear } from '../domain/storage';
+import { en } from '../locales/en';
+import { t } from '../i18n';
 
 export type CalmAnswer = Crisis | Health | Failure;
 
@@ -17,8 +19,8 @@ export type CalmOptions = {
 /** Classes of every spooky layer. None of them may exist on a calm screen. */
 export const SPOOKY_SELECTOR = '.stair, .ghost, .cobweb, .moon, .fog, .heart, .night-sound';
 
-export const ERROR_MESSAGE =
-  'Something went wrong and the reading did not arrive. Your answers are safe. Please try again.';
+/** The English error text. The screen itself shows `t('errorMessage')`. */
+export const ERROR_MESSAGE = en.errorMessage;
 
 function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -77,22 +79,22 @@ export function buildCalm(answer: CalmAnswer, opts: CalmOptions): HTMLElement {
     } else {
       line.textContent = answer.helpUrl;
     }
-    root.append(line, button('Back to the start', back));
+    root.append(line, button(t('crisisBack'), back));
   } else if (answer.kind === 'health') {
-    root.append(el('p', answer.message, 'calm-message'), button('Edit answers', back));
+    root.append(el('p', answer.message, 'calm-message'), button(t('calmEdit'), back));
   } else {
-    root.append(el('p', ERROR_MESSAGE, 'calm-message'));
+    root.append(el('p', t('errorMessage'), 'calm-message'));
     const actions = el('div', undefined, 'nav');
     const retry = opts.onRetry;
     if (retry) {
       actions.append(
-        button('Try again', () => {
+        button(t('tryAgain'), () => {
           leaveCalm();
           retry();
         }),
       );
     }
-    const edit = button('Edit answers', back);
+    const edit = button(t('calmEdit'), back);
     if (retry) edit.className = 'secondary';
     actions.append(edit);
     root.append(actions);
