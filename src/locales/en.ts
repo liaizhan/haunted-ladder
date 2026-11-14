@@ -75,6 +75,8 @@ export const en = {
   exportTitle: 'My small steps this week',
 
   staircaseAria: 'Your ladder as a staircase at night',
+  badgeMe: 'me',
+  badgeGoal: 'goal',
   noGhosts: 'No ghosts were found above your goal.',
   ghostAria: 'Ghost: {fear}',
   ghostFadedAria: 'Ghost, faded, has a small step: {fear}',

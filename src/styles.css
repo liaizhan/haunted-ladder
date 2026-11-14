@@ -181,11 +181,11 @@ button.secondary {
 /* Staircase */
 .staircase {
   display: block;
-  max-width: 100%;
+  max-width: min(100%, 680px);
   height: auto;
 }
 
-.staircase .ghost {
+.staircase .ghost-float {
   transition: opacity 1.2s ease;
 }
 
@@ -209,7 +209,8 @@ button.secondary {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .staircase .ghost {
+  .staircase .ghost,
+  .staircase .ghost-float {
     transition: none;
   }
   .staircase .ghost-float {
@@ -293,41 +294,46 @@ button,
   }
 }
 
-/* The x-ray heart, behind the staircase */
+/* The pulse panel: a crisp heart and a pulse line above the staircase, never behind it */
 .heart {
   --beat: 1s;
-  position: absolute;
-  inset: 0;
+  position: relative;
+  z-index: 1;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  opacity: 0.8;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--night-2);
+  border-radius: var(--radius);
 }
 
-.heart svg {
-  max-width: 320px;
+.heart .heart-icon {
+  flex: 0 0 auto;
 }
 
-.heart .heart-body,
-.heart .heart-glow {
+.heart .heart-shape {
   transform-box: fill-box;
   transform-origin: center;
   animation: heart-beat var(--beat) ease-in-out infinite;
 }
 
-.heart .heart-glow {
-  animation-name: heart-glow;
-  transition: opacity 3s ease;
+.heart.soft .heart-shape {
+  animation-name: heart-beat-soft;
 }
 
-.heart.soft .heart-glow {
-  opacity: 0.45;
+.heart .pulse-line {
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+
+.heart .pulse-track {
+  animation: pulse-scroll var(--beat) linear infinite;
 }
 
 .heart-rate {
-  position: absolute;
-  bottom: 0;
+  flex: 1 1 8rem;
   margin: 0;
   color: var(--mist);
   font-size: 0.85rem;
@@ -341,19 +347,21 @@ button,
   45%, 100% { transform: scale(1); }
 }
 
-@keyframes heart-glow {
-  0% { transform: scale(1); opacity: 0.7; }
-  10% { transform: scale(1.18); opacity: 1; }
-  20% { transform: scale(1); opacity: 0.7; }
-  30% { transform: scale(1.08); opacity: 0.85; }
-  45%, 100% { transform: scale(1); opacity: 0.7; }
+@keyframes heart-beat-soft {
+  0% { transform: scale(1); }
+  10% { transform: scale(1.02); }
+  20%, 100% { transform: scale(1); }
+}
+
+@keyframes pulse-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-120px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .heart .heart-body,
-  .heart .heart-glow {
+  .heart .heart-shape,
+  .heart .pulse-track {
     animation: none;
-    transition: none;
   }
 }
 
@@ -408,7 +416,11 @@ body.calm .heart {
 }
 
 .staircase.drifty .ghost {
-  transition: opacity 1.2s ease, transform 0.6s ease;
+  transition: transform 0.6s ease;
+}
+
+.staircase.waiting .ghost {
+  opacity: 0.2;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -421,7 +433,8 @@ body.calm .heart {
   .staircase .stair {
     transition: none;
   }
-  .staircase.waiting .stair {
+  .staircase.waiting .stair,
+  .staircase.waiting .ghost {
     opacity: 1;
   }
   .staircase .cobweb {
@@ -679,8 +692,6 @@ body {
   overflow-x: hidden;
 }
 
-.staircase,
-.heart svg,
 .intro-scene svg {
   max-width: 100%;
 }

@@ -5,8 +5,12 @@ import { t } from '../i18n';
 const NS = 'http://www.w3.org/2000/svg';
 const EASE_MS = 3000;
 
+/** Width of the pulse line window in px. The track holds two periods and slides by one. */
+export const PULSE_W = 120;
+const PULSE_H = 40;
+
 export type HeartHandle = {
-  /** The wrapper to place behind the staircase. */
+  /** The pulse panel. Place it in the stage before the staircase, in normal flow. */
   element: HTMLElement;
   /** Call whenever a ghost fades or comes back. */
   update: (ghosts: Ghost[]) => void;
@@ -24,57 +28,96 @@ function prefersReducedMotion(): boolean {
   return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+/** A crisp vector heart: solid red to pumpkin, a light outline, no blur, no transparency. */
 function drawHeart(): SVGSVGElement {
   const svg = svgEl('svg', {
-    viewBox: '0 0 200 200',
-    width: '100%',
+    class: 'heart-icon',
+    viewBox: '0 0 64 64',
+    width: 56,
+    height: 56,
     'aria-hidden': 'true',
     focusable: 'false',
   }) as SVGSVGElement;
   const defs = svgEl('defs', {});
-  const glow = svgEl('radialGradient', { id: 'heart-glow', cx: '50%', cy: '50%', r: '50%' });
-  glow.append(
-    svgEl('stop', { offset: '0%', 'stop-color': '#FF5A36', 'stop-opacity': 0.95 }),
-    svgEl('stop', { offset: '55%', 'stop-color': '#FF8A3D', 'stop-opacity': 0.35 }),
-    svgEl('stop', { offset: '100%', 'stop-color': '#FF8A3D', 'stop-opacity': 0 }),
+  const grad = svgEl('linearGradient', { id: 'heart-fill', x1: '0', y1: '0', x2: '1', y2: '1' });
+  grad.append(
+    svgEl('stop', { offset: '0', 'stop-color': '#E23B4E' }),
+    svgEl('stop', { offset: '1', 'stop-color': '#FF8A3D' }),
   );
-  defs.append(glow);
-  svg.append(defs);
-
-  const body = svgEl('g', { class: 'heart-body' });
-  body.append(
+  defs.append(grad);
+  const shape = svgEl('g', { class: 'heart-shape' });
+  shape.append(
     svgEl('path', {
-      d: 'M100 175 C40 130 20 95 30 65 C40 38 80 36 100 66 C120 36 160 38 170 65 C180 95 160 130 100 175 Z',
-      fill: '#8FA3BF',
-      'fill-opacity': 0.35,
-      stroke: '#C9D6E8',
-      'stroke-opacity': 0.7,
-      'stroke-width': 1.2,
+      d: 'M32 57 C10 41 4 29 4 20 C4 11 11 5 18 5 C24 5 29 8 32 13 C35 8 40 5 46 5 C53 5 60 11 60 20 C60 29 54 41 32 57 Z',
+      fill: 'url(#heart-fill)',
+      stroke: '#F4EFE6',
+      'stroke-width': 1.5,
+      'stroke-linejoin': 'round',
     }),
-    // chambers and vessels, thin lines
-    svgEl('path', { d: 'M100 66 C96 100 100 140 100 172', fill: 'none', stroke: '#C9D6E8', 'stroke-opacity': 0.5, 'stroke-width': 0.8 }),
-    svgEl('path', { d: 'M62 70 C70 95 84 110 100 118', fill: 'none', stroke: '#C9D6E8', 'stroke-opacity': 0.5, 'stroke-width': 0.8 }),
-    svgEl('path', { d: 'M138 70 C130 95 116 110 100 118', fill: 'none', stroke: '#C9D6E8', 'stroke-opacity': 0.5, 'stroke-width': 0.8 }),
-    svgEl('path', { d: 'M88 50 C86 34 82 22 76 12 M112 50 C114 34 120 22 128 12', fill: 'none', stroke: '#C9D6E8', 'stroke-opacity': 0.55, 'stroke-width': 3, 'stroke-linecap': 'round' }),
+    svgEl('path', {
+      d: 'M14 17 C14 13 17 11 20 11',
+      fill: 'none',
+      stroke: '#F4EFE6',
+      'stroke-width': 2,
+      'stroke-linecap': 'round',
+    }),
   );
-  svg.append(body, svgEl('circle', { class: 'heart-glow', cx: 100, cy: 100, r: 46, fill: 'url(#heart-glow)' }));
+  svg.append(defs, shape);
+  return svg;
+}
+
+/** One period of the pulse line: flat, a small bump, flat, one tall beat spike, flat. */
+function period(x0: number): string {
+  const mid = PULSE_H / 2;
+  return [
+    `L${x0 + 36} ${mid}`,
+    `L${x0 + 42} ${mid - 6}`,
+    `L${x0 + 48} ${mid}`,
+    `L${x0 + 54} ${mid}`,
+    `L${x0 + 58} ${mid - 16}`,
+    `L${x0 + 64} ${mid + 14}`,
+    `L${x0 + 70} ${mid}`,
+    `L${x0 + PULSE_W} ${mid}`,
+  ].join(' ');
+}
+
+/** The moving pulse line: one beat spike per beat, in time with the heart. */
+function drawPulse(): SVGSVGElement {
+  const svg = svgEl('svg', {
+    class: 'pulse-line',
+    viewBox: `0 0 ${PULSE_W} ${PULSE_H}`,
+    width: PULSE_W,
+    height: PULSE_H,
+    'aria-hidden': 'true',
+    focusable: 'false',
+  }) as SVGSVGElement;
+  const track = svgEl('g', { class: 'pulse-track' });
+  track.append(
+    svgEl('path', {
+      d: `M0 ${PULSE_H / 2} ${period(0)} ${period(PULSE_W)}`,
+      fill: 'none',
+      stroke: '#FF8A3D',
+      'stroke-width': 2,
+      'stroke-linejoin': 'round',
+      'stroke-linecap': 'round',
+    }),
+  );
+  svg.append(track);
   return svg;
 }
 
 /**
- * Builds the x-ray heart. It sets `--beat` (seconds per beat) on the wrapper from the number
- * of ghosts without a step, and eases to 60 bpm when every ghost has a step.
+ * Builds the pulse panel: a crisp heart, a pulse line and the beat rate written as text.
+ * It sets `--beat` (seconds per beat) on the panel from the number of ghosts without a step,
+ * and eases to 60 bpm when every ghost has a step.
  */
 export function buildHeart(ghosts: Ghost[]): HeartHandle {
   const element = document.createElement('div');
   element.className = 'heart';
-  element.setAttribute('aria-hidden', 'true');
-  element.append(drawHeart());
+  element.append(drawHeart(), drawPulse());
 
   const rate = document.createElement('p');
   rate.className = 'heart-rate';
-  rate.hidden = true;
-  rate.textContent = '';
   element.append(rate);
 
   const reduced = prefersReducedMotion();
@@ -93,13 +136,10 @@ export function buildHeart(ghosts: Ghost[]): HeartHandle {
     currentBpm = bpm;
     element.style.setProperty('--beat', `${secondsPerBeat(bpm)}s`);
     element.dataset['bpm'] = String(Math.round(bpm));
-    if (reduced) rate.textContent = t('heartRate', { bpm: Math.round(bpm) });
+    rate.textContent = t('heartRate', { bpm: Math.round(bpm) });
   };
 
-  if (reduced) {
-    rate.hidden = false;
-    element.classList.add('still');
-  }
+  if (reduced) element.classList.add('still');
 
   const update = (list: Ghost[]): void => {
     stop();
@@ -115,9 +155,9 @@ export function buildHeart(ghosts: Ghost[]): HeartHandle {
     const from = currentBpm;
     const start = Date.now();
     const tick = (): void => {
-      const t = Math.min(1, (Date.now() - start) / EASE_MS);
-      apply(from + (target - from) * t);
-      if (t < 1) {
+      const k = Math.min(1, (Date.now() - start) / EASE_MS);
+      apply(from + (target - from) * k);
+      if (k < 1) {
         if (typeof requestAnimationFrame === 'function') raf = requestAnimationFrame(tick);
         else timer = setTimeout(tick, 100);
       }

@@ -34,7 +34,7 @@ describe('exportImage', () => {
     expect(texts).toContain(CREDIT_LINE);
     expect(texts.join(' ')).toContain('Record one <b>video</b>');
     expect(copy.querySelector('b')).toBeNull();
-    expect(copy.querySelector('.ghost')?.getAttribute('opacity')).toBe('0.15');
+    expect(copy.querySelector('.ghost .ghost-float')?.getAttribute('opacity')).toBe('0.15');
     expect(copy.firstElementChild?.tagName.toLowerCase()).toBe('rect');
     expect(svg.outerHTML).toBe(before);
   });

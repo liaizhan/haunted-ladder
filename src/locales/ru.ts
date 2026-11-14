@@ -80,6 +80,8 @@ export const ru: Dict = {
   exportTitle: 'Мои маленькие шаги на этой неделе',
 
   staircaseAria: 'Твоя лестница ночью',
+  badgeMe: 'я',
+  badgeGoal: 'цель',
   noGhosts: 'Над твоей целью призраков не найдено.',
   ghostAria: 'Призрак: {fear}',
   ghostFadedAria: 'Призрак побледнел, есть маленький шаг: {fear}',

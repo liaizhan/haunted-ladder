@@ -79,6 +79,8 @@ export const kk: Dict = {
   exportTitle: 'Осы аптадағы кішкентай қадамдарым',
 
   staircaseAria: 'Түнгі баспалдағың',
+  badgeMe: 'мен',
+  badgeGoal: 'мақсат',
   noGhosts: 'Мақсатыңнан жоғары елес табылмады.',
   ghostAria: 'Елес: {fear}',
   ghostFadedAria: 'Елес солғындады, кішкентай қадам бар: {fear}',

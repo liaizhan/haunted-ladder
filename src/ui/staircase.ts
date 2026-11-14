@@ -5,45 +5,85 @@ import { t } from '../i18n';
 const NS = 'http://www.w3.org/2000/svg';
 
 // Colors are literal (not CSS variables) so the exported PNG looks the same.
+const NIGHT = '#14112B';
 const NIGHT_2 = '#221C45';
 const MOON = '#F4EFE6';
 const MIST = '#A9A3C7';
 const PUMPKIN = '#FF8A3D';
+const SHADOW = '#0B0919';
 
-const WIDTH = 680;
-const X0 = 40;
-const STAIRS_W = 600;
-const STEP_H = 64;
-const TOP = 90; // room for the moon
-const GHOST_H = 170;
 const FADED_OPACITY = 0.15;
+const FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
 
-/** Average glyph width (px at font-size 11) used for wrapping; tests use it to size label boxes. */
+/** Average glyph width (px at font-size 11) used for wrapping; tests use it to size text boxes. */
 export const CHAR_W = 6.2;
-/** Step label colors: MOON text on the solid NIGHT_2 step fill. */
+/** Note text colors: MOON text on the solid NIGHT_2 card fill. */
 export const STEP_FILL = NIGHT_2;
 export const LABEL_COLOR = MOON;
-
-/** Containers narrower than this (CSS px) get the phone layout. */
-export const NARROW_MAX = 640;
-/** Narrowest picture the phone layout draws; narrower containers scale it down slightly. */
-export const NARROW_MIN = 300;
-/** Label font size in the phone layout. The picture is drawn at 1 unit = 1 CSS px. */
-export const NARROW_FONT = 13;
 /** Glyph width estimate at a given font size (CHAR_W is for size 11). */
 export const charWidth = (size: number): number => (CHAR_W * size) / 11;
 
-const N_PAD = 10;
-const N_INDENT = 8;
-const N_ROW_H = 64;
-const N_GHOST_ROW = 84;
-const N_TOP = 70;
-const N_GOAL_ROOM = 28;
+/** The picture is drawn at 1 unit = 1 CSS px for containers from VIEW_MIN to VIEW_MAX. */
+export const VIEW_MIN = 300;
+export const VIEW_MAX = 680;
+/** Containers narrower than this (CSS px) are reported as the "narrow" layout. */
+export const NARROW_MAX = 640;
+export const NARROW_MIN = VIEW_MIN;
+
+export const PAD = 12;
+export const ROW = 60;
+export const TOP = 64;
+export const PLATE_H = ROW - 8;
+export const FLOOR_ROOM = 28;
+export const CARD_H = 54;
+export const CARD_PAD = 8;
+export const NOTE_GAP = 14;
+export const NOTE_MIN_W = 160;
+export const NOTE_FONT = 13;
+export const NOTE_LINES = 3;
+export const GHOST_ROOM = 34;
+export const PLATE_MIN_W = 8;
+export const PLATE_MAX_W = 56;
 
 export type StaircaseOptions = {
-  /** Container width in CSS px. Narrow containers get the phone layout. 0 or missing means wide. */
+  /** Container width in CSS px. Clamped to 300..680. 0 or missing means 680. */
   width?: number;
 };
+
+export type Layout = {
+  /** Width of the picture in SVG units (= CSS px). */
+  vw: number;
+  /** Number of plates. */
+  n: number;
+  /** Plate width. */
+  w: number;
+  /** Left edge of the note cards. */
+  noteX: number;
+  cardW: number;
+  height: number;
+  narrow: boolean;
+};
+
+const clamp = (v: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, v));
+
+/** One geometry for every width. `count` is the number of steps, fears included. */
+export function staircaseLayout(count: number, width?: number): Layout {
+  const n = Math.max(1, count);
+  const cw = width !== undefined && width > 0 ? width : VIEW_MAX;
+  const vw = clamp(Math.round(cw), VIEW_MIN, VIEW_MAX);
+  const stairW = Math.min(Math.round(vw * 0.42), vw - 2 * PAD - NOTE_GAP - NOTE_MIN_W);
+  const w = clamp(Math.floor(stairW / n), PLATE_MIN_W, PLATE_MAX_W);
+  const noteX = PAD + n * w + NOTE_GAP;
+  return {
+    vw,
+    n,
+    w,
+    noteX,
+    cardW: vw - PAD - noteX,
+    height: TOP + n * ROW + FLOOR_ROOM,
+    narrow: cw < NARROW_MAX,
+  };
+}
 
 function el<K extends keyof SVGElementTagNameMap>(
   name: K,
@@ -94,20 +134,20 @@ function textBlock(
   fill: string,
   anchor: 'start' | 'middle',
 ): SVGTextElement {
-  const t = el('text', {
+  const node = el('text', {
     x,
     y,
     'font-size': size,
     fill,
     'text-anchor': anchor,
-    'font-family': 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif',
+    'font-family': FONT,
   });
   lines.forEach((line, i) => {
     const span = el('tspan', { x, dy: i === 0 ? 0 : size * 1.25 });
     span.textContent = line;
-    t.appendChild(span);
+    node.appendChild(span);
   });
-  return t;
+  return node;
 }
 
 function cobweb(x: number, y: number, w: number, h: number): SVGGElement {
@@ -125,7 +165,7 @@ function cobweb(x: number, y: number, w: number, h: number): SVGGElement {
   g.appendChild(el('path', { d: `M${x + w} ${y} L${x} ${y + h}` }));
   g.appendChild(el('path', { d: `M${mx} ${y} L${mx} ${y + h}` }));
   g.appendChild(el('path', { d: `M${x} ${my} L${x + w} ${my}` }));
-  for (const f of [0.25, 0.5, 0.8]) {
+  for (const f of [0.35, 0.7]) {
     const rx = (w / 2) * f;
     const ry = (h / 2) * f;
     g.appendChild(
@@ -137,53 +177,206 @@ function cobweb(x: number, y: number, w: number, h: number): SVGGElement {
   return g;
 }
 
-function stairGroup(step: Step, index: number, n: number, nearest: boolean): SVGGElement {
-  const stepW = STAIRS_W / n;
-  const baseY = TOP + GHOST_H + n * STEP_H;
-  const x = X0 + index * stepW;
-  const y = baseY - (index + 1) * STEP_H;
-  const isGoal = step.zone === 'goal';
+const stepX = (i: number, L: Layout): number => PAD + i * L.w;
+const stepY = (i: number, L: Layout): number => TOP + (L.n - 1 - i) * ROW;
+
+/** First text baseline so a block of `lines` lines sits in the middle of a card. */
+function noteBaseline(cardY: number, lines: number): number {
+  const total = NOTE_FONT + (lines - 1) * NOTE_FONT * 1.25;
+  return cardY + CARD_H / 2 - total / 2 + NOTE_FONT * 0.77;
+}
+
+type PlateStyle = {
+  fill: string;
+  stroke: string;
+  strokeWidth: number;
+  dash: string | null;
+  num: string;
+};
+
+function plateStyle(step: Step, nearest: boolean, lit: boolean): PlateStyle {
+  switch (step.zone) {
+    case 'current':
+      return { fill: MOON, stroke: MOON, strokeWidth: 1, dash: null, num: NIGHT };
+    case 'goal':
+      return { fill: PUMPKIN, stroke: PUMPKIN, strokeWidth: 1, dash: null, num: NIGHT };
+    case 'fear':
+      return lit
+        ? { fill: NIGHT_2, stroke: MOON, strokeWidth: 1.5, dash: null, num: MOON }
+        : { fill: NIGHT, stroke: MIST, strokeWidth: 1.5, dash: '4 3', num: MOON };
+    default:
+      return {
+        fill: NIGHT_2,
+        stroke: nearest ? PUMPKIN : MIST,
+        strokeWidth: nearest ? 2.5 : 1,
+        dash: null,
+        num: MOON,
+      };
+  }
+}
+
+function badgeLabel(step: Step): string | null {
+  if (step.zone === 'current') return t('badgeMe');
+  if (step.zone === 'goal') return t('badgeGoal');
+  return null;
+}
+
+function stairGroup(
+  step: Step,
+  index: number,
+  L: Layout,
+  nearest: boolean,
+  fearIndex: number | null,
+): SVGGElement {
+  const x = stepX(index, L);
+  const y = stepY(index, L);
+  const midY = y + PLATE_H / 2;
+  const cardY = midY - CARD_H / 2;
   const cls = ['stair', `stair-${step.zone}`, nearest ? 'nearest' : ''].filter(Boolean).join(' ');
 
   const g = el('g', { class: cls, 'data-zone': step.zone });
   g.setAttribute('role', 'img');
   g.setAttribute('aria-label', `${step.zoneLabel}: ${step.text}`);
   const title = el('title');
-  title.textContent = step.text;
+  title.textContent = step.text; // the full words, even when the card text is cut
   g.appendChild(title);
 
-  // Order matters: solid fill first, then the cobweb, then the label on top of both.
+  const style = plateStyle(step, nearest, false);
   g.appendChild(
     el('rect', {
-      class: 'step-fill',
-      x,
-      y,
-      width: stepW,
-      height: baseY - y,
-      rx: 6,
-      fill: NIGHT_2,
-      stroke: nearest || isGoal ? PUMPKIN : MIST,
-      'stroke-width': nearest ? 3 : isGoal ? 2 : 1,
-      'stroke-opacity': nearest || isGoal ? 1 : 0.5,
+      class: 'plate-shadow',
+      x: x + 2,
+      y: y + 2,
+      width: L.w,
+      height: PLATE_H,
+      rx: 5,
+      fill: SHADOW,
+      'aria-hidden': 'true',
     }),
   );
-  if (isGoal) {
+  const plate = el('rect', {
+    class: 'plate',
+    x,
+    y,
+    width: L.w,
+    height: PLATE_H,
+    rx: 5,
+    fill: style.fill,
+    stroke: style.stroke,
+    'stroke-width': style.strokeWidth,
+  });
+  if (style.dash) plate.setAttribute('stroke-dasharray', style.dash);
+  if (fearIndex !== null) plate.setAttribute('data-ghost', String(fearIndex));
+  g.appendChild(plate);
+
+  if (step.zone === 'block') {
+    g.appendChild(cobweb(x + 1, y + 1, Math.min(L.w - 2, 20), 20));
+  }
+
+  if (L.w >= 16) {
+    const size = L.w >= 24 ? 13 : 11;
+    const num = el('text', {
+      class: 'plate-num',
+      x: x + L.w / 2,
+      y: midY + size * 0.36,
+      'font-size': size,
+      'font-weight': 700,
+      fill: style.num,
+      'text-anchor': 'middle',
+      'font-family': FONT,
+    });
+    num.textContent = String(step.number);
+    g.appendChild(num);
+  }
+
+  if (step.zone === 'goal') {
     g.appendChild(
-      el('circle', {
-        class: 'goal-light',
-        cx: x + stepW / 2,
-        cy: y - 14,
-        r: 8,
-        fill: PUMPKIN,
-        opacity: 0.95,
-      }),
+      el('circle', { class: 'goal-ring', cx: x + L.w / 2, cy: y - 12, r: 8, fill: 'none', stroke: PUMPKIN, 'stroke-width': 1.5, opacity: 0.6 }),
+    );
+    g.appendChild(
+      el('circle', { class: 'goal-light', cx: x + L.w / 2, cy: y - 12, r: 5, fill: PUMPKIN }),
     );
   }
-  if (step.zone === 'block') g.appendChild(cobweb(x, y, stepW, Math.min(STEP_H, baseY - y)));
-  const chars = Math.max(4, Math.floor((stepW - 14) / CHAR_W));
-  const label = textBlock(wrapText(step.text, chars, 3), x + 7, y + 18, 11, LABEL_COLOR, 'start');
-  label.setAttribute('class', 'step-label');
-  g.appendChild(label);
+
+  // Leader line from the plate to its card, with a dot at the plate end.
+  const leader = el('line', {
+    class: 'leader',
+    x1: x + L.w,
+    y1: midY,
+    x2: L.noteX,
+    y2: midY,
+    stroke: MIST,
+    'stroke-width': 1,
+    'aria-hidden': 'true',
+  });
+  if (step.zone === 'goal') leader.setAttribute('stroke-dasharray', '3 3');
+  g.appendChild(leader);
+  g.appendChild(
+    el('circle', { class: 'leader-dot', cx: x + L.w, cy: midY, r: 2.5, fill: MIST, 'aria-hidden': 'true' }),
+  );
+
+  g.appendChild(
+    el('rect', {
+      class: 'note',
+      x: L.noteX,
+      y: cardY,
+      width: L.cardW,
+      height: CARD_H,
+      rx: 8,
+      fill: NIGHT_2,
+      stroke: MIST,
+      'stroke-opacity': 0.35,
+      'stroke-width': 1,
+    }),
+  );
+
+  let left = 0;
+  const badge = badgeLabel(step);
+  if (badge !== null) {
+    const bw = Math.ceil(badge.length * charWidth(11) * 1.15) + 14;
+    const bx = L.noteX + CARD_PAD;
+    g.appendChild(
+      el('rect', {
+        class: 'badge',
+        x: bx,
+        y: midY - 8,
+        width: bw,
+        height: 16,
+        rx: 8,
+        fill: step.zone === 'goal' ? PUMPKIN : MOON,
+      }),
+    );
+    const bt = el('text', {
+      class: 'badge-text',
+      x: bx + bw / 2,
+      y: midY + 4,
+      'font-size': 11,
+      'font-weight': 700,
+      fill: NIGHT,
+      'text-anchor': 'middle',
+      'font-family': FONT,
+    });
+    bt.textContent = badge;
+    g.appendChild(bt);
+    left = bw + 6;
+  }
+
+  // Fear words are drawn by the ghost, next to the ghost inside the same card.
+  if (step.zone !== 'fear') {
+    const avail = L.cardW - 2 * CARD_PAD - left;
+    const chars = Math.max(1, Math.floor(avail / charWidth(NOTE_FONT)));
+    const lines = wrapText(step.text, chars, NOTE_LINES);
+    const label = textBlock(
+      lines,
+      L.noteX + CARD_PAD + left,
+      noteBaseline(cardY, lines.length),
+      NOTE_FONT,
+      LABEL_COLOR,
+      'start',
+    );
+    label.setAttribute('class', 'step-label');
+    g.appendChild(label);
+  }
   return g;
 }
 
@@ -195,37 +388,12 @@ function ghostBody(): SVGPathElement {
   });
 }
 
-type GhostPlace = {
-  cx: number;
-  cy: number;
-  /** Label anchor point. */
-  lx: number;
-  ly: number;
-  anchor: 'start' | 'middle';
-  size: number;
-  chars: number;
-};
+function ghostGroup(g: Ghost, index: number, stepIndex: number, L: Layout): SVGGElement {
+  const midY = stepY(stepIndex, L) + PLATE_H / 2;
+  const cardY = midY - CARD_H / 2;
+  const cx = L.noteX + CARD_PAD + 13;
+  const cy = cardY + 31;
 
-function wideGhostPlace(index: number, count: number): GhostPlace {
-  const slot = STAIRS_W / count;
-  const cx = X0 + slot * (index + 0.5);
-  const cy = TOP + 50;
-  // The label lives in its own slot (width slot - 10) below the body, so labels never overlap.
-  const chars = Math.max(6, Math.floor((slot - 10) / CHAR_W));
-  return { cx, cy, lx: cx, ly: cy + 50, anchor: 'middle', size: 11, chars };
-}
-
-/** Phone layout: ghosts in a column, label to the right of the body. */
-function narrowGhostPlace(index: number, vw: number): GhostPlace {
-  const cx = N_PAD + 34;
-  const cy = N_TOP + index * N_GHOST_ROW + 52;
-  const lx = cx + 44;
-  const chars = Math.max(6, Math.floor((vw - N_PAD - lx) / charWidth(NARROW_FONT)));
-  return { cx, cy, lx, ly: cy - 12, anchor: 'start', size: NARROW_FONT, chars };
-}
-
-function ghostGroup(g: Ghost, index: number, place: GhostPlace): SVGGElement {
-  const { cx, cy } = place;
   const root = el('g', { class: 'ghost', 'data-ghost': index });
   root.setAttribute('role', 'img');
   const title = el('title');
@@ -238,186 +406,157 @@ function ghostGroup(g: Ghost, index: number, place: GhostPlace): SVGGElement {
     class: 'ghost-float',
     style: `animation-duration:${duration}s;animation-delay:-${(index * 1.3).toFixed(1)}s`,
   });
+  // `.ghost-body` keeps a plain translate(x y); the scale lives in an inner group.
   const body = el('g', { class: 'ghost-body', transform: `translate(${cx} ${cy})` });
-  body.appendChild(ghostBody());
-  body.appendChild(el('circle', { cx: -9, cy: -22, r: 3.5, fill: NIGHT_2 }));
-  body.appendChild(el('circle', { cx: 9, cy: -22, r: 3.5, fill: NIGHT_2 }));
-  body.appendChild(el('ellipse', { cx: 0, cy: -10, rx: 4, ry: 5, fill: NIGHT_2, opacity: 0.8 }));
+  const inner = el('g', { transform: 'scale(0.5)' });
+  inner.appendChild(ghostBody());
+  inner.appendChild(el('circle', { cx: -9, cy: -22, r: 3.5, fill: NIGHT_2 }));
+  inner.appendChild(el('circle', { cx: 9, cy: -22, r: 3.5, fill: NIGHT_2 }));
+  inner.appendChild(el('ellipse', { cx: 0, cy: -10, rx: 4, ry: 5, fill: NIGHT_2, opacity: 0.8 }));
+  body.appendChild(inner);
   float.appendChild(body);
-
-  const check = el('path', {
-    class: 'ghost-check',
-    d: `M${cx - 9} ${cy - 2} l6 7 l12 -14`,
-    fill: 'none',
-    stroke: PUMPKIN,
-    'stroke-width': 4,
-    'stroke-linecap': 'round',
-    'stroke-linejoin': 'round',
-  });
-  float.appendChild(check);
   root.appendChild(float);
 
+  // The check sits outside the faded group so it stays crisp.
+  root.appendChild(
+    el('path', {
+      class: 'ghost-check',
+      d: `M${cx - 5} ${cy - 3} l3.5 4 l7 -8`,
+      fill: 'none',
+      stroke: PUMPKIN,
+      'stroke-width': 2.5,
+      'stroke-linecap': 'round',
+      'stroke-linejoin': 'round',
+    }),
+  );
+
+  const avail = L.cardW - 2 * CARD_PAD - GHOST_ROOM;
+  const chars = Math.max(1, Math.floor(avail / charWidth(NOTE_FONT)));
+  const lines = wrapText(g.fear, chars, NOTE_LINES);
   const label = textBlock(
-    wrapText(g.fear, place.chars, 3),
-    place.lx,
-    place.ly,
-    place.size,
+    lines,
+    L.noteX + CARD_PAD + GHOST_ROOM,
+    noteBaseline(cardY, lines.length),
+    NOTE_FONT,
     MOON,
-    place.anchor,
+    'start',
   );
   label.setAttribute('class', 'ghost-label');
   root.appendChild(label);
   return root;
 }
 
-function applyGhostState(root: Element, ghost: Ghost): void {
+function applyGhostState(svg: Element, root: Element, ghost: Ghost, index: number): void {
   const faded = isFaded(ghost);
   root.classList.toggle('faded', faded);
-  root.setAttribute('opacity', String(faded ? FADED_OPACITY : 1));
   root.setAttribute(
     'aria-label',
     faded ? t('ghostFadedAria', { fear: ghost.fear }) : t('ghostAria', { fear: ghost.fear }),
   );
-  const check = root.querySelector('.ghost-check');
-  if (check) check.setAttribute('visibility', faded ? 'visible' : 'hidden');
-}
+  root.querySelector('.ghost-float')?.setAttribute('opacity', String(faded ? FADED_OPACITY : 1));
+  root.querySelector('.ghost-check')?.setAttribute('visibility', faded ? 'visible' : 'hidden');
+  root.querySelector('.ghost-label')?.setAttribute('fill', faded ? MIST : MOON);
 
-/** Phone layout: each step is a full-width row, indented a little more as it climbs. */
-function narrowStairGroup(
-  step: Step,
-  index: number,
-  n: number,
-  nearest: boolean,
-  vw: number,
-  y0: number,
-): SVGGElement {
-  const x = N_PAD + index * N_INDENT;
-  const w = vw - N_PAD - x;
-  const y = y0 + (n - 1 - index) * N_ROW_H;
-  const isGoal = step.zone === 'goal';
-  const cls = ['stair', `stair-${step.zone}`, nearest ? 'nearest' : ''].filter(Boolean).join(' ');
-
-  const g = el('g', { class: cls, 'data-zone': step.zone });
-  g.setAttribute('role', 'img');
-  g.setAttribute('aria-label', `${step.zoneLabel}: ${step.text}`);
-  const title = el('title');
-  title.textContent = step.text;
-  g.appendChild(title);
-
-  g.appendChild(
-    el('rect', {
-      class: 'step-fill',
-      x,
-      y,
-      width: w,
-      height: N_ROW_H - 4,
-      rx: 6,
-      fill: NIGHT_2,
-      stroke: nearest || isGoal ? PUMPKIN : MIST,
-      'stroke-width': nearest ? 3 : isGoal ? 2 : 1,
-      'stroke-opacity': nearest || isGoal ? 1 : 0.5,
-    }),
-  );
-  if (isGoal) {
-    g.appendChild(
-      el('circle', {
-        class: 'goal-light',
-        cx: x + w - 16,
-        cy: y + 18,
-        r: 7,
-        fill: PUMPKIN,
-        opacity: 0.95,
-      }),
-    );
+  const plate = svg.querySelector(`rect.plate[data-ghost="${index}"]`);
+  if (plate) {
+    const style = plateStyle({ number: 0, zone: 'fear', zoneLabel: '', text: '' }, false, faded);
+    plate.classList.toggle('lit', faded);
+    plate.setAttribute('fill', style.fill);
+    plate.setAttribute('stroke', style.stroke);
+    plate.setAttribute('stroke-width', String(style.strokeWidth));
+    if (style.dash) plate.setAttribute('stroke-dasharray', style.dash);
+    else plate.removeAttribute('stroke-dasharray');
   }
-  if (step.zone === 'block') g.appendChild(cobweb(x, y, w, N_ROW_H - 4));
-  const room = 14 + (isGoal ? N_GOAL_ROOM : 0);
-  const chars = Math.max(4, Math.floor((w - room) / charWidth(NARROW_FONT)));
-  const label = textBlock(
-    wrapText(step.text, chars, 3),
-    x + 7,
-    y + 20,
-    NARROW_FONT,
-    LABEL_COLOR,
-    'start',
-  );
-  label.setAttribute('class', 'step-label');
-  g.appendChild(label);
-  return g;
 }
 
 /**
- * Builds the staircase. The person's phrases are written only as SVG text nodes.
- * With a container narrower than NARROW_MAX the picture is drawn at 1 unit = 1 CSS px
- * with 13 px labels: ghosts in a column, steps as full-width rows.
+ * Builds the staircase seen from the side, like the Ladder on 108psy.com: one numbered plate per
+ * step, each one step right of and one row above the one before, with the person's words in a
+ * note card in a column to the right. Drawn at 1 SVG unit = 1 CSS px for containers from 300 to
+ * 680 px wide. The person's phrases are written only as SVG text nodes.
  */
 export function buildStaircase(
   reading: Reading,
   ghosts: Ghost[],
   opts: StaircaseOptions = {},
 ): SVGSVGElement {
-  const stairs = reading.steps.filter((s) => s.zone !== 'fear');
-  const n = Math.max(1, stairs.length);
-  const cw = opts.width ?? 0;
-  const narrow = cw > 0 && cw < NARROW_MAX;
-  const vw = narrow ? Math.max(NARROW_MIN, Math.round(cw)) : WIDTH;
-
-  const ghostBand = ghosts.length === 0 ? 60 : ghosts.length * N_GHOST_ROW;
-  const y0 = N_TOP + ghostBand + 16;
-  const height = narrow ? y0 + n * N_ROW_H + 20 : TOP + GHOST_H + n * STEP_H + 30;
+  const steps = reading.steps;
+  const L = staircaseLayout(steps.length, opts.width);
 
   const svg = el('svg', {
     class: 'staircase',
-    viewBox: `0 0 ${vw} ${height}`,
+    viewBox: `0 0 ${L.vw} ${L.height}`,
     width: '100%',
     role: 'group',
     'aria-label': t('staircaseAria'),
-    'data-layout': narrow ? 'narrow' : 'wide',
+    'data-layout': L.narrow ? 'narrow' : 'wide',
   });
 
-  const moon = narrow
-    ? el('circle', { class: 'moon', cx: vw - 34, cy: 34, r: 20, fill: MOON, opacity: 0.9 })
-    : el('circle', { class: 'moon', cx: 70, cy: 45, r: 26, fill: MOON, opacity: 0.9 });
+  // The moon waits in the empty top left corner above the low plates.
+  const moon = el('circle', { class: 'moon', cx: PAD + 28, cy: 34, r: 20, fill: MOON, opacity: 0.9 });
   moon.setAttribute('aria-hidden', 'true');
   svg.appendChild(moon);
 
-  stairs.forEach((step, i) => {
-    const nearest =
-      step.zone === 'block' && reading.nearestBlock !== null && step.text === reading.nearestBlock;
-    svg.appendChild(
-      narrow ? narrowStairGroup(step, i, n, nearest, vw, y0) : stairGroup(step, i, n, nearest),
-    );
+  const floorY = TOP + L.n * ROW - 4;
+  const back = el('g', { class: 'frame', 'aria-hidden': 'true' });
+  steps.forEach((_, i) => {
+    const top = stepY(i, L) + PLATE_H;
+    if (floorY > top) {
+      back.appendChild(
+        el('rect', { class: 'riser', x: stepX(i, L), y: top, width: L.w, height: floorY - top, fill: NIGHT_2, opacity: 0.35 }),
+      );
+    }
+  });
+  back.appendChild(
+    el('line', { class: 'floor', x1: PAD, y1: floorY, x2: PAD + L.n * L.w, y2: floorY, stroke: MIST, 'stroke-width': 2 }),
+  );
+  // Banister: one post on each plate and a rail through the post tops.
+  const rail: string[] = [];
+  steps.forEach((_, i) => {
+    const px = stepX(i, L);
+    const py = stepY(i, L) - 22;
+    back.appendChild(el('rect', { class: 'post', x: px, y: py, width: 2, height: 22, fill: MIST, opacity: 0.7 }));
+    rail.push(`${px + 1},${py}`);
+  });
+  back.appendChild(
+    el('polyline', { class: 'rail', points: rail.join(' '), fill: 'none', stroke: MIST, 'stroke-width': 1.5, opacity: 0.7 }),
+  );
+  svg.appendChild(back);
+
+  const fearSteps: number[] = [];
+  let nearestUsed = false;
+  steps.forEach((step, i) => {
+    let nearest = false;
+    if (!nearestUsed && step.zone === 'block' && reading.nearestBlock !== null && step.text === reading.nearestBlock) {
+      nearest = true;
+      nearestUsed = true;
+    }
+    const fearIndex = step.zone === 'fear' ? fearSteps.length : null;
+    if (fearIndex !== null) fearSteps.push(i);
+    svg.appendChild(stairGroup(step, i, L, nearest, fearIndex));
   });
 
-  if (ghosts.length === 0) {
-    const text = t('noGhosts');
-    const none = narrow
-      ? textBlock(
-          wrapText(text, Math.floor((vw - 2 * N_PAD) / charWidth(14)), 2),
-          vw / 2,
-          N_TOP + 20,
-          14,
-          MIST,
-          'middle',
-        )
-      : textBlock([text], WIDTH / 2, TOP + 70, 14, MIST, 'middle');
+  if (fearSteps.length === 0) {
+    const lines = wrapText(t('noGhosts'), Math.floor(L.cardW / charWidth(NOTE_FONT)), 2);
+    const none = textBlock(lines, L.noteX, 28, NOTE_FONT, MIST, 'start');
     none.setAttribute('class', 'no-ghosts');
     svg.appendChild(none);
   } else {
-    ghosts.forEach((g, i) => {
-      const place = narrow ? narrowGhostPlace(i, vw) : wideGhostPlace(i, ghosts.length);
-      const node = ghostGroup(g, i, place);
-      applyGhostState(node, g);
+    fearSteps.forEach((stepIndex, gi) => {
+      const fear = steps[stepIndex]?.text ?? '';
+      const ghost: Ghost = ghosts[gi] ?? { fear, step: '' };
+      const node = ghostGroup(ghost, gi, stepIndex, L);
       svg.appendChild(node);
+      applyGhostState(svg, node, ghost, gi);
     });
   }
   return svg;
 }
 
-/** Updates fade and check marks in place when a step is written or cleared. */
+/** Updates fade, check marks and fear plates in place when a step is written or cleared. */
 export function updateGhosts(svg: SVGSVGElement, ghosts: Ghost[]): void {
   ghosts.forEach((g, i) => {
     const root = svg.querySelector(`.ghost[data-ghost="${i}"]`);
-    if (root) applyGhostState(root, g);
+    if (root) applyGhostState(svg, root, g, i);
   });
 }
