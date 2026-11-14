@@ -1151,3 +1151,283 @@ body.calm .legend {
   color: var(--mist);
   font-size: 0.9rem;
 }
+
+/* The step medallion, Zheztyrnaq turns into Peri */
+.step-head {
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.step-ghost-icon {
+  position: relative;
+  flex: 0 0 auto;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 35%, #3a1f4f 0%, #1a1233 70%);
+  box-shadow:
+    0 0 0 1.5px rgba(150, 70, 170, 0.75),
+    0 0 14px rgba(170, 40, 160, 0.45);
+}
+
+.step-ghost-icon img {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 150%;
+  height: auto;
+  transform: translateX(-50%);
+  max-width: none;
+}
+
+.step-ghost-light {
+  opacity: 0;
+}
+
+.step-ghost-icon.turned {
+  background: radial-gradient(circle at 50% 35%, #fff4d6 0%, #f2c46a 55%, #b8762a 100%);
+  box-shadow:
+    0 0 0 2px #f6c35a,
+    0 0 18px rgba(255, 200, 90, 0.7);
+}
+
+.step-ghost-icon.turned .step-ghost-dark {
+  opacity: 0;
+}
+
+.step-ghost-icon.turned .step-ghost-light {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .step-ghost-icon,
+  .step-ghost-icon img {
+    transition: opacity 0.9s ease, background 0.9s ease, box-shadow 0.9s ease;
+  }
+  .step-ghost-icon.turned {
+    animation: medallion-flash 1.2s ease-out 1;
+  }
+  .step-ghost-icon:not(.turned) .step-ghost-dark {
+    animation: medallion-breathe 4s ease-in-out infinite;
+  }
+}
+
+@keyframes medallion-flash {
+  0% { box-shadow: 0 0 0 2px #fff3cf, 0 0 0 rgba(255, 220, 140, 0); }
+  35% { box-shadow: 0 0 0 3px #fff3cf, 0 0 34px 10px rgba(255, 220, 140, 0.95); }
+  100% { box-shadow: 0 0 0 2px #f6c35a, 0 0 18px rgba(255, 200, 90, 0.7); }
+}
+
+@keyframes medallion-breathe {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-2px); }
+}
+
+/* The fear first and large, "my step this week" small under it */
+.ghost-step .step-head label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.ghost-step .step-head .step-fear {
+  color: var(--moon);
+  font-weight: 600;
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.ghost-step .step-head .step-label {
+  color: var(--mist);
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
+.ghost-step input::placeholder {
+  color: var(--mist);
+  opacity: 0.55;
+  font-style: italic;
+}
+
+/* The painted heart. Fear gives way to calm as the pulse slows. */
+@property --calm {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+.heart {
+  --calm: 0;
+  --glow: color-mix(in srgb, #F2C76B calc(var(--calm) * 100%), #E23B4E);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'art info'
+    'pulse pulse';
+  align-items: center;
+  gap: 0.75rem 1rem;
+  padding: 0.9rem;
+  /* The card warms from cold night to a dawn plum together with the heart. */
+  background:
+    radial-gradient(120% 90% at 18% 30%, color-mix(in srgb, #6b3a4a calc(var(--calm) * 70%), transparent), transparent 70%),
+    color-mix(in srgb, #3d2a48 calc(var(--calm) * 100%), var(--night-2));
+}
+
+.heart .heart-art {
+  grid-area: art;
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 0 0 2px var(--glow), 0 0 18px -4px var(--glow);
+}
+
+.heart .heart-art .heart-shape {
+  position: absolute;
+  inset: 0;
+}
+
+.heart .heart-art img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Golden light opens from the heart outward and pushes the night to the edges. */
+.heart .heart-art .heart-calm {
+  -webkit-mask-image: radial-gradient(circle at 50% 52%, #000 calc(var(--calm) * var(--calm) * 140% - 40%), transparent calc(var(--calm) * var(--calm) * 140%));
+  mask-image: radial-gradient(circle at 50% 52%, #000 calc(var(--calm) * var(--calm) * 140% - 40%), transparent calc(var(--calm) * var(--calm) * 140%));
+}
+
+.heart .heart-side {
+  grid-area: info;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.heart .heart-bpm {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 0.45rem;
+  color: var(--glow);
+}
+
+.heart .heart-bpm-num {
+  font-size: 2.9rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.heart .heart-bpm-unit {
+  font-size: 0.8rem;
+  color: var(--mist);
+}
+
+.heart .heart-stage {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  color: #ece8ff;
+}
+
+.heart .pulse-line {
+  grid-area: pulse;
+  width: 100%;
+  height: 40px;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 35%);
+  mask-image: linear-gradient(to right, transparent, #000 35%);
+}
+
+.heart .pulse-track path {
+  stroke: var(--glow);
+  stroke-width: 2.5;
+}
+
+@keyframes heart-flash {
+  0% { box-shadow: 0 0 0 2px var(--glow), 0 0 18px -4px var(--glow); }
+  10% { box-shadow: 0 0 0 3px var(--glow), 0 0 38px 4px var(--glow); }
+  35%, 100% { box-shadow: 0 0 0 2px var(--glow), 0 0 18px -4px var(--glow); }
+}
+
+@keyframes heart-flash-soft {
+  0% { box-shadow: 0 0 0 2px var(--glow), 0 0 18px -2px var(--glow); }
+  15% { box-shadow: 0 0 0 2px var(--glow), 0 0 28px 0 var(--glow); }
+  50%, 100% { box-shadow: 0 0 0 2px var(--glow), 0 0 18px -2px var(--glow); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .heart {
+    transition: --calm 0.9s ease;
+  }
+
+  .heart .heart-art {
+    animation: heart-flash var(--beat) ease-out infinite;
+  }
+
+  .heart.soft .heart-art {
+    animation-name: heart-flash-soft;
+  }
+}
+
+/* A golden spark flies from the ghost that just got a step to the heart. */
+.heart-spark {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 50;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, #fff6d8 0 30%, #F2C76B 55%, rgba(242, 199, 107, 0) 72%);
+  box-shadow: 0 0 18px 6px rgba(242, 199, 107, 0.75);
+}
+
+.heart-spark-tail {
+  box-shadow: 0 0 10px 3px rgba(242, 199, 107, 0.55);
+}
+
+/* Petals fly from the heart when the last ghost has a step. */
+.heart-petal {
+  position: absolute;
+  top: -9px;
+  left: -7px;
+  width: 14px;
+  height: 18px;
+  border-radius: 60% 0 60% 0;
+  pointer-events: none;
+  background: linear-gradient(135deg, #ffe7a8, #F2C76B 60%, #e9a15a);
+  box-shadow: 0 0 6px rgba(242, 199, 107, 0.6);
+}
+
+@keyframes heart-hit {
+  0% { box-shadow: 0 0 0 2px var(--glow), 0 0 18px -4px var(--glow); }
+  25% { box-shadow: 0 0 0 4px #F2C76B, 0 0 46px 10px #F2C76B; }
+  100% { box-shadow: 0 0 0 2px var(--glow), 0 0 18px -4px var(--glow); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .heart {
+    transition: --calm 0.9s ease, background 0.9s ease;
+  }
+
+  .heart.hit .heart-art {
+    animation: heart-hit 0.7s ease-out 1, heart-flash var(--beat) ease-out 0.7s infinite;
+  }
+
+  .heart.soft.hit .heart-art {
+    animation: heart-hit 0.7s ease-out 1, heart-flash-soft var(--beat) ease-out 0.7s infinite;
+  }
+}
+
+.heart.still .heart-spark,
+.heart.still .heart-petal {
+  display: none;
+}

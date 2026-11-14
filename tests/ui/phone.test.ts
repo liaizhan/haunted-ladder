@@ -113,8 +113,8 @@ describe('result layout and step icons', () => {
     expect(questions).toBeGreaterThan(insights);
   });
 
-  // Feature: haunted-ladder, Property 15: Readable on a phone (icon follows its ghost)
-  it('Property 15: each field icon is 1 without a step and 0.15 with a step', () => {
+  // Feature: haunted-ladder, Property 15: Readable on a phone (medallion follows its ghost)
+  it('Property 15: each field medallion shows the Zheztyrnaq without a step and the Peri with a step', () => {
     const typed = fc.array(fc.string({ maxLength: 20 }), { minLength: 1, maxLength: 5 });
     fc.assert(
       fc.property(typed, (steps) => {
@@ -130,21 +130,21 @@ describe('result layout and step icons', () => {
         expect(inputs.length).toBe(steps.length);
         const icons = () =>
           Array.from(el.querySelectorAll('.ghost-step .step-ghost-icon')).map((i) =>
-            i.getAttribute('opacity'),
+            i.classList.contains('turned') ? 'peri' : 'zheztyrnaq',
           );
-        expect(icons()).toEqual(steps.map(() => '1'));
+        expect(icons()).toEqual(steps.map(() => 'zheztyrnaq'));
         inputs.forEach((input, i) => {
           input.value = steps[i] ?? '';
           input.dispatchEvent(new Event('input', { bubbles: true }));
         });
         expect(seen.length).toBe(steps.length);
-        expect(icons()).toEqual(steps.map((s) => (s.trim().length > 0 ? '0.15' : '1')));
-        // Clearing brings the icon back.
+        expect(icons()).toEqual(steps.map((s) => (s.trim().length > 0 ? 'peri' : 'zheztyrnaq')));
+        // Clearing brings the Zheztyrnaq back.
         inputs.forEach((input) => {
           input.value = '';
           input.dispatchEvent(new Event('input', { bubbles: true }));
         });
-        expect(icons()).toEqual(steps.map(() => '1'));
+        expect(icons()).toEqual(steps.map(() => 'zheztyrnaq'));
         el.remove();
       }),
       RUNS,

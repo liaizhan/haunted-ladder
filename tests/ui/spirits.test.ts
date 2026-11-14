@@ -141,9 +141,12 @@ describe('Property 21: The Zheztyrnaq turns into a Peri', () => {
 
           const pictures = [...allArt(svg), ...allArt(reading), ...allArt(legend)];
           // backdrop + 3 per ghost; per step a carpet plate, a star and a card emblem or spirit;
-          // the steps without a fear also carry an emblem on the carpet; + qobyz + 7 legend pictures
+          // the steps without a fear also carry an emblem on the carpet; + qobyz + 7 legend pictures;
+          // + a medallion of two pictures (Zheztyrnaq and Peri) next to every step field
           const steps = blocks.length + 2 + fears.length;
-          expect(pictures.length).toBe(1 + 3 * fears.length + 3 * steps + (blocks.length + 2) + 1 + 7);
+          expect(pictures.length).toBe(
+            1 + 3 * fears.length + 3 * steps + (blocks.length + 2) + 1 + 7 + 2 * fears.length,
+          );
           for (const pic of pictures) {
             const href = pic.getAttribute('href') ?? pic.getAttribute('src') ?? '';
             expect(href.startsWith(ART_BASE)).toBe(true);

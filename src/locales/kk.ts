@@ -49,15 +49,16 @@ export const kk: Dict = {
 
   waiting: 'Баспалдағыңды оқып жатырмын…',
 
-  resultTitle: 'Елестері бар баспалдағың',
+  resultTitle: 'Елестерің қараңғыдан шықты',
   editAnswers: 'Жауаптарымды өзгерту',
-  saveLadder: 'Баспалдағымды сақтау',
+  saveLadder: 'Баспалдағымды сурет етіп сақтау',
   closingLine:
     'Енді әр елестің аты және келесі қадамы бар. Қорқыныш осылай шынымен кішірейеді.',
-  ghostBlockTitle: 'Елестерді кішірейт',
-  ghostBlockHelp: 'Қорқыныштың аты және келесі қадамы болса, ол кішірейеді.',
-  stepLabel: 'Осы аптадағы кішкентай қадамым',
-  stepFor: 'мына қорқыныш үшін: {fear}',
+  ghostBlockTitle: 'Әр Жезтырнақты Періге айналдыр',
+  ghostBlockHelp: 'Бір кішкентай қадам жаз, сонда Жезтырнақ Періге айналады.',
+  stepLabel: 'Осы аптадағы қадамым',
+  stepPlaceholder: 'Мысалы: үш құрбыма бір видео',
+  stepFor: '«{fear}»',
   insightsTitle: 'Баспалдағың нені көрсетеді',
   questionsTitle: 'Ойланатын екі сұрақ',
 
@@ -83,7 +84,11 @@ export const kk: Dict = {
   noGhosts: 'Мақсатыңнан жоғары елес табылмады.',
   ghostAria: 'Елес: {fear}',
   ghostFadedAria: 'Елес солғындады, кішкентай қадам бар: {fear}',
-  heartRate: 'Жүрек соғысы: минутына {bpm}',
+  heartRate: 'Жүрек: минутына {bpm} соғу. Әр кішкентай қадам оны тыныштандырады.',
+  heartUnit: 'соғу минутына',
+  heartStageFear: 'Қорқыныш жүректі қысып тұр.',
+  heartStageEasing: 'Жеңілдеп келеді. Тағы бір қадам.',
+  heartStageCalm: 'Жүрек тыныш.',
 
   legendTitle: 'Бұл баспалдақта кім тұрады',
   legendZheztyrnaq:

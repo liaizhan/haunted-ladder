@@ -44,15 +44,16 @@ export const en = {
 
   waiting: 'Reading your ladder…',
 
-  resultTitle: 'Your haunted ladder',
+  resultTitle: 'Your ghosts are out of the dark',
   editAnswers: 'Edit my answers',
-  saveLadder: 'Save my ladder',
+  saveLadder: 'Save my ladder as a picture',
   closingLine:
     'Every ghost has a name and a next step now. That is a real way to make a fear smaller.',
-  ghostBlockTitle: 'Make the ghosts smaller',
-  ghostBlockHelp: 'A fear becomes smaller when it has a name and a next step.',
-  stepLabel: 'My small step this week',
-  stepFor: 'for the fear: {fear}',
+  ghostBlockTitle: 'Turn every dark spirit into a light one',
+  ghostBlockHelp: 'Write one small step for a fear, and its dark spirit turns into a light one.',
+  stepLabel: 'My step this week',
+  stepPlaceholder: 'For example: a video for three friends',
+  stepFor: '“{fear}”',
   insightsTitle: 'What your ladder shows',
   questionsTitle: 'Two questions to think about',
 
@@ -79,7 +80,11 @@ export const en = {
   noGhosts: 'No ghosts were found above your goal.',
   ghostAria: 'Ghost: {fear}',
   ghostFadedAria: 'Ghost, faded, has a small step: {fear}',
-  heartRate: 'Heart rate: {bpm} beats per minute',
+  heartRate: 'Heart: {bpm} beats per minute. Every small step calms it down.',
+  heartUnit: 'beats per minute',
+  heartStageFear: 'Fear grips the heart.',
+  heartStageEasing: 'It gets lighter. One more step.',
+  heartStageCalm: 'The heart is calm.',
 
   legendTitle: 'Who lives on this ladder',
   legendZheztyrnaq:

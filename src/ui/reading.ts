@@ -26,36 +26,15 @@ function el<K extends keyof HTMLElementTagNameMap>(
   return node;
 }
 
-const SVG_NS = 'http://www.w3.org/2000/svg';
-/** Opacity of a step field's ghost icon once its ghost has a step. Same as the staircase ghost. */
-export const ICON_FADED_OPACITY = 0.15;
-
-/** Small decorative ghost shown next to a step field. Its opacity follows the ghost. */
-function buildGhostIcon(): SVGSVGElement {
-  const svg = document.createElementNS(SVG_NS, 'svg');
-  svg.setAttribute('class', 'step-ghost-icon');
-  svg.setAttribute('viewBox', '-30 -52 60 88');
-  svg.setAttribute('width', '28');
-  svg.setAttribute('height', '40');
-  svg.setAttribute('aria-hidden', 'true');
-  svg.setAttribute('focusable', 'false');
-  const body = document.createElementNS(SVG_NS, 'path');
-  body.setAttribute(
-    'd',
-    'M-26 0 C-26 -34 -14 -48 0 -48 C14 -48 26 -34 26 0 L26 30 L17 22 L9 30 L0 22 L-9 30 L-17 22 L-26 30 Z',
-  );
-  body.setAttribute('fill', '#F4EFE6');
-  body.setAttribute('fill-opacity', '0.85');
-  svg.append(body);
-  for (const cx of [-9, 9]) {
-    const eye = document.createElementNS(SVG_NS, 'circle');
-    eye.setAttribute('cx', String(cx));
-    eye.setAttribute('cy', '-22');
-    eye.setAttribute('r', '3.5');
-    eye.setAttribute('fill', '#221C45');
-    svg.append(eye);
-  }
-  return svg;
+/**
+ * A small round medallion next to a step field. A Zheztyrnaq looks out of it; once the
+ * field has a step she turns into a Peri, the gold ring lights up and flashes once.
+ */
+function buildGhostIcon(): HTMLSpanElement {
+  const icon = el('span', undefined, 'step-ghost-icon');
+  icon.setAttribute('aria-hidden', 'true');
+  icon.append(htmlArt('zheztyrnaq', 'step-ghost-dark', 52), htmlArt('peri', 'step-ghost-light', 52));
+  return icon;
 }
 
 /** The seven pictures of the legend, in the order shown, with their dictionary keys. */
@@ -133,21 +112,23 @@ export function buildReading(
       const icon = buildGhostIcon();
       const label = el('label', undefined);
       label.htmlFor = id;
+      // The fear itself comes first and large, "my step this week" below it, small.
+      label.append(el('span', t('stepFor', { fear: g.fear }), 'step-fear'));
       label.append(el('span', t('stepLabel'), 'step-label'));
-      label.append(el('span', ` ${t('stepFor', { fear: g.fear })}`, 'step-fear'));
       head.append(icon, label);
       const input = el('input');
       input.type = 'text';
       input.id = id;
       input.value = g.step;
       input.autocomplete = 'off';
+      input.placeholder = t('stepPlaceholder');
       const mark = el('span', '', 'step-mark');
       mark.setAttribute('aria-hidden', 'true');
       const sync = (): void => {
         const faded = isFaded(g);
         mark.textContent = faded ? '✓' : '';
         wrap.classList.toggle('faded', faded);
-        icon.setAttribute('opacity', String(faded ? ICON_FADED_OPACITY : 1));
+        icon.classList.toggle('turned', faded);
       };
       input.addEventListener('input', () => {
         g.step = input.value;

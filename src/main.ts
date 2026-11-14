@@ -351,7 +351,8 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
         state.steps = stepsRecord(gs);
         persist();
         updateGhosts(svg, gs);
-        h.update(gs);
+        const justFaded = gs.findIndex((g, i) => isFaded(g) && wasFaded[i] === false);
+        h.update(gs, justFaded >= 0 ? svg.querySelector(`.ghost[data-ghost="${justFaded}"]`) : null);
         const dawnNow = isDawn(gs);
         setDawn(stage, dawnNow);
         gs.forEach((g, i) => {
