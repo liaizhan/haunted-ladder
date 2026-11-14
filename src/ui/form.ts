@@ -7,6 +7,7 @@ import {
   type LadderDraft,
 } from '../domain/ladder';
 import { t, type Key } from '../i18n';
+import { artUrl, type ArtName } from './art';
 
 export type FormOptions = {
   /** Starting values (a saved draft or the demo). */
@@ -68,6 +69,39 @@ function hintFor(text: string, optionalEmpty: boolean): string {
   return '';
 }
 
+/** A decorative picture from public/art, hidden from screen readers. */
+function art(name: ArtName, className: string): HTMLImageElement {
+  const img = document.createElement('img');
+  img.src = artUrl(name);
+  img.alt = '';
+  img.className = className;
+  img.decoding = 'async';
+  img.setAttribute('aria-hidden', 'true');
+  return img;
+}
+
+/**
+ * The night above the questions: the steppe, a beating blood moon, one golden step per question and
+ * a star on the current one, the Zheztyrnaq sinking into the fog as the answers come. Decorative only:
+ * the "Question n of 4" line below says the same in words.
+ */
+function buildQuestionScene(total: number): { scene: HTMLElement; steps: HTMLImageElement[] } {
+  const scene = el('div', undefined, 'q-scene');
+  scene.setAttribute('aria-hidden', 'true');
+  scene.append(art('steppe-night', 'q-bg'), el('div', undefined, 'q-moon'));
+  const stairs = el('div', undefined, 'q-steps');
+  const steps: HTMLImageElement[] = [];
+  for (let i = 0; i < total; i++) {
+    const step = art('step', 'q-step');
+    step.style.setProperty('--i', String(i));
+    steps.push(step);
+    stairs.append(step);
+  }
+  stairs.append(art('star', 'q-star'));
+  scene.append(stairs, art('zheztyrnaq-peek', 'q-spirit'), el('div', undefined, 'q-fog'));
+  return { scene, steps };
+}
+
 /** The questions screen: one question per screen, live hints, draft saved on every change. */
 export function createForm(opts: FormOptions): HTMLElement {
   const draft: LadderDraft = {
@@ -85,6 +119,9 @@ export function createForm(opts: FormOptions): HTMLElement {
 
   const root = document.createElement('form-screen') as FormScreen;
   root.className = 'screen form';
+  const { scene, steps: sceneSteps } = buildQuestionScene(STEPS.length);
+  const body = el('div', undefined, 'q-body');
+  root.append(scene, body);
   let counter = 0;
 
   const emit = (): void =>
@@ -114,14 +151,29 @@ export function createForm(opts: FormOptions): HTMLElement {
   };
 
   function render(focusIndex?: number): void {
-    root.replaceChildren();
+    body.replaceChildren();
     const key = STEPS[step] ?? 'goal';
     const last = step === STEPS.length - 1;
 
-    root.append(el('p', t('progress', { n: step + 1, total: STEPS.length }), 'progress'));
-    const title = el('h2', t(TITLES[key]));
+    root.style.setProperty('--q-step', String(step));
+    sceneSteps.forEach((img, i) => {
+      img.classList.toggle('is-done', i < step);
+      img.classList.toggle('is-current', i === step);
+    });
+
+    body.append(el('p', t('progress', { n: step + 1, total: STEPS.length }), 'progress'));
+    // A long question reads as a story and then the ask: the story in plain text, the last
+    // sentence large in gold. A short question stays whole in the heading.
+    const sentences = t(TITLES[key]).split(/(?<=[.?!])\s+/);
+    const ask = sentences.length > 1 ? (sentences.pop() ?? '') : t(TITLES[key]);
+    if (sentences.length > 0 && ask !== t(TITLES[key])) {
+      body.append(el('p', sentences.join(' '), 'q-lead'));
+    }
+    const title = el('h2', ask);
     title.tabIndex = -1;
-    root.append(title, el('p', t(HELP[key]), 'help'));
+    const ornament = el('div', undefined, 'q-ornament');
+    ornament.setAttribute('aria-hidden', 'true');
+    body.append(title, el('p', t(HELP[key]), 'help'), ornament);
 
     const next = el('button', last ? t('showLadder') : t('next'));
     next.type = 'button';
@@ -173,7 +225,7 @@ export function createForm(opts: FormOptions): HTMLElement {
         },
       );
       firstInput = f.input;
-      root.append(f.wrap);
+      body.append(f.wrap);
     } else {
       const list = key === 'blocks' ? draft.blocks : draft.fears;
       const max = key === 'blocks' ? MAX_BLOCKS : MAX_FEARS;
@@ -212,7 +264,7 @@ export function createForm(opts: FormOptions): HTMLElement {
         }
         rows.append(row);
       });
-      root.append(rows);
+      body.append(rows);
 
       const add = el('button', t(isBlocks ? 'addObstacle' : 'addFear'), 'secondary');
       add.type = 'button';
@@ -225,7 +277,7 @@ export function createForm(opts: FormOptions): HTMLElement {
         emit();
         render(list.length - 1);
       });
-      root.append(add, notice);
+      body.append(add, notice);
       if (list.length >= max) notice.textContent = t('limit', { max });
       if (focusTarget) firstInput = focusTarget;
     }
@@ -256,12 +308,12 @@ export function createForm(opts: FormOptions): HTMLElement {
     });
     updateNext();
     nav.append(next);
-    root.append(nav);
+    body.append(nav);
 
     const clear = el('button', t('clearAnswers'), 'secondary clear');
     clear.type = 'button';
     clear.addEventListener('click', () => opts.onClear());
-    root.append(clear);
+    body.append(clear);
 
     const toFocus: HTMLElement = firstInput ?? title;
     toFocus.focus();

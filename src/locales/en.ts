@@ -15,16 +15,23 @@ export const en = {
 
   progress: 'Question {n} of {total}',
   qGoalTitle: 'What is your goal?',
-  qGoalHelp: 'Something you can measure, like "Launch my online course by March".',
-  qMeTitle: 'Where are you now?',
-  qMeHelp: 'One honest sentence about where you stand today.',
-  qBlocksTitle: 'What stands in the way?',
+  qGoalHelp:
+    'Something you can count, like "$2,000 a month" or "90 points on the exam by June".',
+  qMeTitle:
+    'You are here now, in your comfort zone. What keeps you stuck on this step, like in a swamp?',
+  qMeHelp:
+    'One sentence: where you are now on the way to your goal.',
+  qBlocksTitle:
+    'Above your step stand the obstacles. Most often they are people: their words stopped you once, and you still hear them. Who stands in your way, and what do they say?',
   qBlocksHelp:
-    'Short things people said that you believe, like "Dad: nobody pays for courses". Write 3 to 5.',
-  qFearsTitle: 'What scares you if it comes true?',
-  qFearsHelp: 'Optional, up to 5. A fear becomes smaller when it has a name and a next step.',
+    'Write 3 to 5 obstacles, starting from the lowest. For example: "Mom: who needs this?"',
+  qFearsTitle:
+    'There are steps above your goal too. Up there is what you fear will happen once the goal comes true. That is why you do not move toward it. Which fear stands above your goal?',
+  qFearsHelp:
+    'Optional. Write up to 5 fears: what will happen once the goal comes true.',
   fieldGoal: 'My goal',
-  fieldMe: 'I am here',
+  fieldMe:
+    'Where I am now',
   fieldObstacle: 'Obstacle {n}',
   fieldFear: 'Fear {n}',
   remove: 'Remove',
@@ -32,13 +39,17 @@ export const en = {
   removeFearAria: 'Remove fear {n}',
   addObstacle: 'Add obstacle',
   addFear: 'Add fear',
-  limit: '{max} is the limit.',
-  hintEmpty: 'Write a few words to continue.',
-  hintTooLong: 'Please keep it to {max} characters or fewer.',
+  limit:
+    'You cannot add more than {max}.',
+  hintEmpty:
+    'Write a couple of words and we will move on.',
+  hintTooLong:
+    'Too long: {max} characters at most.',
   next: 'Next',
   back: 'Back',
   showLadder: 'Show my ladder',
-  clearAnswers: 'Clear my answers',
+  clearAnswers:
+    'Erase answers',
   sampleLine: 'Sample ladder.',
   writeOwn: 'Write my own',
 
