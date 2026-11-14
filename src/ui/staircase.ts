@@ -14,7 +14,7 @@ const PUMPKIN = '#FF8A3D';
 const SHADOW = '#0B0919';
 
 /** Height of the spirit pictures and size of the golden emblems, in SVG units. */
-export const SPIRIT_H = 44;
+export const SPIRIT_H = 52;
 export const EMBLEM_SIZE = 24;
 const FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
 
@@ -44,7 +44,9 @@ export const NOTE_GAP = 14;
 export const NOTE_MIN_W = 160;
 export const NOTE_FONT = 13;
 export const NOTE_LINES = 3;
-export const GHOST_ROOM = 34;
+export const GHOST_ROOM = 40;
+/** Room for the golden emblem at the left of a card that is not a fear. */
+export const EMBLEM_ROOM = 34;
 export const PLATE_MIN_W = 8;
 export const PLATE_MAX_W = 56;
 
@@ -345,7 +347,7 @@ function stairGroup(
     g.appendChild(
       svgArt(emblemFor(step, nearest), 'emblem', {
         'data-emblem': emblemFor(step, nearest),
-        x: L.noteX + CARD_PAD + (GHOST_ROOM - EMBLEM_SIZE) / 2,
+        x: L.noteX + CARD_PAD + (EMBLEM_ROOM - EMBLEM_SIZE) / 2,
         y: midY - EMBLEM_SIZE / 2,
         width: EMBLEM_SIZE,
         height: EMBLEM_SIZE,
@@ -353,11 +355,11 @@ function stairGroup(
     );
   }
 
-  let left = GHOST_ROOM;
+  let left = EMBLEM_ROOM;
   const badge = badgeLabel(step);
   if (badge !== null) {
     const bw = Math.ceil(badge.length * charWidth(11) * 1.15) + 14;
-    const bx = L.noteX + CARD_PAD + GHOST_ROOM;
+    const bx = L.noteX + CARD_PAD + EMBLEM_ROOM;
     g.appendChild(
       el('rect', {
         class: 'badge',
@@ -381,7 +383,7 @@ function stairGroup(
     });
     bt.textContent = badge;
     g.appendChild(bt);
-    left = GHOST_ROOM + bw + 6;
+    left = EMBLEM_ROOM + bw + 6;
   }
 
   // Fear words are drawn by the ghost, next to the ghost inside the same card.
@@ -426,6 +428,14 @@ function ghostGroup(g: Ghost, index: number, stepIndex: number, L: Layout): SVGG
   // each other; applyGhostState decides which one is shown. The turning picture is a short
   // CSS-only flash between the two.
   const body = el('g', { class: 'ghost-body', transform: `translate(${cx} ${cy})` });
+  // A soft moonlight halo behind the spirit, so the dark Zheztyrnaq stands out on the dark card.
+  // Stacked ellipses instead of a gradient: no ids to clash, and it survives the saved picture.
+  const halo = el('g', { class: 'spirit-halo', fill: MOON });
+  halo.setAttribute('aria-hidden', 'true');
+  for (const k of [1, 0.75, 0.5]) {
+    halo.appendChild(el('ellipse', { cx: 0, cy: 0, rx: (GHOST_ROOM / 2) * k, ry: (SPIRIT_H / 2) * k, opacity: 0.08 }));
+  }
+  body.appendChild(halo);
   const spirit = { x: -GHOST_ROOM / 2, y: -SPIRIT_H / 2, width: GHOST_ROOM, height: SPIRIT_H };
   body.appendChild(svgArt('zheztyrnaq', 'spirit-dark', { ...spirit, opacity: 1 }));
   body.appendChild(svgArt('peri', 'spirit-light', { ...spirit, opacity: 0 }));

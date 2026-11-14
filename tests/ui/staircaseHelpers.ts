@@ -1,5 +1,5 @@
 import type { Reading } from '../../src/domain/server';
-import { charWidth, NOTE_FONT, CARD_PAD, GHOST_ROOM, CARD_H } from '../../src/ui/staircase';
+import { charWidth, NOTE_FONT, CARD_PAD, GHOST_ROOM, EMBLEM_ROOM, CARD_H } from '../../src/ui/staircase';
 
 export function lum(hex: string): number {
   const ch = [1, 3, 5].map((i) => {
@@ -99,12 +99,12 @@ export function partsOf(svg: SVGSVGElement): Parts[] {
 }
 
 /** The text fits its card: inside the card on every side, and not on the ghost's room. */
-export function textFitsCard(label: Element, note: Element, _zone: string): boolean {
+export function textFitsCard(label: Element, note: Element, zone: string): boolean {
   const box = textBox(label);
   const card = rectBox(note);
   const size = attr(label, 'font-size');
   if (size < NOTE_FONT) return false;
-  const minLeft = card.left + CARD_PAD + GHOST_ROOM; // emblem or ghost room first
+  const minLeft = card.left + CARD_PAD + (zone === 'fear' ? GHOST_ROOM : EMBLEM_ROOM); // ghost or emblem room first
   return (
     box.left >= minLeft &&
     box.right <= card.right - CARD_PAD + 0.001 &&
