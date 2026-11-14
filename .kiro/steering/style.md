@@ -24,7 +24,8 @@ Text contrast must pass WCAG AA on its background.
 - Stairs go up from bottom left to top right. The "I" point is the lowest step, the goal is the lit step at the top.
 - Obstacles: thin cobweb drawn across the step, with the person's phrase on the step.
 - Fears: ghosts floating above the goal, each with the person's phrase under it.
-- A ghost with a written step fades to about 15 % opacity and gets a small pumpkin-colored check.
+- On the staircase a fear without a step is the Zheztyrnaq, the copper-clawed spirit of Kazakh legends (`public/art/zheztyrnaq.webp`). When a step is written she turns into the Peri, a bright golden spirit (`public/art/peri.webp`), and gets a small pumpkin-colored check. The small icons next to the step fields still fade to about 15 % opacity.
+- The night steppe of Kazakhstan sits behind the staircase: mountains, a yurt and Temir Qazyq (the Pole Star). Golden Kazakh emblems sit in the note cards: shanyraq for the "I" step, asyq for the nearest obstacle, tumar for the other obstacles, burkit for the goal, qobyz over the ghost step fields. Pictures are decorative; text always sits on its own solid fill.
 - Rounded corners, generous space, one idea per screen. Buttons are rectangles with 10 px radius, not pills.
 - System font stack. Headings bold and tight.
 

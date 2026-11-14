@@ -99,12 +99,12 @@ export function partsOf(svg: SVGSVGElement): Parts[] {
 }
 
 /** The text fits its card: inside the card on every side, and not on the ghost's room. */
-export function textFitsCard(label: Element, note: Element, zone: string): boolean {
+export function textFitsCard(label: Element, note: Element, _zone: string): boolean {
   const box = textBox(label);
   const card = rectBox(note);
   const size = attr(label, 'font-size');
   if (size < NOTE_FONT) return false;
-  const minLeft = card.left + CARD_PAD + (zone === 'fear' ? GHOST_ROOM : 0);
+  const minLeft = card.left + CARD_PAD + GHOST_ROOM; // emblem or ghost room first
   return (
     box.left >= minLeft &&
     box.right <= card.right - CARD_PAD + 0.001 &&

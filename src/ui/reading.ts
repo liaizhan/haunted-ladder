@@ -3,6 +3,7 @@ import { rewriteUtm } from '../domain/server';
 import { allFaded, isFaded, type Ghost } from '../domain/ghosts';
 import { en } from '../locales/en';
 import { t } from '../i18n';
+import { htmlArt, type ArtName } from './art';
 
 export type ReadingOptions = {
   /** Called after every change to a step field. The ghosts array is already updated. */
@@ -57,6 +58,33 @@ function buildGhostIcon(): SVGSVGElement {
   return svg;
 }
 
+/** The seven pictures of the legend, in the order shown, with their dictionary keys. */
+export const LEGEND_ITEMS = [
+  { art: 'zheztyrnaq', key: 'legendZheztyrnaq' },
+  { art: 'peri', key: 'legendPeri' },
+  { art: 'shanyraq', key: 'legendShanyraq' },
+  { art: 'asyq', key: 'legendAsyq' },
+  { art: 'tumar', key: 'legendTumar' },
+  { art: 'qobyz', key: 'legendQobyz' },
+  { art: 'burkit', key: 'legendBurkit' },
+] as const satisfies ReadonlyArray<{ art: ArtName; key: string }>;
+
+/** "Who lives on this ladder": each picture (48 px) with one sentence in the chosen language. */
+export function buildLegend(): HTMLElement {
+  const root = el('section', undefined, 'legend');
+  root.setAttribute('aria-labelledby', 'legend-title');
+  const title = el('h2', t('legendTitle'));
+  title.id = 'legend-title';
+  const list = el('ul', undefined, 'legend-list');
+  for (const item of LEGEND_ITEMS) {
+    const li = el('li', undefined, 'legend-item');
+    li.append(htmlArt(item.art, 'legend-art', 48), el('p', t(item.key)));
+    list.append(li);
+  }
+  root.append(title, list);
+  return root;
+}
+
 function list(items: string[], className: string): HTMLUListElement {
   const ul = el('ul', undefined, className);
   for (const item of items) ul.append(el('li', item));
@@ -93,10 +121,9 @@ export function buildReading(
   root.append(block);
 
   if (ghosts.length > 0) {
-    block.append(
-      el('h2', t('ghostBlockTitle')),
-      el('p', t('ghostBlockHelp'), 'help'),
-    );
+    const heading = el('h2', undefined, 'ghost-heading');
+    heading.append(htmlArt('qobyz', 'emblem-qobyz', 28), el('span', t('ghostBlockTitle')));
+    block.append(heading, el('p', t('ghostBlockHelp'), 'help'));
     const steps = el('div', undefined, 'ghost-steps');
     ghosts.forEach((g, i) => {
       const id = `ghost-step-${i}`;

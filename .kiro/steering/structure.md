@@ -6,6 +6,7 @@ inclusion: always
 
 ```
 index.html
+public/art/          night steppe, spirits and golden emblems (WebP, cut from approved art)
 src/
   main.ts            app start, screen switching
   styles.css         palette variables and layout

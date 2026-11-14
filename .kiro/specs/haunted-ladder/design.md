@@ -225,6 +225,10 @@ Property 18: Same words in every language
 The `en`, `ru` and `kk` dictionaries have the same key set, no value is empty, and no value in any language contains "psycholog", "therapist", "психолог" or "психотерапевт" (case-insensitive).
 Validates: Requirements 15.2, 15.5
 
+Property 21: The Zheztyrnaq turns into a Peri
+For any reading and any steps on the fears, every ghost holds exactly one Zheztyrnaq image and one Peri image; the Zheztyrnaq has opacity 1 and the Peri 0 exactly when the ghost has no step, and the other way round when it has one, with the check shown only then; every non-fear card holds exactly one emblem that matches its zone (I: shanyraq, nearest obstacle: asyq, other obstacles: tumar, goal: burkit) and its text starts to the right of the emblem; every `<image>` in the staircase, the ghost heading and the legend points to `BASE_URL + "art/"`, is hidden from screen readers, and the backdrop is the first child of the SVG; and in the saved SVG every `<image>` href starts with `data:`.
+Validates: Requirements 18.1 to 18.9
+
 ## Testing Strategy
 
 - Vitest + jsdom for unit and DOM tests, fast-check for Properties 1 to 13 (at least 100 runs each). `AudioContext` is replaced by a fake in tests.

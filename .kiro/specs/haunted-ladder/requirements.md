@@ -220,3 +220,26 @@ Haunted Ladder is a one-page web app built on the Ladder method by Aizhan Li, au
 7. WHEN the staircase is drawn THEN it SHALL be drawn at 1 SVG unit = 1 CSS px for containers from 300 to 680 px wide (wider containers get the 680 px picture, the saved picture always uses 680 px), with note text at 13 px or larger, so Requirements 11.7 and 12 still hold at 360 and 375 px and in the two-column layout at 900 px and wider.
 8. WHEN the staircase is drawn THEN the person's words SHALL still go in only as SVG text nodes (Property 10) and the full words of every step SHALL be in the plate's `<title>` even when the card text is cut with an ellipsis.
 
+### Requirement 18: Kazakh night steppe art: the Zheztyrnaq turns into a Peri
+
+**User Story:** As a judge from anywhere in the world, I want the haunted ladder to look like a Kazakh legend at night, with spirits and golden objects I can understand from a short legend, so that the costume is memorable and the meaning stays clear.
+
+#### Acceptance Criteria
+
+1. WHEN the result screen draws the staircase THEN the system SHALL put the night steppe picture `public/art/steppe-night.webp` (mountains, a yurt and Temir Qazyq in the sky) as the first child of the staircase SVG, an `<image class="backdrop">` that covers the whole picture (`preserveAspectRatio="xMidYMid slice"`), under every plate, card and ghost; every number and card text SHALL keep its solid fill and WCAG AA contrast (Requirement 17.4); WHEN dawn comes (Requirement 13) the backdrop SHALL let the dawn sky show through (for example a lower opacity) and Property 16 SHALL still hold.
+2. WHEN a fear has no step THEN its ghost inside the fear card SHALL be the picture of the Zheztyrnaq (`art/zheztyrnaq.webp`), about 44 px tall, in the same place as today (to the left of the words, inside `GHOST_ROOM`); the `.ghost[data-ghost]`, `.ghost-float`, `.ghost-body` with `translate(x y)`, `.ghost-check` and `.ghost-label` elements SHALL stay, and the white SVG ghost shape SHALL be removed.
+3. WHEN the fear gets a step THEN the ghost SHALL turn into the Peri (`art/peri.webp`, a bright golden spirit) at full strength: the Zheztyrnaq image opacity 0, the Peri image opacity 1, the pumpkin check shown, and the words readable; when motion is welcome the turn SHALL pass through `art/spirit-turning.webp` for about one second (a CSS animation, no JavaScript timers); WHEN the step is cleared THEN the Peri SHALL turn back into the Zheztyrnaq. This replaces the fade to 0.15 of Requirement 17.5 on the staircase only (Requirements 5.2 and 5.3 still hold: the ghost changes when a step is written and comes back when it is cleared); the small icons next to the step fields keep their 1 and 0.15 (Property 15).
+4. WHEN a step that is not a fear has a note card THEN the card SHALL show one small golden emblem (about 24 px) to the left of the words, in the same room as the ghost: the "I" step `art/shanyraq.webp` (home and the start), the nearest obstacle `art/asyq.webp` (luck), every other obstacle `art/tumar.webp` (protection), the goal `art/burkit.webp` (freedom); the words SHALL start after the emblem room so nothing overlaps (Properties 14, 15 and 19 still hold at 375 px and 680 px).
+5. WHEN the ghost step fields are shown ("Make the ghosts smaller") THEN their heading SHALL carry the golden `art/qobyz.webp` emblem: in the legend of Korkyt Ata, death could not come near while his qobyz played; here a small step plays that music.
+6. WHEN the result screen is shown THEN under the staircase there SHALL be a short legend "Who lives on this ladder" that shows each of the seven pictures (about 48 px) with its Kazakh name and one sentence in the chosen language, with exactly these English texts (Russian and Kazakh in the task):
+   - Zheztyrnaq: "Zheztyrnaq, the copper-clawed spirit of Kazakh legends. Here she is a fear without a step."
+   - Peri: "Peri, a bright spirit of Turkic tales. A fear turns into her when you write one small step."
+   - Shanyraq: "Shanyraq, the crown of the yurt: home and the place you start."
+   - Asyq: "Asyq, the knucklebone of an old Kazakh game: luck for your nearest obstacle."
+   - Tumar: "Tumar, a folk amulet: protection on the hard steps."
+   - Qobyz: "Qobyz, the instrument of Korkyt Ata. In the legend, death could not come near while he played."
+   - Burkit: "Burkit, the golden eagle: freedom at your goal."
+7. WHEN any picture of this requirement is drawn THEN its address SHALL be built from `import.meta.env.BASE_URL` + `art/...` (no other host), it SHALL be decorative for screen readers (`aria-hidden="true"` or an empty `alt`), and the accessible names of plates, ghosts and cards SHALL stay the person's words (Requirement 8.3).
+8. WHEN the picture is saved (Requirement 7) THEN every `<image>` in the saved SVG SHALL be inlined as a `data:` URL before it is drawn on the canvas, so the steppe, the spirits and the emblems are in the PNG; IF a picture cannot be loaded THEN it SHALL be left out and the save SHALL still work.
+9. WHEN `prefers-reduced-motion: reduce` is set THEN the Zheztyrnaq SHALL not float and SHALL change to the Peri at once, with no turning animation (Requirement 9.9).
+10. WHEN the crisis, health or error screen is shown THEN none of these pictures SHALL be shown there (safety steering).

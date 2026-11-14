@@ -136,7 +136,9 @@ describe('Property 19: A side staircase that reads', () => {
               if (!ghost) return;
               const float = ghost.querySelector('.ghost-float');
               const label = ghost.querySelector('.ghost-label');
-              expect(float?.getAttribute('opacity')).toBe(faded ? '0.15' : '1');
+              expect(ghost.querySelector('.spirit-dark')?.getAttribute('opacity')).toBe(faded ? '0' : '1');
+              expect(ghost.querySelector('.spirit-light')?.getAttribute('opacity')).toBe(faded ? '1' : '0');
+              expect(float?.getAttribute('opacity')).toBeNull();
               expect(ghost.querySelector('.ghost-check')?.getAttribute('visibility')).toBe(faded ? 'visible' : 'hidden');
               // The words stay readable: the label is outside the faded group.
               expect(label).not.toBeNull();

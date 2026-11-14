@@ -8,7 +8,7 @@ import { demoDraft, isDemo } from './domain/demo';
 import { createForm } from './ui/form';
 import { createIntro } from './ui/intro';
 import { buildStaircase, updateGhosts } from './ui/staircase';
-import { buildReading } from './ui/reading';
+import { buildLegend, buildReading } from './ui/reading';
 import { buildHeart, type HeartHandle } from './ui/heart';
 import {
   attachGhostDrift,
@@ -383,7 +383,7 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
     const nav = el('div', undefined, 'nav');
     nav.append(back);
 
-    root.append(soundRow, readingEl, message, nav);
+    root.append(soundRow, readingEl, message, nav, buildLegend());
     focusHeading(root);
 
     if (activeFog) {

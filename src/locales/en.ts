@@ -81,6 +81,18 @@ export const en = {
   ghostAria: 'Ghost: {fear}',
   ghostFadedAria: 'Ghost, faded, has a small step: {fear}',
   heartRate: 'Heart rate: {bpm} beats per minute',
+
+  legendTitle: 'Who lives on this ladder',
+  legendZheztyrnaq:
+    'Zheztyrnaq, the copper-clawed spirit of Kazakh legends. Here she is a fear without a step.',
+  legendPeri:
+    'Peri, a bright spirit of Turkic tales. A fear turns into her when you write one small step.',
+  legendShanyraq: 'Shanyraq, the crown of the yurt: home and the place you start.',
+  legendAsyq: 'Asyq, the knucklebone of an old Kazakh game: luck for your nearest obstacle.',
+  legendTumar: 'Tumar, a folk amulet: protection on the hard steps.',
+  legendQobyz:
+    'Qobyz, the instrument of Korkyt Ata. In the legend, death could not come near while he played.',
+  legendBurkit: 'Burkit, the golden eagle: freedom at your goal.',
 };
 
 export type Dict = Record<keyof typeof en, string>;

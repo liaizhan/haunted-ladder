@@ -1,6 +1,7 @@
 import type { Reading, Step } from '../domain/server';
 import { isFaded, type Ghost } from '../domain/ghosts';
 import { t } from '../i18n';
+import { svgArt, type ArtName } from './art';
 
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -12,7 +13,9 @@ const MIST = '#A9A3C7';
 const PUMPKIN = '#FF8A3D';
 const SHADOW = '#0B0919';
 
-const FADED_OPACITY = 0.15;
+/** Height of the spirit pictures and size of the golden emblems, in SVG units. */
+export const SPIRIT_H = 44;
+export const EMBLEM_SIZE = 24;
 const FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
 
 /** Average glyph width (px at font-size 11) used for wrapping; tests use it to size text boxes. */
@@ -221,6 +224,13 @@ function badgeLabel(step: Step): string | null {
   return null;
 }
 
+/** The golden emblem of a card that is not a fear. */
+function emblemFor(step: Step, nearest: boolean): ArtName {
+  if (step.zone === 'current') return 'shanyraq';
+  if (step.zone === 'goal') return 'burkit';
+  return nearest ? 'asyq' : 'tumar';
+}
+
 function stairGroup(
   step: Step,
   index: number,
@@ -330,11 +340,24 @@ function stairGroup(
     }),
   );
 
-  let left = 0;
+  // The emblem sits in the room that a fear card gives to its ghost; the words start after it.
+  if (step.zone !== 'fear') {
+    g.appendChild(
+      svgArt(emblemFor(step, nearest), 'emblem', {
+        'data-emblem': emblemFor(step, nearest),
+        x: L.noteX + CARD_PAD + (GHOST_ROOM - EMBLEM_SIZE) / 2,
+        y: midY - EMBLEM_SIZE / 2,
+        width: EMBLEM_SIZE,
+        height: EMBLEM_SIZE,
+      }),
+    );
+  }
+
+  let left = GHOST_ROOM;
   const badge = badgeLabel(step);
   if (badge !== null) {
     const bw = Math.ceil(badge.length * charWidth(11) * 1.15) + 14;
-    const bx = L.noteX + CARD_PAD;
+    const bx = L.noteX + CARD_PAD + GHOST_ROOM;
     g.appendChild(
       el('rect', {
         class: 'badge',
@@ -358,7 +381,7 @@ function stairGroup(
     });
     bt.textContent = badge;
     g.appendChild(bt);
-    left = bw + 6;
+    left = GHOST_ROOM + bw + 6;
   }
 
   // Fear words are drawn by the ghost, next to the ghost inside the same card.
@@ -380,19 +403,12 @@ function stairGroup(
   return g;
 }
 
-function ghostBody(): SVGPathElement {
-  return el('path', {
-    d: 'M-26 0 C-26 -34 -14 -48 0 -48 C14 -48 26 -34 26 0 L26 30 L17 22 L9 30 L0 22 L-9 30 L-17 22 L-26 30 Z',
-    fill: MOON,
-    'fill-opacity': 0.85,
-  });
-}
-
 function ghostGroup(g: Ghost, index: number, stepIndex: number, L: Layout): SVGGElement {
   const midY = stepY(stepIndex, L) + PLATE_H / 2;
   const cardY = midY - CARD_H / 2;
-  const cx = L.noteX + CARD_PAD + 13;
-  const cy = cardY + 31;
+  // The spirit stands in the ghost room at the left of its card, centered on the card.
+  const cx = L.noteX + CARD_PAD + GHOST_ROOM / 2;
+  const cy = midY;
 
   const root = el('g', { class: 'ghost', 'data-ghost': index });
   root.setAttribute('role', 'img');
@@ -406,29 +422,24 @@ function ghostGroup(g: Ghost, index: number, stepIndex: number, L: Layout): SVGG
     class: 'ghost-float',
     style: `animation-duration:${duration}s;animation-delay:-${(index * 1.3).toFixed(1)}s`,
   });
-  // `.ghost-body` keeps a plain translate(x y); the scale lives in an inner group.
+  // `.ghost-body` keeps a plain translate(x y). The Zheztyrnaq and the Peri stand on top of
+  // each other; applyGhostState decides which one is shown. The turning picture is a short
+  // CSS-only flash between the two.
   const body = el('g', { class: 'ghost-body', transform: `translate(${cx} ${cy})` });
-  const inner = el('g', { transform: 'scale(0.5)' });
-  inner.appendChild(ghostBody());
-  inner.appendChild(el('circle', { cx: -9, cy: -22, r: 3.5, fill: NIGHT_2 }));
-  inner.appendChild(el('circle', { cx: 9, cy: -22, r: 3.5, fill: NIGHT_2 }));
-  inner.appendChild(el('ellipse', { cx: 0, cy: -10, rx: 4, ry: 5, fill: NIGHT_2, opacity: 0.8 }));
-  body.appendChild(inner);
+  const spirit = { x: -GHOST_ROOM / 2, y: -SPIRIT_H / 2, width: GHOST_ROOM, height: SPIRIT_H };
+  body.appendChild(svgArt('zheztyrnaq', 'spirit-dark', { ...spirit, opacity: 1 }));
+  body.appendChild(svgArt('peri', 'spirit-light', { ...spirit, opacity: 0 }));
+  body.appendChild(svgArt('spirit-turning', 'spirit-turning', { ...spirit, opacity: 0 }));
   float.appendChild(body);
   root.appendChild(float);
 
-  // The check sits outside the faded group so it stays crisp.
-  root.appendChild(
-    el('path', {
-      class: 'ghost-check',
-      d: `M${cx - 5} ${cy - 3} l3.5 4 l7 -8`,
-      fill: 'none',
-      stroke: PUMPKIN,
-      'stroke-width': 2.5,
-      'stroke-linecap': 'round',
-      'stroke-linejoin': 'round',
-    }),
-  );
+  // The check sits outside the floating group so it stays still and crisp. A dark outline
+  // under the pumpkin stroke keeps it visible on the golden Peri.
+  const check = el('g', { class: 'ghost-check', fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
+  const d = `M${cx + 3} ${cy + 15} l3.5 4 l7 -8`;
+  check.appendChild(el('path', { d, stroke: NIGHT, 'stroke-width': 5.5 }));
+  check.appendChild(el('path', { d, stroke: PUMPKIN, 'stroke-width': 2.5 }));
+  root.appendChild(check);
 
   const avail = L.cardW - 2 * CARD_PAD - GHOST_ROOM;
   const chars = Math.max(1, Math.floor(avail / charWidth(NOTE_FONT)));
@@ -446,16 +457,32 @@ function ghostGroup(g: Ghost, index: number, stepIndex: number, L: Layout): SVGG
   return root;
 }
 
-function applyGhostState(svg: Element, root: Element, ghost: Ghost, index: number): void {
+function restartTurn(root: Element): void {
+  // Remove and add the class again so the CSS turning animation plays from the start.
+  root.classList.remove('turning');
+  void root.getBoundingClientRect();
+  root.classList.add('turning');
+}
+
+function applyGhostState(
+  svg: Element,
+  root: Element,
+  ghost: Ghost,
+  index: number,
+  animate = false,
+): void {
   const faded = isFaded(ghost);
+  const changed = root.classList.contains('faded') !== faded;
   root.classList.toggle('faded', faded);
   root.setAttribute(
     'aria-label',
     faded ? t('ghostFadedAria', { fear: ghost.fear }) : t('ghostAria', { fear: ghost.fear }),
   );
-  root.querySelector('.ghost-float')?.setAttribute('opacity', String(faded ? FADED_OPACITY : 1));
+  // The Zheztyrnaq turns into the Peri at full strength, and back when the step is cleared.
+  root.querySelector('.spirit-dark')?.setAttribute('opacity', faded ? '0' : '1');
+  root.querySelector('.spirit-light')?.setAttribute('opacity', faded ? '1' : '0');
   root.querySelector('.ghost-check')?.setAttribute('visibility', faded ? 'visible' : 'hidden');
-  root.querySelector('.ghost-label')?.setAttribute('fill', faded ? MIST : MOON);
+  if (animate && changed) restartTurn(root);
 
   const plate = svg.querySelector(`rect.plate[data-ghost="${index}"]`);
   if (plate) {
@@ -491,6 +518,16 @@ export function buildStaircase(
     'aria-label': t('staircaseAria'),
     'data-layout': L.narrow ? 'narrow' : 'wide',
   });
+
+  svg.appendChild(
+    svgArt('steppe-night', 'backdrop', {
+      x: 0,
+      y: 0,
+      width: L.vw,
+      height: L.height,
+      preserveAspectRatio: 'xMidYMid slice',
+    }),
+  );
 
   // The moon waits in the empty top left corner above the low plates.
   const moon = el('circle', { class: 'moon', cx: PAD + 28, cy: 34, r: 20, fill: MOON, opacity: 0.9 });
@@ -557,6 +594,6 @@ export function buildStaircase(
 export function updateGhosts(svg: SVGSVGElement, ghosts: Ghost[]): void {
   ghosts.forEach((g, i) => {
     const root = svg.querySelector(`.ghost[data-ghost="${i}"]`);
-    if (root) applyGhostState(svg, root, g, i);
+    if (root) applyGhostState(svg, root, g, i, true);
   });
 }

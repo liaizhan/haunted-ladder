@@ -34,7 +34,10 @@ describe('exportImage', () => {
     expect(texts).toContain(CREDIT_LINE);
     expect(texts.join(' ')).toContain('Record one <b>video</b>');
     expect(copy.querySelector('b')).toBeNull();
-    expect(copy.querySelector('.ghost .ghost-float')?.getAttribute('opacity')).toBe('0.15');
+    // The Zheztyrnaq has turned into the Peri (image opacities), the words stay readable.
+    expect(copy.querySelector('.ghost .spirit-dark')?.getAttribute('opacity')).toBe('0');
+    expect(copy.querySelector('.ghost .spirit-light')?.getAttribute('opacity')).toBe('1');
+    expect(copy.querySelector('.spirit-turning')).toBeNull();
     expect(copy.firstElementChild?.tagName.toLowerCase()).toBe('rect');
     expect(svg.outerHTML).toBe(before);
   });

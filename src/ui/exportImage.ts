@@ -18,6 +18,51 @@ export const SAVE_FAILED_MESSAGE = en.saveFailed;
 
 const SCALE = 2;
 
+/** Opacity of the steppe picture at dawn. The CSS on the page uses the same number. */
+export const DAWN_BACKDROP_OPACITY = 0.35;
+
+/** Turns a picture address into a `data:` URL. Rejects when the picture cannot be loaded. */
+export type ImageLoader = (url: string) => Promise<string>;
+
+export const loadAsDataUrl: ImageLoader = async (url) => {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('The picture could not be loaded.');
+  const blob = await res.blob();
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => (typeof reader.result === 'string' ? resolve(reader.result) : reject(new Error('No data.')));
+    reader.onerror = () => reject(new Error('The picture could not be read.'));
+    reader.readAsDataURL(blob);
+  });
+};
+
+/**
+ * Replaces the address of every `<image>` with a `data:` URL, because a picture drawn from an SVG
+ * cannot load files by itself. An image that cannot be loaded is removed, so saving still works.
+ */
+export async function inlineImages(root: SVGSVGElement, load: ImageLoader = loadAsDataUrl): Promise<void> {
+  const cache = new Map<string, Promise<string>>();
+  const nodes = Array.from(root.querySelectorAll('image'));
+  await Promise.all(
+    nodes.map(async (node) => {
+      const href = node.getAttribute('href') ?? '';
+      if (href.startsWith('data:')) return;
+      try {
+        let pending = cache.get(href);
+        if (!pending) {
+          pending = load(href);
+          cache.set(href, pending);
+        }
+        const data = await pending;
+        if (!data.startsWith('data:')) throw new Error('Not a data URL.');
+        node.setAttribute('href', data);
+      } catch {
+        node.remove();
+      }
+    }),
+  );
+}
+
 function text(
   content: string,
   x: number,
@@ -57,6 +102,8 @@ export function buildExportSvg(svg: SVGSVGElement, ghosts: Ghost[]): SVGSVGEleme
   const { w, h } = viewBoxSize(svg);
   const copy = svg.cloneNode(true) as SVGSVGElement;
   copy.querySelectorAll('.motes').forEach((m) => m.remove());
+  // The turning picture is invisible except during the CSS animation, so it is left out.
+  copy.querySelectorAll('.spirit-turning').forEach((m) => m.remove());
 
   const dawn = isDawn(ghosts);
   const ink = dawn ? DAWN_TEXT : MOON;
@@ -92,6 +139,8 @@ export function buildExportSvg(svg: SVGSVGElement, ghosts: Ghost[]): SVGSVGEleme
   if (dawn) {
     // The night becomes morning: sky gradient, a sun behind the top of the ladder, no moon.
     copy.querySelector('.moon')?.remove();
+    // The night steppe lets the dawn sky show through, like the CSS on the page.
+    copy.querySelector('.backdrop')?.setAttribute('opacity', String(DAWN_BACKDROP_OPACITY));
     const defs = document.createElementNS(NS, 'defs');
     const grad = document.createElementNS(NS, 'linearGradient');
     grad.setAttribute('id', 'dawn-sky');
@@ -167,11 +216,13 @@ export type SaveResult = { ok: true } | { ok: false; message: string };
 export async function saveLadderImage(
   svg: SVGSVGElement,
   ghosts: Ghost[],
+  load: ImageLoader = loadAsDataUrl,
 ): Promise<SaveResult> {
   let svgUrl: string | null = null;
   let pngUrl: string | null = null;
   try {
     const copy = buildExportSvg(svg, ghosts);
+    await inlineImages(copy, load);
     const w = Number(copy.getAttribute('width'));
     const h = Number(copy.getAttribute('height'));
     const xml = new XMLSerializer().serializeToString(copy);

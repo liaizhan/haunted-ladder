@@ -183,7 +183,22 @@
     - **Property 20: A clear heart apart from the text**
     - **Validates: Requirements 17.1 to 17.8**
 
-- [ ] 25. Judge-ready README
+- [x] 25. Kazakh night steppe art: the Zheztyrnaq turns into a Peri
+  - [x] 25.1 In `src/ui/staircase.ts` add the backdrop `<image class="backdrop">` first in the SVG, replace the white ghost shape inside `.ghost-body` with two images (`.spirit-dark` Zheztyrnaq and `.spirit-light` Peri) plus a hidden `.spirit-turning` image, and add one emblem image (`.emblem` with `data-emblem="shanyraq|asyq|tumar|burkit"`) to every non-fear card; `applyGhostState` sets the image opacities instead of the 0.15 fade; build every address from `import.meta.env.BASE_URL`; keep every class and export listed in task 24.1
+    - _Requirements: 18.1, 18.2, 18.3, 18.4, 18.7_
+  - [x] 25.2 CSS in `src/styles.css`: the turning animation (about 1 s, only under `prefers-reduced-motion: no-preference`), the dawn backdrop, the qobyz emblem on the ghost step heading and the legend block (works at 360 px and in the two-column layout); update `src/main.ts` or `src/ui/reading.ts` to add the legend after the stage on the result screen only
+    - _Requirements: 18.1, 18.3, 18.5, 18.6, 18.9, 18.10_
+  - [x] 25.3 New keys in all three locale files: `legendTitle` and `legendZheztyrnaq`, `legendPeri`, `legendShanyraq`, `legendAsyq`, `legendTumar`, `legendQobyz`, `legendBurkit`, using the English texts of Requirement 18.6 and these texts:
+    - ru: "Кто живёт на этой лестнице"; "Жезтырнақ, дух с медными когтями из казахских легенд. Здесь это страх без шага."; "Пері, светлый дух тюркских сказаний. В неё превращается страх, когда ты пишешь маленький шаг."; "Шаңырақ, венец юрты: дом и место, откуда ты начинаешь."; "Асық, косточка из старой казахской игры: удача на ближайшем препятствии."; "Тұмар, народный оберег: защита на трудных ступенях."; "Қобыз, инструмент Қорқыт ата. По легенде, пока он играл, смерть не могла подойти."; "Бүркіт, беркут: свобода у твоей цели."
+    - kk: "Бұл баспалдақта кім тұрады"; "Жезтырнақ, қазақ аңыздарындағы жез тырнақты кейіпкер. Мұнда ол әлі қадамы жоқ қорқыныш."; "Пері, түркі ертегілеріндегі жарқын рух. Кішкентай қадамыңды жазғанда қорқыныш соған айналады."; "Шаңырақ, киіз үйдің төбесі: үй және сен бастайтын орын."; "Асық, ата-бабамыздың ойыны: ең жақын кедергіде сәттілік."; "Тұмар, халықтық бойтұмар: қиын баспалдақтарда қорғаныс."; "Қобыз, Қорқыт атаның аспабы. Аңыз бойынша ол ойнап отырғанда ажал жақындай алмаған."; "Бүркіт, қыран құс: мақсатыңдағы еркіндік."
+    - _Requirements: 18.6, 15.2_
+  - [x] 25.4 In `src/ui/exportImage.ts` inline every `<image>` as a `data:` URL before drawing (fetch and FileReader, or an Image and a canvas); a picture that fails to load is removed and the save still works; mock the loading in tests
+    - _Requirements: 18.8, 7.1, 7.2_
+  - [x] 25.5 Update the existing tests that expect the ghost fade to 0.15 on the staircase (side staircase, export) to the new Peri state, keep Property 15 for the field icons, and write property tests for Property 21
+    - **Property 21: The Zheztyrnaq turns into a Peri**
+    - **Validates: Requirements 18.1 to 18.9**
+
+- [ ] 26. Judge-ready README
   - Top block "Summary for judges": what it is, who it is for, the live link and the `?demo=1` link
   - A short GIF of one ghost fading and the heart slowing, and a captioned screenshot of every screen (intro, form, fog, staircase, all ghosts faded, crisis)
   - Numbers from the repo: requirements, correctness properties, tasks, steering files, hooks, test count
