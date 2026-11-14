@@ -8,6 +8,7 @@ import { createIntro } from '../../src/ui/intro';
 import { buildReading } from '../../src/ui/reading';
 import { buildStaircase } from '../../src/ui/staircase';
 import { buildCalm } from '../../src/ui/calm';
+import { DAWN_BOTTOM, DAWN_TEXT, DAWN_TOP } from '../../src/ui/dawn';
 import type { Reading } from '../../src/domain/server';
 import type { Ghost } from '../../src/domain/ghosts';
 
@@ -241,5 +242,32 @@ describe('Accessibility: costume polish (task 18.4)', () => {
     expect(link?.getAttribute('href')).toBe('?demo=1');
     expect(intro.querySelector('image, script, use, [src], [href^="http"]')).toBeNull();
     expect(intro.querySelector('.moon, .ghost, .fog, .heart, .stair, .cobweb')).toBeNull();
+  });
+});
+
+// ---- Task 20.3: dawn colors and motion (13.4, 13.5) ----
+
+describe('Accessibility: dawn (task 20)', () => {
+  it('dawn text reaches AA on both ends of the dawn sky', () => {
+    expect(ratio(variable('dawn-text'), variable('dawn-top'))).toBeGreaterThanOrEqual(4.5);
+    expect(ratio(variable('dawn-text'), variable('dawn-bottom'))).toBeGreaterThanOrEqual(4.5);
+    // Step labels sit on their own solid fill, so the sky does not change their contrast.
+    expect(ratio(variable('moon'), variable('night-2'))).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('the colors in dawn.ts match the CSS variables used on screen', () => {
+    expect(DAWN_TOP.toLowerCase()).toBe(variable('dawn-top').toLowerCase());
+    expect(DAWN_BOTTOM.toLowerCase()).toBe(variable('dawn-bottom').toLowerCase());
+    expect(DAWN_TEXT.toLowerCase()).toBe(variable('dawn-text').toLowerCase());
+  });
+
+  it('dawn transitions (4 s in, 2 s out) exist only under prefers-reduced-motion: no-preference', () => {
+    const inside = noPreferenceBlocks(css).join('\n');
+    expect(inside).toMatch(/\.stage\.dawn[^{]*\{[^}]*transition:[^;}]*4s/);
+    expect(inside).toMatch(/transition:[^;}]*2s/);
+    let outside = css;
+    for (const b of noPreferenceBlocks(css)) outside = outside.replace(b, '');
+    const dawnRules = outside.slice(outside.indexOf('/* Dawn:'));
+    expect(dawnRules).not.toMatch(/transition:\s*opacity/);
   });
 });

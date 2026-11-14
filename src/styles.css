@@ -7,7 +7,9 @@
   --glow: #ff5a36;
   --calm-bg: #ffffff;
   --calm-text: #1d1d1f;
-
+  --dawn-top: #f4b6a6;
+  --dawn-bottom: #ffd9a0;
+  --dawn-text: #2a1f3d;
   --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --radius: 10px;
   --beat: 1s;
@@ -691,4 +693,105 @@ body {
   .row {
     flex-wrap: wrap;
   }
+}
+
+/* Dawn: when every ghost has a step, the night ends */
+.dawn-sky {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--radius);
+  pointer-events: none;
+}
+
+.dawn-glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, var(--dawn-top), var(--dawn-bottom));
+  opacity: 0;
+}
+
+.dawn-stars {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100px;
+  opacity: 0.8;
+}
+
+.dawn-sun {
+  position: absolute;
+  right: 8%;
+  top: 12%;
+  width: 20%;
+  max-width: 120px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff3c4 0, #ffd36b 55%, #ffb347 100%);
+  opacity: 0;
+  transform: translateY(80%);
+}
+
+.dawn-line {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  text-align: center;
+  font-weight: 700;
+  color: var(--dawn-text);
+  visibility: hidden;
+  opacity: 0;
+}
+
+.stage.dawn .dawn-glow,
+.stage.dawn .dawn-sun {
+  opacity: 1;
+}
+
+.stage.dawn .dawn-sun {
+  transform: none;
+}
+
+.stage.dawn .dawn-stars {
+  opacity: 0;
+}
+
+.stage.dawn .dawn-line {
+  visibility: visible;
+  opacity: 1;
+}
+
+.stage .staircase .moon {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.stage.dawn .staircase .moon {
+  transform: translateY(40px);
+  opacity: 0;
+}
+
+/* The night comes back in 2 s; the morning takes 4 s. No transition at all under reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .dawn-glow,
+  .dawn-stars,
+  .dawn-sun,
+  .dawn-line,
+  .stage .staircase .moon {
+    transition: opacity 2s ease, transform 2s ease, visibility 2s;
+  }
+  .stage.dawn .dawn-glow,
+  .stage.dawn .dawn-stars,
+  .stage.dawn .dawn-sun,
+  .stage.dawn .dawn-line,
+  .stage.dawn .staircase .moon {
+    transition: opacity 4s ease, transform 4s ease, visibility 4s;
+  }
+}
+
+body.calm .dawn-sky,
+body.calm .dawn-line {
+  display: none;
 }

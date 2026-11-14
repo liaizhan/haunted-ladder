@@ -25,6 +25,7 @@ import {
 } from './ui/nightSound';
 import { leaveCalm, showCalm, type CalmAnswer } from './ui/calm';
 import { saveLadderImage } from './ui/exportImage';
+import { buildDawn, isDawn, setDawn } from './ui/dawn';
 
 export type Screen = 'intro' | 'form' | 'waiting' | 'result' | 'calm';
 
@@ -258,7 +259,9 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
     const h = buildHeart(ghosts);
     heart = h;
     const svg = buildStaircase(reading, ghosts, { width: stage.clientWidth });
-    stage.append(h.element, svg);
+    const dawn = buildDawn();
+    stage.append(dawn.sky, h.element, svg, dawn.line);
+    setDawn(stage, isDawn(ghosts));
     const activeFog = fog;
     if (activeFog) {
       dimForWaiting(svg);
@@ -287,6 +290,7 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
         persist();
         updateGhosts(svg, gs);
         h.update(gs);
+        setDawn(stage, isDawn(gs));
       },
       onSave: () => {
         // The picture always uses the wide layout, so the written steps fit under it.

@@ -142,12 +142,12 @@
     - **Property 15: Readable on a phone**
     - **Validates: Requirements 12.3, 12.4**
 
-- [ ] 20. Dawn when the last ghost fades
-  - [ ] 20.1 Add `src/ui/dawn.ts` (`isDawn`, `setDawn`), the sun, the dawn sky gradient and the dawn line; call it from the same `onStepsChange` path in `main.ts`
+- [x] 20. Dawn when the last ghost fades
+  - [x] 20.1 Add `src/ui/dawn.ts` (`isDawn`, `setDawn`), the sun, the dawn sky gradient and the dawn line; call it from the same `onStepsChange` path in `main.ts`
     - _Requirements: 13.1, 13.2, 13.3_
-  - [ ] 20.2 CSS transitions (4 s in, 2 s out), instant under reduced motion, AA contrast on dawn colors, dawn included in the saved picture, nothing on calm screens
+  - [x] 20.2 CSS transitions (4 s in, 2 s out), instant under reduced motion, AA contrast on dawn colors, dawn included in the saved picture, nothing on calm screens
     - _Requirements: 13.4, 13.5, 13.6_
-  - [ ] 20.3 Write property test for Property 16 and extend the accessibility test with the dawn color pairs
+  - [x] 20.3 Write property test for Property 16 and extend the accessibility test with the dawn color pairs
     - **Property 16: Dawn comes only with every step**
     - **Validates: Requirements 13.1, 13.2, 13.3**
 

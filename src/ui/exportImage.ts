@@ -1,5 +1,6 @@
 import { isFaded, type Ghost } from '../domain/ghosts';
 import { wrapText } from './staircase';
+import { DAWN_BOTTOM, DAWN_LINE, DAWN_TEXT, DAWN_TOP, isDawn } from './dawn';
 
 const NS = 'http://www.w3.org/2000/svg';
 const NIGHT = '#14112B';
@@ -54,6 +55,11 @@ export function buildExportSvg(svg: SVGSVGElement, ghosts: Ghost[]): SVGSVGEleme
   const { w, h } = viewBoxSize(svg);
   const copy = svg.cloneNode(true) as SVGSVGElement;
 
+  const dawn = isDawn(ghosts);
+  const ink = dawn ? DAWN_TEXT : MOON;
+  const softInk = dawn ? DAWN_TEXT : MIST;
+  const accent = dawn ? DAWN_TEXT : PUMPKIN;
+
   const written = ghosts.filter(isFaded);
   const rows: { fear: string[]; step: string[] }[] = written.map((g) => ({
     fear: wrapText(`Fear: ${g.fear}`, 80, 2),
@@ -61,6 +67,7 @@ export function buildExportSvg(svg: SVGSVGElement, ghosts: Ghost[]): SVGSVGEleme
   }));
   const lineH = 16;
   let extra = 20;
+  if (dawn) extra += 30;
   if (rows.length > 0) {
     extra += 30;
     for (const r of rows) extra += (r.fear.length + r.step.length) * lineH + 10;
@@ -76,26 +83,59 @@ export function buildExportSvg(svg: SVGSVGElement, ghosts: Ghost[]): SVGSVGEleme
   const bg = document.createElementNS(NS, 'rect');
   bg.setAttribute('width', String(w));
   bg.setAttribute('height', String(total));
-  bg.setAttribute('fill', NIGHT);
+  bg.setAttribute('fill', dawn ? 'url(#dawn-sky)' : NIGHT);
   copy.insertBefore(bg, copy.firstChild);
 
+  if (dawn) {
+    // The night becomes morning: sky gradient, a sun behind the top of the ladder, no moon.
+    copy.querySelector('.moon')?.remove();
+    const defs = document.createElementNS(NS, 'defs');
+    const grad = document.createElementNS(NS, 'linearGradient');
+    grad.setAttribute('id', 'dawn-sky');
+    grad.setAttribute('x1', '0');
+    grad.setAttribute('y1', '0');
+    grad.setAttribute('x2', '0');
+    grad.setAttribute('y2', '1');
+    for (const [offset, color] of [
+      ['0', DAWN_TOP],
+      ['1', DAWN_BOTTOM],
+    ] as const) {
+      const stop = document.createElementNS(NS, 'stop');
+      stop.setAttribute('offset', offset);
+      stop.setAttribute('stop-color', color);
+      grad.append(stop);
+    }
+    defs.append(grad);
+    const sun = document.createElementNS(NS, 'circle');
+    sun.setAttribute('class', 'sun');
+    sun.setAttribute('cx', String(w - 90));
+    sun.setAttribute('cy', '70');
+    sun.setAttribute('r', '36');
+    sun.setAttribute('fill', '#FFC94D');
+    bg.after(defs, sun);
+  }
+
   let y = h + 20;
+  if (dawn) {
+    copy.appendChild(text(DAWN_LINE, w / 2, y + 6, 14, DAWN_TEXT, 'middle'));
+    y += 30;
+  }
   if (rows.length > 0) {
-    copy.appendChild(text('My small steps this week', 40, y + 8, 15, PUMPKIN));
+    copy.appendChild(text('My small steps this week', 40, y + 8, 15, accent));
     y += 30;
     for (const r of rows) {
       for (const line of r.fear) {
         y += lineH;
-        copy.appendChild(text(line, 40, y, 12, MIST));
+        copy.appendChild(text(line, 40, y, 12, softInk));
       }
       for (const line of r.step) {
         y += lineH;
-        copy.appendChild(text(line, 40, y, 12, MOON));
+        copy.appendChild(text(line, 40, y, 12, ink));
       }
       y += 10;
     }
   }
-  copy.appendChild(text(CREDIT_LINE, w / 2, total - 16, 11, MIST, 'middle'));
+  copy.appendChild(text(CREDIT_LINE, w / 2, total - 16, 11, softInk, 'middle'));
   return copy;
 }
 
