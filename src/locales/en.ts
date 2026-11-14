@@ -6,11 +6,10 @@ export const en = {
   skipLink: 'Skip to content',
   langLabel: 'Language',
 
+  introTagline: 'Climb if you dare.',
   introP1:
-    'A gentle, spooky self-check built on the Ladder method by Aizhan Li. ' +
-    'Write your goal, where you are now, what stands in the way and what scares you. ' +
-    'Your fears become ghosts you can see, name and make fade.',
-  introP2: 'It takes a few minutes. Your words stay in your browser.',
+    'Write down your goal. Every fear that holds you in place takes a step as a spirit from Kazakh legends. Call it by its name and watch it fade.',
+  introP2: 'A few minutes. Your words never leave your browser. By Aizhan Li, author of the Ladder method.',
   introStart: 'Start',
   introSample: 'See a sample ladder',
 

@@ -219,7 +219,7 @@ describe('Accessibility: costume polish (task 18.4)', () => {
     expect(inside.length).toBeGreaterThan(0);
     let outside = css;
     for (const b of inside) outside = outside.replace(b, '');
-    for (const name of ['candle-flicker', 'ghost-float']) {
+    for (const name of ['intro-flicker', 'intro-float', 'ghost-float']) {
       expect(inside.join('\n')).toMatch(new RegExp(`animation(-name)?:\\s*${name}`));
       expect(outside).not.toMatch(new RegExp(`animation(-name)?:\\s*${name}`));
     }
@@ -229,17 +229,24 @@ describe('Accessibility: costume polish (task 18.4)', () => {
   it('calm screens hide the intro scene and the page fits 360 px', () => {
     expect(css).toMatch(/body\.calm \.intro-scene\s*\{\s*display:\s*none/);
     expect(css).toContain('overflow-x: hidden');
-    expect(css).toMatch(/\.intro-scene svg\s*\{[^}]*max-width|\.intro-scene svg[^{]*\{[^}]*max-width/);
+    expect(css).toMatch(/\.intro\s*\{[^}]*overflow:\s*hidden/);
   });
 
   it('the intro has the scene, the flickering title and a link to ?demo=1', () => {
     const intro = createIntro(() => undefined);
-    expect(intro.querySelector('.intro-scene svg')).not.toBeNull();
+    const scene = intro.querySelector('.intro-scene');
+    expect(scene?.getAttribute('aria-hidden')).toBe('true');
+    const imgs = [...intro.querySelectorAll('img')];
+    expect(imgs.length).toBeGreaterThan(0);
+    for (const img of imgs) {
+      expect(img.getAttribute('alt')).toBe('');
+      expect(img.getAttribute('src')).not.toMatch(/^https?:/);
+    }
     expect(intro.querySelector('h1.flicker')?.textContent).toBe('Haunted Ladder');
     const link = intro.querySelector('a');
     expect(link?.textContent).toBe('See a sample ladder');
     expect(link?.getAttribute('href')).toBe('?demo=1');
-    expect(intro.querySelector('image, script, use, [src], [href^="http"]')).toBeNull();
+    expect(intro.querySelector('script, [href^="http"], [src^="http"]')).toBeNull();
     expect(intro.querySelector('.moon, .ghost, .fog, .heart, .stair, .cobweb')).toBeNull();
   });
 });

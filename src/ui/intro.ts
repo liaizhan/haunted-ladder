@@ -1,147 +1,57 @@
 import { t } from '../i18n';
+import { artUrl, type ArtName } from './art';
 
-const NS = 'http://www.w3.org/2000/svg';
-
-function svgEl(name: string, attrs: Record<string, string | number> = {}): SVGElement {
-  const node = document.createElementNS(NS, name);
-  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, String(v));
-  return node;
-}
-
-// Fixed star positions (x, y, radius) in a 360 x 420 scene, so the picture is always the same.
-const TWINKLE = new Set([0, 2, 6, 11]); // indexes of the four slowly twinkling stars
-const STARS: Array<[number, number, number]> = [
-  [24, 30, 1.6],
-  [60, 88, 1],
-  [96, 22, 1.6],
-  [140, 64, 1],
-  [188, 34, 1.2],
-  [226, 96, 1],
-  [262, 20, 1.6],
-  [300, 70, 1],
-  [334, 28, 1.2],
-  [20, 140, 1],
-  [118, 130, 1.1],
-  [210, 150, 1],
-  [330, 130, 1.6],
-  [46, 196, 1],
-  [286, 190, 1],
-  [160, 106, 0.9],
-];
-
-/** The night scene: moon with halo, stars, a ladder rising from low fog, a small ghost peeking. */
-function buildScene(): SVGSVGElement {
-  const svg = svgEl('svg', {
-    class: 'intro-scene-svg',
-    viewBox: '0 0 360 420',
-    width: '100%',
-    height: '100%',
-    preserveAspectRatio: 'xMidYMid meet',
-    focusable: 'false',
-    'aria-hidden': 'true',
-  }) as SVGSVGElement;
-
-  const defs = svgEl('defs');
-  const halo = svgEl('radialGradient', { id: 'intro-halo', cx: '50%', cy: '50%', r: '50%' });
-  halo.append(
-    svgEl('stop', { offset: '0%', 'stop-color': '#F4EFE6', 'stop-opacity': 0.5 }),
-    svgEl('stop', { offset: '45%', 'stop-color': '#A9A3C7', 'stop-opacity': 0.2 }),
-    svgEl('stop', { offset: '100%', 'stop-color': '#A9A3C7', 'stop-opacity': 0 }),
-  );
-  const fogGrad = svgEl('linearGradient', { id: 'intro-fog-grad', x1: 0, y1: 0, x2: 0, y2: 1 });
-  fogGrad.append(
-    svgEl('stop', { offset: '0%', 'stop-color': '#A9A3C7', 'stop-opacity': 0 }),
-    svgEl('stop', { offset: '100%', 'stop-color': '#A9A3C7', 'stop-opacity': 0.35 }),
-  );
-  defs.append(halo, fogGrad);
-  svg.append(defs);
-
-  svg.append(svgEl('rect', { x: 0, y: 0, width: 360, height: 420, fill: '#14112B' }));
-
-  const stars = svgEl('g', { class: 'intro-stars', fill: '#F4EFE6', opacity: 0.9 });
-  STARS.forEach(([cx, cy, r], i) => {
-    const attrs: Record<string, string | number> = { cx, cy, r };
-    if (TWINKLE.has(i)) attrs.class = 'intro-star-twinkle';
-    stars.append(svgEl('circle', attrs));
-  });
-  svg.append(stars);
-
-  svg.append(
-    svgEl('circle', { class: 'intro-halo', cx: 268, cy: 92, r: 110, fill: 'url(#intro-halo)' }),
-    svgEl('circle', { class: 'intro-moon', cx: 268, cy: 92, r: 34, fill: '#F4EFE6', opacity: 0.92 }),
-  );
-
-  // Ladder silhouette: two rails leaning toward the moon, rungs between them.
-  // One small ghost peeking out from behind the right rail, about two thirds up the ladder.
-  const ghost = svgEl('g', { class: 'intro-ghost', transform: 'translate(234 250)', opacity: 0.9 });
-  ghost.append(
-    svgEl('path', {
-      d: 'M-16 0 C-16 -22 -8 -30 0 -30 C8 -30 16 -22 16 0 L16 16 L10 11 L5 16 L0 11 L-5 16 L-10 11 L-16 16 Z',
-      fill: '#F4EFE6',
-      'fill-opacity': 0.85,
-    }),
-    svgEl('circle', { cx: -4, cy: -14, r: 2.2, fill: '#221C45' }),
-    svgEl('circle', { cx: 6, cy: -14, r: 2.2, fill: '#221C45' }),
-  );
-  svg.append(ghost);
-
-  // Ladder: two rails leaning toward the moon, reaching close to its halo. Drawn after the ghost
-  // so the right rail passes in front of it.
-  const left = { x0: 110, y0: 420, x1: 205, y1: 140 };
-  const right = { x0: 170, y0: 420, x1: 250, y1: 150 };
-  const ladder = svgEl('g', {
-    class: 'intro-ladder',
-    stroke: '#3B3470',
-    'stroke-width': 5,
-    'stroke-linecap': 'round',
-    fill: 'none',
-  });
-  ladder.append(
-    svgEl('path', { d: `M${left.x0} ${left.y0} L${left.x1} ${left.y1}` }),
-    svgEl('path', { d: `M${right.x0} ${right.y0} L${right.x1} ${right.y1}` }),
-  );
-  for (let i = 1; i <= 8; i++) {
-    const t = i / 9;
-    const xl = left.x0 + (left.x1 - left.x0) * t;
-    const yl = left.y0 + (left.y1 - left.y0) * t;
-    const xr = right.x0 + (right.x1 - right.x0) * t;
-    const yr = right.y0 + (right.y1 - right.y0) * t;
-    ladder.append(svgEl('path', { d: `M${xl.toFixed(1)} ${yl.toFixed(1)} L${xr.toFixed(1)} ${yr.toFixed(1)}` }));
-  }
-  svg.append(ladder);
-
-  // Moonlit edge: a thin line on the right side of each rail, the side facing the moon.
-  const edge = svgEl('g', {
-    class: 'intro-ladder-edge',
-    stroke: '#A9A3C7',
-    'stroke-width': 1.5,
-    'stroke-opacity': 0.5,
-    'stroke-linecap': 'round',
-    fill: 'none',
-  });
-  for (const r of [left, right]) {
-    edge.append(svgEl('path', { d: `M${r.x0 + 2.5} ${r.y0} L${r.x1 + 2.5} ${r.y1}` }));
-  }
-  svg.append(edge);
-
-  svg.append(
-    svgEl('rect', { class: 'intro-fog', x: 0, y: 290, width: 360, height: 130, fill: 'url(#intro-fog-grad)' }),
-  );
-  return svg;
+/** A decorative picture from public/art, hidden from screen readers. */
+function art(name: ArtName, className: string): HTMLImageElement {
+  const img = document.createElement('img');
+  img.src = artUrl(name);
+  img.alt = '';
+  img.className = className;
+  img.decoding = 'async';
+  img.setAttribute('aria-hidden', 'true');
+  return img;
 }
 
 /**
- * The intro screen: a night scene behind a flickering title, a short explanation, a "Start"
+ * The night scene of the result page in small: the mirrored steppe with the yurt, the blood moon,
+ * golden carpet steps rising toward it, the Zheztyrnaq of fear step 6 beside them, fog.
+ */
+function buildScene(): HTMLElement {
+  const scene = document.createElement('div');
+  scene.className = 'intro-scene';
+  scene.setAttribute('aria-hidden', 'true');
+  scene.append(art('steppe-night', 'intro-bg'));
+  const moon = document.createElement('div');
+  moon.className = 'intro-moon';
+  scene.append(moon);
+  const steps = document.createElement('div');
+  steps.className = 'intro-steps';
+  for (let i = 0; i < 5; i++) {
+    const step = art('step', 'intro-step');
+    step.style.setProperty('--i', String(i));
+    steps.append(step);
+    if (i < 4) {
+      const star = art('star', 'intro-star');
+      star.style.setProperty('--i', String(i));
+      steps.append(star);
+    }
+  }
+  scene.append(steps, art('zheztyrnaq-rise', 'intro-spirit'));
+  const fog = document.createElement('div');
+  fog.className = 'intro-fog';
+  scene.append(fog);
+  return scene;
+}
+
+/**
+ * The intro screen: a night scene behind a flickering title, a tagline, a short explanation, a "Start"
  * button and a link to the sample ladder. No price, no sign-in, no external file.
  */
 export function createIntro(onStart: () => void): HTMLElement {
   const root = document.createElement('section');
   root.className = 'screen intro';
 
-  const scene = document.createElement('div');
-  scene.className = 'intro-scene';
-  scene.setAttribute('aria-hidden', 'true');
-  scene.append(buildScene());
+  const scene = buildScene();
 
   const content = document.createElement('div');
   content.className = 'intro-content';
@@ -150,9 +60,13 @@ export function createIntro(onStart: () => void): HTMLElement {
   title.className = 'flicker';
   title.textContent = 'Haunted Ladder';
 
+  const tagline = document.createElement('p');
+  tagline.className = 'intro-tagline';
+  tagline.textContent = t('introTagline');
   const p1 = document.createElement('p');
   p1.textContent = t('introP1');
   const p2 = document.createElement('p');
+  p2.className = 'intro-note';
   p2.textContent = t('introP2');
 
   const actions = document.createElement('div');
@@ -167,7 +81,7 @@ export function createIntro(onStart: () => void): HTMLElement {
   sample.textContent = t('introSample');
   actions.append(start, sample);
 
-  content.append(title, p1, p2, actions);
+  content.append(title, tagline, p1, p2, actions);
   root.append(scene, content);
   return root;
 }

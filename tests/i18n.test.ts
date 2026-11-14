@@ -57,8 +57,8 @@ describe('Property 18: Same words in every language', () => {
   });
 
   it('names the author the way the spec says', () => {
-    expect(dictionaries.ru.introP1).toContain('автор методики «Лестница»');
-    expect(dictionaries.kk.introP1).toContain('«Баспалдақ» әдістемесінің авторы');
+    expect(dictionaries.ru.introP2).toContain('автор методики «Лестница»');
+    expect(dictionaries.kk.introP2).toContain('«Баспалдақ» әдістемесінің авторы');
   });
 
   it('t() fills placeholders in the current language', () => {
