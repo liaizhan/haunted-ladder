@@ -8,8 +8,13 @@ const NS = 'http://www.w3.org/2000/svg';
 const NIGHT = '#14112B';
 const MOON = '#F4EFE6';
 const MIST = '#A9A3C7';
-const PUMPKIN = '#FF8A3D';
 const FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
+/** A picture drawn from SVG cannot load web fonts, so the headings use a system serif. */
+const SERIF = 'Georgia, "Times New Roman", serif';
+const NIGHT_2 = '#221C45';
+const GOLD = '#F2B547';
+const GOLD_LIGHT = '#FFE3A3';
+const LILAC = '#D9D3EC';
 
 /** English texts. The picture itself uses the current language through `t()`. */
 export const CREDIT_LINE = en.creditLine;
@@ -70,6 +75,7 @@ function text(
   size: number,
   fill: string,
   anchor: 'start' | 'middle' = 'start',
+  style: { font?: string; weight?: string; italic?: boolean } = {},
 ): SVGTextElement {
   const t = document.createElementNS(NS, 'text');
   t.setAttribute('x', String(x));
@@ -77,9 +83,29 @@ function text(
   t.setAttribute('font-size', String(size));
   t.setAttribute('fill', fill);
   t.setAttribute('text-anchor', anchor);
-  t.setAttribute('font-family', FONT);
+  t.setAttribute('font-family', style.font ?? FONT);
+  if (style.weight) t.setAttribute('font-weight', style.weight);
+  if (style.italic) t.setAttribute('font-style', 'italic');
   t.textContent = content;
   return t;
+}
+
+function shape(tag: 'rect' | 'path', attrs: Record<string, string | number>): SVGElement {
+  const node = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, String(v));
+  return node;
+}
+
+/** A thin gold line with a small diamond in the middle, like the ornaments on the page. */
+function ornament(cx: number, y: number, half: number): SVGElement {
+  return shape('path', {
+    d: `M${cx - half} ${y}H${cx - 10}M${cx + 10} ${y}H${cx + half}M${cx} ${y - 5}l5 5-5 5-5-5z`,
+    fill: 'none',
+    stroke: GOLD,
+    'stroke-width': 1.2,
+    'stroke-linejoin': 'round',
+    opacity: 0.85,
+  });
 }
 
 function viewBoxSize(svg: SVGSVGElement): { w: number; h: number } {
@@ -106,23 +132,24 @@ export function buildExportSvg(svg: SVGSVGElement, ghosts: Ghost[]): SVGSVGEleme
   copy.querySelectorAll('.spirit-turning').forEach((m) => m.remove());
 
   const dawn = isDawn(ghosts);
-  const ink = dawn ? DAWN_TEXT : MOON;
   const softInk = dawn ? DAWN_TEXT : MIST;
-  const accent = dawn ? DAWN_TEXT : PUMPKIN;
 
   const written = ghosts.filter(isFaded);
   const rows: { fear: string[]; step: string[] }[] = written.map((g) => ({
     fear: wrapText(t('exportFear', { fear: g.fear }), 80, 2),
     step: wrapText(t('exportStep', { step: g.step.trim() }), 80, 3),
   }));
-  const lineH = 16;
+  const lineH = 18;
+  const rowGap = 14;
   let extra = 20;
-  if (dawn) extra += 30;
+  if (dawn) extra += 34;
   if (rows.length > 0) {
-    extra += 30;
-    for (const r of rows) extra += (r.fear.length + r.step.length) * lineH + 10;
+    // The card: heading and ornament, then the rows, then its bottom padding.
+    extra += 72;
+    for (const r of rows) extra += (r.fear.length + r.step.length) * lineH + rowGap;
+    extra += 10;
   }
-  extra += 40;
+  extra += 52;
   const total = h + extra;
 
   copy.setAttribute('xmlns', NS);
@@ -170,25 +197,50 @@ export function buildExportSvg(svg: SVGSVGElement, ghosts: Ghost[]): SVGSVGEleme
 
   let y = h + 20;
   if (dawn) {
-    copy.appendChild(text(t('dawnLine'), w / 2, y + 6, 14, DAWN_TEXT, 'middle'));
-    y += 30;
+    copy.appendChild(
+      text(t('dawnLine'), w / 2, y + 8, 16, DAWN_TEXT, 'middle', { font: SERIF, italic: true }),
+    );
+    y += 34;
   }
   if (rows.length > 0) {
-    copy.appendChild(text(t('exportTitle'), 40, y + 8, 15, accent));
-    y += 30;
+    // The steps sit in a night card with a gold edge, like the step cards on the page.
+    const card = shape('rect', {
+      x: 24,
+      y,
+      width: w - 48,
+      height: 0,
+      rx: 18,
+      fill: NIGHT_2,
+      stroke: GOLD,
+      'stroke-opacity': 0.55,
+      'stroke-width': 1.2,
+    });
+    copy.appendChild(card);
+    const top = y;
+    copy.appendChild(
+      text(t('exportTitle'), w / 2, y + 34, 19, GOLD_LIGHT, 'middle', { font: SERIF, weight: '700' }),
+    );
+    copy.appendChild(ornament(w / 2, y + 52, 90));
+    y += 72;
     for (const r of rows) {
+      copy.appendChild(shape('path', { d: `M52 ${y + 7}l4 4-4 4-4-4z`, fill: GOLD }));
       for (const line of r.fear) {
         y += lineH;
-        copy.appendChild(text(line, 40, y, 12, softInk));
+        copy.appendChild(text(line, 66, y - 4, 12.5, LILAC, 'start', { italic: true }));
       }
       for (const line of r.step) {
         y += lineH;
-        copy.appendChild(text(line, 40, y, 12, ink));
+        copy.appendChild(text(line, 66, y - 4, 13.5, MOON, 'start', { weight: '600' }));
       }
-      y += 10;
+      y += rowGap;
     }
+    y += 10;
+    card.setAttribute('height', String(y - top));
   }
-  copy.appendChild(text(t('creditLine'), w / 2, total - 16, 11, softInk, 'middle'));
+  copy.appendChild(ornament(w / 2, total - 40, 60));
+  copy.appendChild(
+    text(t('creditLine'), w / 2, total - 16, 12, softInk, 'middle', { font: SERIF, italic: true }),
+  );
   return copy;
 }
 

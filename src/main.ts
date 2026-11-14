@@ -27,6 +27,16 @@ import { leaveCalm, showCalm, type CalmAnswer } from './ui/calm';
 import { saveLadderImage } from './ui/exportImage';
 import { buildDawn, isDawn, setDawn } from './ui/dawn';
 import { dissolve } from './ui/motes';
+import { artUrl, type ArtName } from './ui/art';
+
+/**
+ * Starfall on the waiting screen: 40 streaks spread over the sky with fixed, even spacing
+ * (start x %, start y %, length px, cycle s, delay s), so several always fall at once.
+ */
+const METEORS: ReadonlyArray<readonly [number, number, number, number, number]> = Array.from(
+  { length: 40 },
+  (_, i) => [20 + ((i * 37) % 92), (i * 23) % 42, 55 + ((i * 29) % 85), 2.1 + ((i * 7) % 10) / 10, (i * 0.29) % 3] as const,
+);
 import { LANGS, LANG_NAMES, getLang, initLang, isLang, setLang, t, type Lang } from './i18n';
 
 export type Screen = 'intro' | 'form' | 'waiting' | 'result' | 'calm';
@@ -245,12 +255,44 @@ export function mountApp(container: HTMLElement, deps: AppDeps = {}): void {
 
   function renderWaiting(): void {
     const root = el('section', undefined, 'screen waiting');
+    // The steppe at night and four golden steps that light up one after another while
+    // the server reads. Decorative only: the status line says the same in words.
+    const scene = el('div', undefined, 'w-scene');
+    scene.setAttribute('aria-hidden', 'true');
+    const picture = (name: ArtName, className: string): HTMLImageElement => {
+      const img = el('img', undefined, className);
+      img.src = artUrl(name);
+      img.alt = '';
+      img.decoding = 'async';
+      return img;
+    };
+    const steps = el('div', undefined, 'w-steps');
+    for (let i = 0; i < 4; i++) {
+      const step = picture('step', 'w-step');
+      step.style.setProperty('--i', String(i));
+      steps.append(step);
+    }
+    steps.append(picture('star', 'w-star'));
+    // An August starfall over the steppe: thin streaks fall from the upper right.
+    const meteors = el('div', undefined, 'w-meteors');
+    for (const [x, y, length, time, delay] of METEORS) {
+      const meteor = el('span', undefined, 'w-meteor');
+      meteor.style.setProperty('--x', `${x}%`);
+      meteor.style.setProperty('--y', `${y}%`);
+      meteor.style.setProperty('--l', `${length}px`);
+      meteor.style.setProperty('--t', `${time}s`);
+      meteor.style.setProperty('--d', `${delay}s`);
+      meteors.append(meteor);
+    }
+    scene.append(picture('steppe-night', 'w-bg'), meteors, steps);
     const status = el('p', t('waiting'), 'waiting-note');
     status.setAttribute('role', 'status');
+    const ornament = el('div', undefined, 'w-ornament');
+    ornament.setAttribute('aria-hidden', 'true');
     const stage = el('div', undefined, 'stage waiting-stage');
     fog = buildFog();
     stage.append(fog.element);
-    root.append(status, stage);
+    root.append(scene, status, ornament, stage);
     container.replaceChildren(root);
     root.setAttribute('tabindex', '-1');
     root.focus();
