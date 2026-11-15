@@ -13,7 +13,7 @@ Fears feel bigger when they are vague. Here a fear gets a name, a face and a nex
 - Live app: https://liaizhan.github.io/haunted-ladder/
 - Demo link, one click to a sample ladder: https://liaizhan.github.io/haunted-ladder/?demo=1
 - Repo: https://github.com/liaizhan/haunted-ladder
-- Demo video (under 3 minutes): YouTube link added before submission
+- Demo video (2:15): https://youtu.be/eXYeqlLO1nw
 
 Free to test, no login, no payment, available at least until 29 January 2027.
 
