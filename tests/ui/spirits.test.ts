@@ -46,7 +46,8 @@ describe('Property 21: The Zheztyrnaq turns into a Peri', () => {
               expect(light.length).toBe(1);
               // Each Zheztyrnaq has its own pose: rise, peek or crawl.
               expect(dark[0]?.getAttribute('href') ?? '').toMatch(/zheztyrnaq-(rise|peek|crawl)\.webp$/);
-              expect(light[0]?.getAttribute('href')).toBe(artUrl('peri'));
+              // Each Peri has her own pose too: star, heart or hand.
+              expect(light[0]?.getAttribute('href') ?? '').toMatch(/peri-(dombra|dance|sit)\.webp$/);
               expect(dark[0]?.getAttribute('opacity')).toBe(written ? '0' : '1');
               expect(light[0]?.getAttribute('opacity')).toBe(written ? '1' : '0');
               expect(root.querySelector('.ghost-check')?.getAttribute('visibility')).toBe(

@@ -541,15 +541,16 @@ function defsFor(ids: Ids): SVGDefsElement {
 /**
  * Each spirit stands at its own fear step, in its own pose: the first two beside the step with the
  * waist at its level (right, then left), the third half lying on its step. `lab` and `labDy` move
- * the number circle off the head when it would cover a step number.
+ * the number circle off the head when it would cover a step number. Each Peri has her own pose too,
+ * facing the viewer; `periH` is her height against the Zheztyrnaq's, her feet stay at the same level.
  */
 const SPIRIT_POSES = [
   // Step 6: right beside her step, her waist at the level of the step.
-  { art: 'zheztyrnaq-rise', ratio: 0.686, h: 1.575, side: 1, lie: false, lab: 0.45, labDy: 0.12 },
+  { art: 'zheztyrnaq-rise', ratio: 0.686, h: 1.575, side: 1, lie: false, lab: 0.45, labDy: 0.12, peri: 'peri-dombra', periRatio: 0.578, periH: 0.85, pdx: 0.45, plab: -0.12, plabDy: 0 },
   // Step 7: left beside her step, her waist at the level of the step.
-  { art: 'zheztyrnaq-peek', ratio: 0.427, h: 1.575, side: -1, lie: false, lab: 0, labDy: 0 },
+  { art: 'zheztyrnaq-peek', ratio: 0.427, h: 1.575, side: -1, lie: false, lab: 0, labDy: 0, peri: 'peri-dance', periRatio: 0.775, periH: 1, pdx: 0, plab: 0, plabDy: 0 },
   // Step 8: half lies on the right part of the top step.
-  { art: 'zheztyrnaq-crawl', ratio: 1.23, h: 1.125, side: 1, lie: true, lab: 0, labDy: 0 },
+  { art: 'zheztyrnaq-crawl', ratio: 1.23, h: 1.125, side: 1, lie: true, lab: 0, labDy: 0, peri: 'peri-sit', periRatio: 0.996, periH: 0.72, pdx: 0, plab: 0, plabDy: 0 },
 ] as const;
 
 function ghostGroup(g: Ghost, index: number, stepIndex: number, number: number, L: Layout, ids: Ids): SVGGElement {
@@ -595,7 +596,10 @@ function ghostGroup(g: Ghost, index: number, stepIndex: number, number: number, 
   body.appendChild(hidden(el('ellipse', { class: 'halo-gold', ...halo, fill: `url(#${ids.haloGold})`, opacity: 0 })));
   const spirit = { x: r1(-spW / 2), y: r1(-spH / 2), width: spW, height: spH };
   body.appendChild(svgArt(pose.art, 'spirit-dark', { ...spirit, opacity: 1 }));
-  body.appendChild(svgArt('peri', 'spirit-light', { ...spirit, opacity: 0 }));
+  const periH = r1(spH * pose.periH);
+  const periW = r1(periH * pose.periRatio);
+  const peri = { x: r1(periW * (pose.pdx - 0.5)), y: r1(spH / 2 - periH), width: periW, height: periH };
+  body.appendChild(svgArt(pose.peri, 'spirit-light', { ...peri, opacity: 0 }));
   body.appendChild(svgArt('spirit-turning', 'spirit-turning', { ...spirit, opacity: 0 }));
   float.appendChild(body);
   root.appendChild(float);
@@ -603,7 +607,24 @@ function ghostGroup(g: Ghost, index: number, stepIndex: number, number: number, 
   // The number of its step stays still over the spirit's head.
   const lx = r1(Math.min(cx + spW * pose.lab, L.vw - PAD - 12));
   const ty = r1(top - 8 + spH * pose.labDy);
-  root.appendChild(hidden(el('circle', { class: 'ghost-num', cx: lx, cy: ty, r: 11, 'stroke-width': 1.5 })));
+  // The Peri is slimmer and has her own head, so her number sits just over her hat
+  // (`plab` and `plabDy` move it beside the hat when it would cover a step number;
+  // `pdx` moves the whole Peri sideways, off the step numbers).
+  const px = r1(Math.min(cx + periW * (pose.pdx + pose.plab), L.vw - PAD - 12));
+  const py = r1(Math.max(cy + spH / 2 - periH - 6 + periH * pose.plabDy, 14));
+  root.appendChild(
+    hidden(
+      el('circle', {
+        class: 'ghost-num',
+        cx: lx,
+        cy: ty,
+        r: 11,
+        'stroke-width': 1.5,
+        'data-dark': `${lx} ${ty}`,
+        'data-light': `${px} ${py}`,
+      }),
+    ),
+  );
   const label = hidden(
     el('text', {
       class: 'ghost-label',
@@ -658,7 +679,18 @@ function applyGhostState(
   root.querySelector('.halo-gold')?.setAttribute('opacity', faded ? '1' : '0');
   root.querySelector('.ghost-check')?.setAttribute('visibility', faded ? 'visible' : 'hidden');
   const style = numStyle(FEAR_STEP, faded);
-  paintNum(root.querySelector('.ghost-num'), root.querySelector('.ghost-label'), style);
+  const num = root.querySelector('.ghost-num');
+  const label = root.querySelector('.ghost-label');
+  // The number moves between the Zheztyrnaq's head and the Peri's hat.
+  const at = num?.getAttribute(faded ? 'data-light' : 'data-dark')?.split(' ').map(Number);
+  if (num && label && at && at.length === 2) {
+    const [x, y] = at as [number, number];
+    num.setAttribute('cx', String(x));
+    num.setAttribute('cy', String(y));
+    label.setAttribute('x', String(x));
+    label.setAttribute('y', String(r1(y + 4.5)));
+  }
+  paintNum(num, label, style);
   if (animate && changed) restartTurn(root);
 
   // Its step lights up: warm carpet, a star, an orange number and a Peri on the card.
