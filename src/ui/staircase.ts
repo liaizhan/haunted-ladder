@@ -758,17 +758,38 @@ export function buildStaircase(
   const clip = el('clipPath', { id: clipId });
   clip.appendChild(el('rect', { x: 0, y: 0, width: L.vw, height: L.sceneH }));
   svg.appendChild(clip);
-  svg.appendChild(
+  // The picture's top and left edges melt into the sky. At dawn the sky turns pink and the
+  // dark steppe goes see-through, so a hard edge would show as a dark box behind the stairs.
+  const bgTop = r1(L.sceneH - bgH + yurtDy);
+  const edgeFade = (id: string, x2: number, y2: number, x1: number, y1: number): SVGMaskElement => {
+    const grad = el('linearGradient', { id: `${id}-g`, gradientUnits: 'userSpaceOnUse', x1, y1, x2, y2 });
+    grad.appendChild(el('stop', { offset: 0, 'stop-color': '#fff', 'stop-opacity': 0 }));
+    grad.appendChild(el('stop', { offset: 1, 'stop-color': '#fff', 'stop-opacity': 1 }));
+    const mask = el('mask', { id, maskUnits: 'userSpaceOnUse', x: 0, y: 0, width: L.vw, height: L.height });
+    mask.appendChild(grad);
+    mask.appendChild(el('rect', { x: 0, y: 0, width: L.vw, height: L.height, fill: `url(#${id}-g)` }));
+    return mask;
+  };
+  const fadeTop = `${ids.skyFade}-top`;
+  const fadeLeft = `${ids.skyFade}-left`;
+  svg.appendChild(edgeFade(fadeTop, 0, r1(bgTop + bgH * 0.28), 0, bgTop));
+  svg.appendChild(edgeFade(fadeLeft, r1(ox + L.vw * 0.22), 0, r1(ox), 0));
+  // The clip sits on the group, not on the flipped picture: inside the flip it cut the
+  // picture's left side off in a hard line.
+  const backdrop = el('g', { mask: `url(#${fadeTop})`, 'clip-path': `url(#${clipId})` });
+  const backdropLeft = el('g', { mask: `url(#${fadeLeft})` });
+  backdropLeft.appendChild(
     svgArt('steppe-night', 'backdrop', {
-      'clip-path': `url(#${clipId})`,
       x: 0,
-      y: r1(L.sceneH - bgH + yurtDy),
+      y: bgTop,
       width: r1(bgW),
       height: r1(bgW * STEPPE_RATIO),
       preserveAspectRatio: 'none',
       transform: `translate(${r1(ox + bgW)} 0) scale(-1 1)`,
     }),
   );
+  backdrop.appendChild(backdropLeft);
+  svg.appendChild(backdrop);
   svg.appendChild(
     hidden(
       el('rect', {
