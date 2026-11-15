@@ -214,12 +214,12 @@ describe('Accessibility: costume polish (task 18.4)', () => {
     expect(ratio(variable('night'), variable('pumpkin'))).toBeGreaterThanOrEqual(4.5);
   });
 
-  it('flicker and float run only under prefers-reduced-motion: no-preference', () => {
+  it('flicker, float, approach and lightning run only under prefers-reduced-motion: no-preference', () => {
     const inside = noPreferenceBlocks(css);
     expect(inside.length).toBeGreaterThan(0);
     let outside = css;
     for (const b of inside) outside = outside.replace(b, '');
-    for (const name of ['intro-flicker', 'intro-float', 'ghost-float']) {
+    for (const name of ['intro-flicker', 'intro-approach', 'intro-lightning', 'ghost-float']) {
       expect(inside.join('\n')).toMatch(new RegExp(`animation(-name)?:\\s*${name}`));
       expect(outside).not.toMatch(new RegExp(`animation(-name)?:\\s*${name}`));
     }

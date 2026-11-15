@@ -14,7 +14,8 @@ function art(name: ArtName, className: string): HTMLImageElement {
 
 /**
  * The night scene of the result page in small: the mirrored steppe with the yurt, the blood moon,
- * golden carpet steps rising toward it, the Zheztyrnaq of fear step 6 beside them, fog.
+ * golden carpet steps rising toward it, fog. The three Zheztyrnaq of fear steps 6, 7 and 8 come off
+ * the stairs toward the viewer, as on the project cover, and a flash of lightning sends them back.
  */
 function buildScene(): HTMLElement {
   const scene = document.createElement('div');
@@ -36,7 +37,12 @@ function buildScene(): HTMLElement {
       steps.append(star);
     }
   }
-  scene.append(steps, art('zheztyrnaq-rise', 'intro-spirit'));
+  scene.append(steps);
+  const spirits: ArtName[] = ['zheztyrnaq-crawl', 'zheztyrnaq-peek', 'zheztyrnaq-rise'];
+  spirits.forEach((name, i) => scene.append(art(name, `intro-spirit intro-spirit-${i + 1}`)));
+  const flash = document.createElement('div');
+  flash.className = 'intro-flash';
+  scene.append(flash);
   const fog = document.createElement('div');
   fog.className = 'intro-fog';
   scene.append(fog);
@@ -68,7 +74,7 @@ function createTitle(): HTMLElement {
 
 /**
  * A taste of calm before the first step: while the "Start" button is hovered, focused or held, the
- * moon turns gold and its beat slows, the Zheztyrnaq sinks into the fog. Letting go brings the night back.
+ * moon turns gold and its beat slows, the three Zheztyrnaq sink into the fog. Letting go brings the night back.
  */
 function previewCalm(root: HTMLElement, button: HTMLButtonElement): void {
   const on = (): void => root.classList.add('preview-calm');

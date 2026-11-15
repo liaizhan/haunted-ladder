@@ -990,13 +990,53 @@ body.calm .legend {
   filter: drop-shadow(0 0 8px rgba(255, 200, 90, 0.9));
 }
 
+/* The three Zheztyrnaq of the cover: the crawling one on the top step, the peeking one beside the
+   stairs, the rising one in front. Each comes toward the viewer from her own spot. */
 .intro-spirit {
   position: absolute;
   z-index: 2;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 0 18px rgba(170, 40, 160, 0.45));
+}
+
+.intro-spirit-1 {
+  width: 30%;
+  right: 16%;
+  top: 10%;
+  --from: 0.85;
+  --to: 1.6;
+  --dx: -10%;
+  --dy: 14%;
+}
+
+.intro-spirit-2 {
+  height: 48%;
+  right: 34%;
+  top: 28%;
+  --from: 0.8;
+  --to: 1.55;
+  --dx: -12%;
+  --dy: 16%;
+}
+
+.intro-spirit-3 {
   height: 62%;
   right: 4%;
   top: 18%;
-  filter: drop-shadow(0 0 18px rgba(170, 40, 160, 0.45));
+  --from: 0.8;
+  --to: 1.4;
+  --dx: -6%;
+  --dy: 12%;
+}
+
+/* Lightning: hides the moment the spirits go back to the stairs */
+.intro-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: #e8e6ff;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .intro-fog {
@@ -1060,7 +1100,17 @@ body.calm .legend {
 
 @media (prefers-reduced-motion: no-preference) {
   .intro-spirit {
-    animation: intro-float 7s ease-in-out infinite;
+    animation: intro-approach 7s cubic-bezier(0.5, 0, 0.9, 0.7) infinite;
+  }
+  .intro-spirit-2,
+  .intro-spirit-3 {
+    animation-timing-function: steps(9, end);
+  }
+  .intro-flash {
+    animation: intro-lightning 7s linear infinite;
+  }
+  .intro.preview-calm .intro-flash {
+    animation: none;
   }
   .intro-fog {
     animation: intro-fog 18s ease-in-out infinite alternate;
@@ -1232,9 +1282,25 @@ body.calm .legend {
   }
 }
 
-@keyframes intro-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+@keyframes intro-approach {
+  0% {
+    transform: translate(0, 0) scale(var(--from));
+    filter: brightness(0.7) drop-shadow(0 0 10px rgba(170, 40, 160, 0.4));
+  }
+  92%,
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(var(--to));
+    filter: brightness(1.05) drop-shadow(0 0 30px rgba(170, 20, 60, 0.75));
+  }
+}
+
+/* Not more than two flashes, close together, once in 7 seconds */
+@keyframes intro-lightning {
+  0% { opacity: 0.5; }
+  4%, 94% { opacity: 0; }
+  96% { opacity: 0.45; }
+  97.5% { opacity: 0.05; }
+  100% { opacity: 0.5; }
 }
 
 @keyframes intro-fog {
@@ -1275,7 +1341,17 @@ body.calm .legend {
     top: 24%;
     bottom: 10%;
   }
-  .intro-spirit {
+  .intro-spirit-1 {
+    width: 24%;
+    right: 20%;
+    top: 4%;
+  }
+  .intro-spirit-2 {
+    height: 50%;
+    right: 31%;
+    top: 22%;
+  }
+  .intro-spirit-3 {
     right: 3%;
     top: 14%;
     height: 72%;
